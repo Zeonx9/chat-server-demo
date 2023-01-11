@@ -4,7 +4,6 @@ import com.ade.chat.entities.Chat;
 import com.ade.chat.entities.Message;
 import com.ade.chat.repositories.ChatRepository;
 import com.ade.chat.entities.User;
-import com.ade.chat.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,12 +15,27 @@ import java.util.Optional;
 public class ChatService {
 
     private final ChatRepository chatRepo;
-    private final UserRepository userRepo;
+    private final UserService userService;
 
     @Autowired
-    public ChatService(ChatRepository chatRepo, UserRepository userRepo) {
+    public ChatService(ChatRepository chatRepo, UserService userService) {
         this.chatRepo = chatRepo;
-        this.userRepo = userRepo;
+        this.userService = userService;
+    }
+
+    public Chat getChatByIdOrException(Long id) {
+        Optional<Chat> chatOptional = chatRepo.findById(id);
+        if (chatOptional.isEmpty()) {
+            throw new IllegalStateException("No chat with such id: " + id);
+        }
+        return chatOptional.get();
+    }
+
+    public Optional<Chat> getPrivateChatByMembers(List<Long> ids) {
+        if (ids.size() != 2)
+            throw new IllegalStateException("Private chat is only between 2 users, " +
+                    "the method should not be used to search public chats");
+        return chatRepo.findPrivateByMembers(ids);
     }
 
     public void createChat(List<Long> ids, Boolean isPrivate) {
@@ -37,22 +51,15 @@ public class ChatService {
             }
         }
 
-        Chat chat = new Chat(isPrivate, new HashSet<User>());
+        Chat chat = new Chat(isPrivate, new HashSet<>());
         for (var id : ids) {
-            Optional<User> member = userRepo.findById(id);
-            if (member.isEmpty()) {
-                throw new IllegalStateException("Cannot add to the chat, no such user");
-            }
-            chat.getMembers().add(member.get());
+            User member = userService.getUserByIdOrException(id);
+            chat.getMembers().add(member);
         }
         chatRepo.save(chat);
     }
 
     public List<Message> getMessages(Long chatId) {
-        Optional<Chat> chat = chatRepo.findById(chatId);
-        if (chat.isEmpty()) {
-            throw new IllegalStateException("No such chat with id: " + chatId);
-        }
-        return chat.get().getMessages();
+        return getChatByIdOrException(chatId).getMessages();
     }
 }

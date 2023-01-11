@@ -22,4 +22,11 @@ public class MessageController {
                             @RequestBody Message msg) {
         messageService.sendMessage(userId, chatId, msg);
     }
+
+    @PostMapping("/users/{fromUserId}/message/users/{toUserId}")
+    public void sendPrivateMessage(@PathVariable Long fromUserId,
+                                   @PathVariable Long toUserId,
+                                   @RequestBody Message msg) {
+        messageService.sendPrivateMessage(fromUserId, toUserId, msg);
+    }
 }

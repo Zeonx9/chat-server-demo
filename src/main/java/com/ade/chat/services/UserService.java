@@ -23,21 +23,24 @@ public class UserService {
         return userRepo.findAll();
     }
 
+    public User getUserByIdOrException(Long id) {
+        Optional<User> userOptional = userRepo.findById(id);
+        if (userOptional.isEmpty()) {
+            throw new IllegalStateException("No user with given id");
+        }
+        return userOptional.get();
+    }
+
     public void createUser(User newUser) {
         Optional<User> userByName = userRepo.findByName(newUser.getName());
         if (userByName.isPresent()) {
             throw new IllegalStateException("This name has been already taken");
         }
-
         userRepo.save(newUser);
     }
 
     public List<Chat> getUserChats(Long id) {
-        Optional<User> userOptional = userRepo.findById(id);
-        if (userOptional.isEmpty()) {
-            throw new IllegalStateException("No user with such id:" + id);
-        }
-        return List.copyOf(userOptional.get().getChats());
+        return List.copyOf(getUserByIdOrException(id).getChats());
     }
 
     public User getUserByNameOrCreate(String name) {

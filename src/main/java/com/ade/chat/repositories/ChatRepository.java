@@ -1,7 +1,6 @@
 package com.ade.chat.repositories;
 
 import com.ade.chat.entities.Chat;
-import com.ade.chat.entities.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
