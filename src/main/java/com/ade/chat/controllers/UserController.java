@@ -24,6 +24,11 @@ public class UserController {
         return userService.getUsers();
     }
 
+    @GetMapping("/user")
+    public User getUserByNameOrCreate(@RequestParam String name) {
+        return userService.getUserByNameOrCreate(name);
+    }
+
     @GetMapping("/users/{id}/chats")
     public List<Chat> getUserChats(@PathVariable Long id) {
         return userService.getUserChats(id);

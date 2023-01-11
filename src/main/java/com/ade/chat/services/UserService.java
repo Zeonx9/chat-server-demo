@@ -39,4 +39,14 @@ public class UserService {
         }
         return List.copyOf(userOptional.get().getChats());
     }
+
+    public User getUserByNameOrCreate(String name) {
+        Optional<User> userOptional = userRepo.findByName(name);
+        if (userOptional.isEmpty()) {
+            User newUser = new User(name);
+            userRepo.save(newUser);
+            return newUser;
+        }
+        return userOptional.get();
+    }
 }
