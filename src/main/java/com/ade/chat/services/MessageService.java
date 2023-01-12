@@ -28,6 +28,7 @@ public class MessageService {
     public void sendMessage(Long userId, Long chatId, Message msg) {
         User user = userService.getUserByIdOrException(userId);
         Chat chat = chatService.getChatByIdOrException(chatId);
+
         if (!chat.getMembers().contains(user)) {
             throw new IllegalStateException("This user is not a member of a chat");
         }
@@ -40,13 +41,13 @@ public class MessageService {
 
     public void sendPrivateMessage(Long fromUserId, Long toUserId, Message msg) {
         List<Long> ids = List.of(fromUserId, toUserId);
-        Optional<Chat> privateChat = chatService.getPrivateChatByMembers(ids);
-        if (privateChat.isEmpty()) {
-            chatService.createChat(ids, true);
-            privateChat = chatService.getPrivateChatByMembers(ids);
-            if (privateChat.isEmpty())
-                throw new RuntimeException("Cannot found the chat that has been created");
+        Optional<Chat> privateChat = chatService.getPrivateChatByMemberIds(ids);
+
+        if (privateChat.isPresent()) {
+            sendMessage(fromUserId, privateChat.get().getId(), msg);
+        } else {
+            var chat =  chatService.createChat(ids, true);
+            sendMessage(fromUserId, chat.getId(), msg);
         }
-        sendMessage(fromUserId, privateChat.get().getId(), msg);
     }
 }

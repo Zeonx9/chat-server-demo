@@ -24,11 +24,8 @@ public class UserService {
     }
 
     public User getUserByIdOrException(Long id) {
-        Optional<User> userOptional = userRepo.findById(id);
-        if (userOptional.isEmpty()) {
-            throw new IllegalStateException("No user with given id");
-        }
-        return userOptional.get();
+        return userRepo.findById(id)
+                .orElseThrow(() -> new IllegalStateException("No user with given id"));
     }
 
     public void createUser(User newUser) {

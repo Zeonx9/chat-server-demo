@@ -13,6 +13,6 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
             "select c from chat c where c.isPrivate=true and " +
             "not exists (select 1 from c.members m where m.id not in ?1)"
     )
-    Optional<Chat> findPrivateByMembers(List<Long> ids);
+    Optional<Chat> findPrivateByMemberIds(List<Long> ids);
 
 }
