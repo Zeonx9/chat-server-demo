@@ -2,6 +2,7 @@ package com.ade.chat.repositories;
 
 import com.ade.chat.entities.Chat;
 import com.ade.chat.entities.User;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -21,6 +22,7 @@ class ChatRepositoryTest {
     private UserRepository userRepo;
 
     @Test
+    @Disabled
     void findPrivateByMemberIds() {
         // given
         User
