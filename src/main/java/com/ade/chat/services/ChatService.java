@@ -29,10 +29,7 @@ public class ChatService {
 
     public Optional<Chat> getPrivateChatByMemberIds(List<Long> ids) {
         if (ids.size() != 2)
-            throw new IllegalStateException(
-                    "Private chat is only between 2 users, " +
-                    "the method should not be used to search public chats"
-            );
+            throw new IllegalStateException("private chat is only for 2 users, not for " + ids.size());
         return chatRepo.findPrivateByMemberIds(ids);
     }
 
