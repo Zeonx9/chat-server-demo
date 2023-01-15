@@ -19,20 +19,20 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
-    public List<User> getUsers() {
+    public List<User> getAllUsers() {
         return userRepo.findAll();
     }
 
     public User getUserByIdOrException(Long id) {
         return userRepo.findById(id)
-                .orElseThrow(() -> new IllegalStateException("No user with given id"));
+                .orElseThrow(() -> new IllegalStateException("No user with given id:" + id));
     }
 
     public void createUser(User newUser) {
-        Optional<User> userByName = userRepo.findByName(newUser.getName());
-        if (userByName.isPresent()) {
-            throw new IllegalStateException("This name has been already taken");
-        }
+        Boolean hasSuchUser = userRepo.hasUserWithName(newUser.getName());
+        if (hasSuchUser)
+            throw new RuntimeException("Name:" + newUser.getName() + " is taken already");
+
         userRepo.save(newUser);
     }
 
@@ -42,11 +42,11 @@ public class UserService {
 
     public User getUserByNameOrCreate(String name) {
         Optional<User> userOptional = userRepo.findByName(name);
-        if (userOptional.isEmpty()) {
-            User newUser = new User(name);
-            userRepo.save(newUser);
-            return newUser;
-        }
-        return userOptional.get();
+        if (userOptional.isPresent())
+            return userOptional.get();
+
+        User newUser = new User(name);
+        userRepo.save(newUser);
+        return newUser;
     }
 }

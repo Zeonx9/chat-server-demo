@@ -25,29 +25,36 @@ public class MessageService {
         this.userService = userService;
     }
 
-    public void sendMessage(Long userId, Long chatId, Message msg) {
-        User user = userService.getUserByIdOrException(userId);
-        Chat chat = chatService.getChatByIdOrException(chatId);
-
-        if (!chat.getMembers().contains(user)) {
-            throw new IllegalStateException("This user is not a member of a chat");
-        }
-
+    private void sendToChatFromUser(User user, Chat chat, Message msg) {
         msg.setAuthor(user);
         msg.setChat(chat);
         msg.setDateTime(LocalDateTime.now());
         messageRepo.save(msg);
     }
 
+    public void sendMessage(Long userId, Long chatId, Message msg) {
+        User user = userService.getUserByIdOrException(userId);
+        Chat chat = chatService.getChatByIdOrException(chatId);
+
+        if (!chat.getMembers().contains(user)) {
+            throw new IllegalStateException(
+                    "This user: " + userId + " is not a member of a chat: " + chatId
+            );
+        }
+        sendToChatFromUser(user, chat, msg);
+    }
+
     public void sendPrivateMessage(Long fromUserId, Long toUserId, Message msg) {
         List<Long> ids = List.of(fromUserId, toUserId);
-        Optional<Chat> privateChat = chatService.getPrivateChatByMemberIds(ids);
+        User fromUser = userService.getUserByIdOrException(fromUserId);
 
+        Optional<Chat> privateChat = chatService.getPrivateChatByMemberIds(ids);
         if (privateChat.isPresent()) {
-            sendMessage(fromUserId, privateChat.get().getId(), msg);
-        } else {
-            var chat =  chatService.createChat(ids, true);
-            sendMessage(fromUserId, chat.getId(), msg);
+            sendToChatFromUser(fromUser, privateChat.get(), msg);
+            return;
         }
+
+        var chat =  chatService.createChat(ids, true);
+        sendToChatFromUser(fromUser, chat, msg);
     }
 }
