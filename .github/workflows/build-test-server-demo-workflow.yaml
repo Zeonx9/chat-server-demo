@@ -2,7 +2,7 @@ name: server ci pipeline
 
 on:
   push:
-    branches: ['master', 'cover-with-tests']
+    branches: ['master']
   pull_request:
     branches: ['master']
 
