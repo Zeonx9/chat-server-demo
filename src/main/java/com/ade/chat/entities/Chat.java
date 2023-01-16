@@ -25,13 +25,19 @@ public class Chat {
     @Column(name = "is_private")
     private Boolean isPrivate;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+
+    @ManyToMany(
+            fetch = FetchType.EAGER,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.REFRESH,
+                    CascadeType.DETACH
+            }
+    )
     @JoinTable(
             name = "chat_members",
             joinColumns = @JoinColumn(name = "chat_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"),
-            foreignKey = @ForeignKey(name = "chat_id_fk"),
-            inverseForeignKey = @ForeignKey(name = "user_id_fk")
+            inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> members = new HashSet<>();
 

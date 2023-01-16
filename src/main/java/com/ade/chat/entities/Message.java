@@ -34,17 +34,19 @@ public class Message {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
             name = "user_id",
-            referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "author_id_fk")
+            referencedColumnName = "id"
     )
     private User author;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
             name = "chat_id",
-            referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "chat_id_fk")
+            referencedColumnName = "id"
     )
     @JsonIgnore
     private Chat chat;
+
+    public Message(String text) {
+        this.text = text;
+    }
 }
