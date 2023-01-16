@@ -45,4 +45,8 @@ public class Message {
     )
     @JsonIgnore
     private Chat chat;
+
+    public Message(String text) {
+        this.text = text;
+    }
 }
