@@ -2,7 +2,7 @@ package com.ade.chat.repositories;
 
 import com.ade.chat.entities.Chat;
 import com.ade.chat.entities.User;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -21,8 +21,13 @@ class ChatRepositoryTest {
     @Autowired
     private UserRepository userRepo;
 
+    @AfterEach
+    void tearDown() {
+        underTest.deleteAll();
+        userRepo.deleteAll();
+    }
+
     @Test
-    @Disabled
     void findPrivateByMemberIds() {
         // given
         User
@@ -41,5 +46,7 @@ class ChatRepositoryTest {
         // then
         assertThat(foundPrivateChat).isPresent();
         assertThat(foundPrivateChat.get()).isEqualTo(privateChat);
+
+
     }
 }
