@@ -25,8 +25,9 @@ public class Chat {
     @Column(name = "is_private")
     private Boolean isPrivate;
 
+
     @ManyToMany(
-            fetch = FetchType.LAZY,
+            fetch = FetchType.EAGER,
             cascade = {
                     CascadeType.PERSIST,
                     CascadeType.REFRESH,
