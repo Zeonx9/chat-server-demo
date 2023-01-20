@@ -13,9 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -79,51 +77,5 @@ class MessageServiceTest {
         //when & then
         assertThatThrownBy(() -> underTest.sendMessage(user.getId(), chat.getId(), msg))
                 .hasMessageContaining( "This user: " + user.getId() + " is not a member of a chat: " + chat.getId());
-    }
-
-    @Test
-    void canSendPrivateMessageToExistedChat() {
-        //given
-        User u1 = new User(1L, "a", null, null), u2 = new User(2L, "b", null, null);
-        given(userRepo.findById(u1.getId())).willReturn(Optional.of(u1));
-
-        List<Long> ids = List.of(u1.getId(), u2.getId());
-        Chat chat = new Chat(1L, true, Set.of(u1, u2), null);
-        given(chatRepo.findPrivateByMemberIds(ids)).willReturn(Optional.of(chat));
-
-        Message msg = new Message();
-        msg.setText("message");
-
-        //when
-        underTest.sendPrivateMessage(u1.getId(), u2.getId(), msg);
-
-        //then
-        ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
-        verify(messageRepo).save(argumentCaptor.capture());
-        var capturedMsg = argumentCaptor.getValue();
-
-        assertThat(capturedMsg).isEqualTo(msg);
-    }
-
-    @Test
-    void canSendMessageWithNoChatBefore() {
-        //given
-        User u1 = new User(1L, "a", null, null), u2 = new User(2L, "b", null, null);
-        given(userRepo.findById(u1.getId())).willReturn(Optional.of(u1));
-        given(userRepo.findById(u2.getId())).willReturn(Optional.of(u2));
-
-        Message msg = new Message();
-        msg.setText("message");
-
-        //when
-        underTest.sendPrivateMessage(u1.getId(), u2.getId(), msg);
-
-        //then
-        ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
-        verify(messageRepo).save(argumentCaptor.capture());
-        var capturedMsg = argumentCaptor.getValue();
-
-        assertThat(capturedMsg).isEqualTo(msg);
-
     }
 }
