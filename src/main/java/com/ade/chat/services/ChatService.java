@@ -24,6 +24,7 @@ public class ChatService {
         this.userService = userService;
     }
 
+
     public Chat getChatByIdOrException(Long id) {
         return chatRepo.findById(id)
                 .orElseThrow(() -> new IllegalStateException("No chat with such id: " + id));

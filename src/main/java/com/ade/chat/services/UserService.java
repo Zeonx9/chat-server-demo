@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 
+/**
+ * Сервис обрабатывающий запросы связанные с пользователями
+ */
 @Service
 public class UserService {
 
@@ -20,15 +23,28 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
-    public List<User> getAllUsers() {
-        return userRepo.findAll();
-    }
-
+    /**
+     * @param id идентификатор запрашиваемого пользователя
+     * @return одного пользователя по его идентификатору
+     * @throws IllegalStateException если пользователя с таким идентификатором нет
+     */
     public User getUserByIdOrException(Long id) {
         return userRepo.findById(id)
                 .orElseThrow(() -> new IllegalStateException("No user with given id:" + id));
     }
 
+    /**
+     * @return список всех достпупных пользователей
+     */
+    public List<User> getAllUsers() {
+        return userRepo.findAll();
+    }
+
+    /**
+     * сохраняет нового пользователя в базу данных
+     * @param newUser новый пользователь, которого мы сохраним
+     * @throws IllegalStateException если логин пользователя(имя) уже занято
+     */
     public void createUser(User newUser) {
         Boolean hasSuchUser = userRepo.existsByName(newUser.getName());
         if (hasSuchUser)
@@ -37,10 +53,11 @@ public class UserService {
         userRepo.save(newUser);
     }
 
-    public List<Chat> getUserChats(Long id) {
-        return List.copyOf(getUserByIdOrException(id).getChats());
-    }
-
+    /**
+     * возвращает пользователя по его логину или создает нового, если имя не занято
+     * @param name логин пользоваетля
+     * @return созданного или полученного пользователя
+     */
     public User getUserByNameOrCreate(String name) {
         Optional<User> userOptional = userRepo.findByName(name);
         if (userOptional.isPresent())
@@ -49,5 +66,14 @@ public class UserService {
         User newUser = new User(name);
         userRepo.save(newUser);
         return newUser;
+    }
+
+    /**
+     * @param id логин пользоваетля
+     * @return список чатов, в которых состоит пользователь с указаннным идентификатором
+     * @throws IllegalStateException если не существует пользовваетля с указанным айди
+     */
+    public List<Chat> getUserChats(Long id) {
+        return List.copyOf(getUserByIdOrException(id).getChats());
     }
 }
