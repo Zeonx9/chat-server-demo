@@ -41,6 +41,11 @@ public class Chat {
     )
     private Set<User> members = new HashSet<>();
 
+    public void addMember(User user) {
+        this.members.add(user);
+        user.getChats().add(this);
+    }
+
     @OneToMany(mappedBy = "chat")
     @JsonIgnore
     private List<Message> messages;
