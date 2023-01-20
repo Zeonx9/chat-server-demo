@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+
 @Service
 public class UserService {
 
@@ -29,9 +30,9 @@ public class UserService {
     }
 
     public void createUser(User newUser) {
-        Boolean hasSuchUser = userRepo.hasUserWithName(newUser.getName());
+        Boolean hasSuchUser = userRepo.existsByName(newUser.getName());
         if (hasSuchUser)
-            throw new RuntimeException("Name:" + newUser.getName() + " is taken already");
+            throw new IllegalStateException("Name:" + newUser.getName() + " is taken already");
 
         userRepo.save(newUser);
     }

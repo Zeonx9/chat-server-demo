@@ -48,7 +48,7 @@ public class MessageService {
         List<Long> ids = List.of(fromUserId, toUserId);
         User fromUser = userService.getUserByIdOrException(fromUserId);
 
-        Optional<Chat> privateChat = chatService.getPrivateChatByMemberIds(ids);
+        Optional<Chat> privateChat = chatService.privateChatBetweenUsersWithIdsExists(ids);
         if (privateChat.isPresent()) {
             sendToChatFromUser(fromUser, privateChat.get(), msg);
             return;
