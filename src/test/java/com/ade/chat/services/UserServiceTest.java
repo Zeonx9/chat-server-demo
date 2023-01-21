@@ -87,7 +87,7 @@ class UserServiceTest {
     void exceptionIsThrownWhenCreateStudentThatExists() {
         // given
         User user = new User("Artem");
-        given(userRepository.hasUserWithName(user.getName()))
+        given(userRepository.existsByName(user.getName()))
                 .willReturn(true);
 
         // when & then

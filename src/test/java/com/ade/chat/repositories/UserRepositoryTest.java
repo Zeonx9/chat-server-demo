@@ -45,7 +45,7 @@ class UserRepositoryTest {
         underTest.save(user);
 
         //when
-        Boolean result = underTest.hasUserWithName(user.getName());
+        Boolean result = underTest.existsByName(user.getName());
 
         //then
         assertThat(result).isTrue();
@@ -57,7 +57,7 @@ class UserRepositoryTest {
         User user = new User("Artem");
 
         //when
-        Boolean result = underTest.hasUserWithName(user.getName());
+        Boolean result = underTest.existsByName(user.getName());
 
         //then
         assertThat(result).isFalse();

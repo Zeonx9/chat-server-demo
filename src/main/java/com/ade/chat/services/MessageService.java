@@ -25,6 +25,12 @@ public class MessageService {
         this.userService = userService;
     }
 
+    /**
+     * сохраняет сообщение отправленное пользователем в чат
+     * @param user отправитель сообщения
+     * @param chat чат, в который сообщение было отправлено
+     * @param msg само сообщение
+     */
     private void sendToChatFromUser(User user, Chat chat, Message msg) {
         msg.setAuthor(user);
         msg.setChat(chat);
@@ -32,6 +38,12 @@ public class MessageService {
         messageRepo.save(msg);
     }
 
+    /**
+     * сохраняет сообщение отправленное пользователем в чат
+     * @param userId идентификатор отправителя сообщения
+     * @param chatId идентификатор чата, в который сообщение было отправлено
+     * @param msg само сообщение
+     */
     public void sendMessage(Long userId, Long chatId, Message msg) {
         User user = userService.getUserByIdOrException(userId);
         Chat chat = chatService.getChatByIdOrException(chatId);
@@ -44,17 +56,23 @@ public class MessageService {
         sendToChatFromUser(user, chat, msg);
     }
 
+    /**
+     * сохраняет личное сообщение от одного пользователя другому, если между ними не было диалога - он созадется
+     * @param fromUserId идентификатор отправителя сообщения
+     * @param toUserId идентификатор получателя сообщения
+     * @param msg само сообщение
+     */
     public void sendPrivateMessage(Long fromUserId, Long toUserId, Message msg) {
-        List<Long> ids = List.of(fromUserId, toUserId);
         User fromUser = userService.getUserByIdOrException(fromUserId);
+        User toUser = userService.getUserByIdOrException(toUserId);
 
-        Optional<Chat> privateChat = chatService.getPrivateChatByMemberIds(ids);
+        Optional<Chat> privateChat = chatService.privateChatBetweenUsers(fromUser, toUser);
         if (privateChat.isPresent()) {
             sendToChatFromUser(fromUser, privateChat.get(), msg);
             return;
         }
 
-        var chat =  chatService.createChat(ids, true);
+        var chat =  chatService.createChat(List.of(fromUserId, toUserId), true);
         sendToChatFromUser(fromUser, chat, msg);
     }
 }

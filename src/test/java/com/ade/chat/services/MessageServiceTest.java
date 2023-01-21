@@ -13,12 +13,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -82,48 +82,40 @@ class MessageServiceTest {
     }
 
     @Test
-    void canSendPrivateMessageToExistedChat() {
+    void sendPrivateMessageToExisting() {
         //given
-        User u1 = new User(1L, "a", null, null), u2 = new User(2L, "b", null, null);
-        given(userRepo.findById(u1.getId())).willReturn(Optional.of(u1));
-
-        List<Long> ids = List.of(u1.getId(), u2.getId());
+        User u1 = new User(1L, null, null, null),
+             u2 = new User(2L, null, null, null);
         Chat chat = new Chat(1L, true, Set.of(u1, u2), null);
-        given(chatRepo.findPrivateByMemberIds(ids)).willReturn(Optional.of(chat));
+        u1.setChats(Set.of(chat));
+        u2.setChats(Set.of(chat));
 
-        Message msg = new Message();
-        msg.setText("message");
+        given(userRepo.findById(u1.getId())).willReturn(Optional.of(u1));
+        given(userRepo.findById(u2.getId())).willReturn(Optional.of(u2));
+        Message msg = new Message("text");
 
         //when
         underTest.sendPrivateMessage(u1.getId(), u2.getId(), msg);
 
         //then
-        ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
-        verify(messageRepo).save(argumentCaptor.capture());
-        var capturedMsg = argumentCaptor.getValue();
-
-        assertThat(capturedMsg).isEqualTo(msg);
+        verify(messageRepo).save(msg);
     }
 
     @Test
-    void canSendMessageWithNoChatBefore() {
+    void sendPrivateMessageWithoutChat() {
         //given
-        User u1 = new User(1L, "a", null, null), u2 = new User(2L, "b", null, null);
+        User u1 = new User(1L, null, null, Set.of()),
+                u2 = new User(2L, null, null, Set.of());
+
         given(userRepo.findById(u1.getId())).willReturn(Optional.of(u1));
         given(userRepo.findById(u2.getId())).willReturn(Optional.of(u2));
-
-        Message msg = new Message();
-        msg.setText("message");
+        Message msg = new Message("text");
 
         //when
         underTest.sendPrivateMessage(u1.getId(), u2.getId(), msg);
 
         //then
-        ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
-        verify(messageRepo).save(argumentCaptor.capture());
-        var capturedMsg = argumentCaptor.getValue();
-
-        assertThat(capturedMsg).isEqualTo(msg);
-
+        verify(chatRepo).save(any());
+        verify(messageRepo).save(msg);
     }
 }

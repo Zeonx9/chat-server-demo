@@ -8,17 +8,16 @@ import com.ade.chat.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class ChatServiceTest {
@@ -57,51 +56,6 @@ class ChatServiceTest {
     }
 
     @Test
-    void canFindPrivateChatByIdList() {
-        // given
-        List<Long> ids = List.of(1L, 2L, 3L);
-
-        // when & then
-        assertThatThrownBy(() -> underTest.getPrivateChatByMemberIds(ids))
-                .hasMessageContaining("private chat is only for 2 users, not for " + ids.size());
-    }
-
-    @Test
-    void canCreateNewChat() {
-        //given
-        Boolean isPrivate = false;
-        List<Long> ids = List.of(1L);
-        ids.forEach((id) ->
-                given(userRepo.findById(id)).willReturn(Optional.of(new User()))
-        );
-
-
-        //when
-        var chat = underTest.createChat(ids, isPrivate);
-
-        // then
-        ArgumentCaptor<Chat> captor = ArgumentCaptor.forClass(Chat.class);
-        verify(chatRepo).save(captor.capture());
-        var capturedChat = captor.getValue();
-
-        assertThat(capturedChat).isEqualTo(chat);
-    }
-
-    @Test
-    void throwExceptionWhenChatAlreadyExists() {
-        //given
-        Boolean isPrivate = true;
-        Chat chat = new Chat();
-        List<Long> ids = List.of(1L, 2L);
-        given(chatRepo.findPrivateByMemberIds(ids))
-                .willReturn(Optional.of(chat));
-
-        //when & then
-        assertThatThrownBy(() -> underTest.createChat(ids, isPrivate))
-                .hasMessageContaining("This chat already exists");
-    }
-
-    @Test
     void canGetMessages() {
         //given
         Chat chat = new Chat();
@@ -113,5 +67,66 @@ class ChatServiceTest {
 
         //then
         assertThat(messages).isEqualTo(chat.getMessages());
+    }
+
+    @Test
+    void canFindCommonChat() {
+        //given
+        User u1 = new User(1L, null, null, null),
+             u2 = new User(2L, null, null, null);
+        Chat chat = new Chat(1L, true, Set.of(u1, u2), null);
+        u1.setChats(Set.of(chat));
+        u2.setChats(Set.of(chat));
+
+        given(userRepo.findById(u1.getId())).willReturn(Optional.of(u1));
+        given(userRepo.findById(u2.getId())).willReturn(Optional.of(u2));
+
+        // when
+        Optional<Chat> commonChat =
+                underTest.privateChatBetweenUsersWithIds(List.of(u1.getId(), u2.getId()));
+
+        // then
+        assertThat(commonChat).isPresent();
+        assertThat(commonChat.get()).isEqualTo(chat);
+    }
+
+    @Test
+    void noCommonChatNotFound() {
+        //given
+        User u1 = new User(1L, null, null, Set.of()),
+                u2 = new User(2L, null, null, Set.of());
+
+        given(userRepo.findById(u1.getId())).willReturn(Optional.of(u1));
+        given(userRepo.findById(u2.getId())).willReturn(Optional.of(u2));
+
+        // when
+        Optional<Chat> commonChat =
+                underTest.privateChatBetweenUsersWithIds(List.of(u1.getId(), u2.getId()));
+
+        // then
+        assertThat(commonChat).isEmpty();
+    }
+
+    @Test
+    void exceptionWhenMoreNot2Ids() {
+        User u1 = new User(1L, null, null, null),
+                u2 = new User(2L, null, null, null);
+        Chat chat = new Chat(1L, true, Set.of(u1, u2), null);
+        u1.setChats(Set.of(chat));
+        u2.setChats(Set.of(chat));
+        given(userRepo.findById(u1.getId())).willReturn(Optional.of(u1));
+        given(userRepo.findById(u2.getId())).willReturn(Optional.of(u2));
+        //when & then
+        assertThatThrownBy(() -> underTest.createChat(List.of(u1.getId(), u2.getId()), true))
+                .hasMessageContaining("This chat already exists");
+
+    }
+
+    @Test
+    void canCreateChat() {
+        //when & then
+        assertThatThrownBy(() -> underTest.createChat(List.of(), true))
+                .hasMessageContaining("size of id list for private chat must equals 2");
+
     }
 }
