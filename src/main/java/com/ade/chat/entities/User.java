@@ -36,11 +36,6 @@ public class User {
     @JsonIgnore
     private Set<Chat> chats;
 
-    public void addChat(Chat chat) {
-        this.chats.add(chat);
-        chat.getMembers().add(this);
-    }
-
     public User(String name) {
         this.name = name;
     }
