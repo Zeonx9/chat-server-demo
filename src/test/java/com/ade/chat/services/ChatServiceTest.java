@@ -4,7 +4,6 @@ import com.ade.chat.entities.Chat;
 import com.ade.chat.entities.Message;
 import com.ade.chat.entities.User;
 import com.ade.chat.repositories.ChatRepository;
-import com.ade.chat.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,12 +22,12 @@ import static org.mockito.BDDMockito.given;
 class ChatServiceTest {
 
     @Mock private ChatRepository chatRepo;
-    @Mock private UserRepository userRepo;
+    @Mock private UserService userService;
     private ChatService underTest;
 
     @BeforeEach
     void setUp() {
-        underTest = new ChatService(chatRepo,  new UserService(userRepo));
+        underTest = new ChatService(chatRepo, userService);
     }
 
     @Test
@@ -78,8 +77,8 @@ class ChatServiceTest {
         u1.setChats(Set.of(chat));
         u2.setChats(Set.of(chat));
 
-        given(userRepo.findById(u1.getId())).willReturn(Optional.of(u1));
-        given(userRepo.findById(u2.getId())).willReturn(Optional.of(u2));
+        given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
+        given(userService.getUserByIdOrException(u2.getId())).willReturn(u2);
 
         // when
         Optional<Chat> commonChat =
@@ -96,8 +95,8 @@ class ChatServiceTest {
         User u1 = new User(1L, null, null, Set.of()),
                 u2 = new User(2L, null, null, Set.of());
 
-        given(userRepo.findById(u1.getId())).willReturn(Optional.of(u1));
-        given(userRepo.findById(u2.getId())).willReturn(Optional.of(u2));
+        given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
+        given(userService.getUserByIdOrException(u2.getId())).willReturn(u2);
 
         // when
         Optional<Chat> commonChat =
@@ -114,8 +113,8 @@ class ChatServiceTest {
         Chat chat = new Chat(1L, true, Set.of(u1, u2), null);
         u1.setChats(Set.of(chat));
         u2.setChats(Set.of(chat));
-        given(userRepo.findById(u1.getId())).willReturn(Optional.of(u1));
-        given(userRepo.findById(u2.getId())).willReturn(Optional.of(u2));
+        given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
+        given(userService.getUserByIdOrException(u2.getId())).willReturn(u2);
         //when & then
         assertThatThrownBy(() -> underTest.createChat(List.of(u1.getId(), u2.getId()), true))
                 .hasMessageContaining("This chat already exists");
@@ -123,7 +122,7 @@ class ChatServiceTest {
     }
 
     @Test
-    void canCreateChat() {
+    void exceptionWhenCreatePrivateWithWrongNumberOfUsers() {
         //when & then
         assertThatThrownBy(() -> underTest.createChat(List.of(), true))
                 .hasMessageContaining("size of id list for private chat must equals 2");

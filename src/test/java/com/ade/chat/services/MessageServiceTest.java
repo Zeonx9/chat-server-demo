@@ -3,9 +3,7 @@ package com.ade.chat.services;
 import com.ade.chat.entities.Chat;
 import com.ade.chat.entities.Message;
 import com.ade.chat.entities.User;
-import com.ade.chat.repositories.ChatRepository;
 import com.ade.chat.repositories.MessageRepository;
-import com.ade.chat.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,12 +11,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -26,14 +24,12 @@ import static org.mockito.Mockito.verify;
 class MessageServiceTest {
 
     @Mock private MessageRepository messageRepo;
-    @Mock private UserRepository userRepo;
-    @Mock private ChatRepository chatRepo;
+    @Mock private UserService userService;
+    @Mock private ChatService chatService;
     private MessageService underTest;
 
     @BeforeEach
     void setUp() {
-        var userService = new UserService(userRepo);
-        var chatService = new ChatService(chatRepo, userService);
         underTest = new MessageService(
                 messageRepo,
                 chatService,
@@ -51,8 +47,8 @@ class MessageServiceTest {
 
         chat.getMembers().add(user);
 
-        given(userRepo.findById(user.getId())).willReturn(Optional.of(user));
-        given(chatRepo.findById(chat.getId())).willReturn(Optional.of(chat));
+        given(userService.getUserByIdOrException(user.getId())).willReturn(user);
+        given(chatService.getChatByIdOrException(chat.getId())).willReturn(chat);
 
         // when
         underTest.sendMessage(user.getId(), chat.getId(), msg);
@@ -73,8 +69,8 @@ class MessageServiceTest {
         Message msg = new Message();
         msg.setText("message");
 
-        given(userRepo.findById(user.getId())).willReturn(Optional.of(user));
-        given(chatRepo.findById(chat.getId())).willReturn(Optional.of(chat));
+        given(userService.getUserByIdOrException(user.getId())).willReturn(user);
+        given(chatService.getChatByIdOrException(chat.getId())).willReturn(chat);
 
         //when & then
         assertThatThrownBy(() -> underTest.sendMessage(user.getId(), chat.getId(), msg))
@@ -86,12 +82,11 @@ class MessageServiceTest {
         //given
         User u1 = new User(1L, null, null, null),
              u2 = new User(2L, null, null, null);
-        Chat chat = new Chat(1L, true, Set.of(u1, u2), null);
-        u1.setChats(Set.of(chat));
-        u2.setChats(Set.of(chat));
+        Chat chat = new Chat();
 
-        given(userRepo.findById(u1.getId())).willReturn(Optional.of(u1));
-        given(userRepo.findById(u2.getId())).willReturn(Optional.of(u2));
+        given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
+        given(userService.getUserByIdOrException(u2.getId())).willReturn(u2);
+        given(chatService.privateChatBetweenUsers(u1, u2)).willReturn(Optional.of(chat));
         Message msg = new Message("text");
 
         //when
@@ -106,16 +101,18 @@ class MessageServiceTest {
         //given
         User u1 = new User(1L, null, null, Set.of()),
                 u2 = new User(2L, null, null, Set.of());
+        Chat chat = new Chat();
 
-        given(userRepo.findById(u1.getId())).willReturn(Optional.of(u1));
-        given(userRepo.findById(u2.getId())).willReturn(Optional.of(u2));
+        given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
+        given(userService.getUserByIdOrException(u2.getId())).willReturn(u2);
+        given(chatService.privateChatBetweenUsers(u1, u2)).willReturn(Optional.empty());
+        given(chatService.createChat(List.of(u1.getId(), u2.getId()), true)).willReturn(chat);
         Message msg = new Message("text");
 
         //when
         underTest.sendPrivateMessage(u1.getId(), u2.getId(), msg);
 
         //then
-        verify(chatRepo).save(any());
         verify(messageRepo).save(msg);
     }
 }
