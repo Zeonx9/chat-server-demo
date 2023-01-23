@@ -3,7 +3,7 @@ package com.ade.chat.services;
 import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.User;
 import com.ade.chat.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,14 +14,10 @@ import java.util.Optional;
  * Сервис обрабатывающий запросы связанные с пользователями
  */
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepo;
-
-    @Autowired
-    public UserService(UserRepository userRepo) {
-        this.userRepo = userRepo;
-    }
 
     /**
      * @param id идентификатор запрашиваемого пользователя

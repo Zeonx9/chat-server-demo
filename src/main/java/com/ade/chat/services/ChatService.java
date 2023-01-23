@@ -4,7 +4,7 @@ import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
 import com.ade.chat.repositories.ChatRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -13,16 +13,11 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class ChatService {
 
     private final ChatRepository chatRepo;
     private final UserService userService;
-
-    @Autowired
-    public ChatService(ChatRepository chatRepo, UserService userService) {
-        this.chatRepo = chatRepo;
-        this.userService = userService;
-    }
 
     /**
      * @param id идентификатор чата

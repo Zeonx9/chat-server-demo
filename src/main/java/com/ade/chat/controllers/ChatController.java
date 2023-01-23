@@ -2,7 +2,7 @@ package com.ade.chat.controllers;
 
 import com.ade.chat.domain.Message;
 import com.ade.chat.services.ChatService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,14 +12,10 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("chat_api/v1")
+@RequiredArgsConstructor
 public class ChatController {
 
     private final ChatService chatService;
-
-    @Autowired
-    public ChatController(ChatService chatService) {
-        this.chatService = chatService;
-    }
 
     /**
      * POST реквест с полным путем chat_api/v1/chat

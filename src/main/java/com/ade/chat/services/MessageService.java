@@ -4,7 +4,7 @@ import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
 import com.ade.chat.repositories.MessageRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -12,18 +12,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class MessageService {
 
     private final MessageRepository messageRepo;
     private final ChatService chatService;
     private final UserService userService;
-
-    @Autowired
-    public MessageService(MessageRepository messageRepo, ChatService chatService, UserService userService) {
-        this.messageRepo = messageRepo;
-        this.chatService = chatService;
-        this.userService = userService;
-    }
 
     /**
      * сохраняет сообщение отправленное пользователем в чат
