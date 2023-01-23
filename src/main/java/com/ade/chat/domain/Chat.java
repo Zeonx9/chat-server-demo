@@ -1,4 +1,4 @@
-package com.ade.chat.entities;
+package com.ade.chat.domain;
 
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;

@@ -1,6 +1,6 @@
 package com.ade.chat.repositories;
 
-import com.ade.chat.entities.User;
+import com.ade.chat.domain.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
