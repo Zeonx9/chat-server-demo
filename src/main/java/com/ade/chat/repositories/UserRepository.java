@@ -1,6 +1,6 @@
 package com.ade.chat.repositories;
 
-import com.ade.chat.entities.User;
+import com.ade.chat.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

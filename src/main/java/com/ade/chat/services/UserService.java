@@ -1,7 +1,7 @@
 package com.ade.chat.services;
 
-import com.ade.chat.entities.Chat;
-import com.ade.chat.entities.User;
+import com.ade.chat.domain.Chat;
+import com.ade.chat.domain.User;
 import com.ade.chat.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -60,12 +60,7 @@ public class UserService {
      */
     public User getUserByNameOrCreate(String name) {
         Optional<User> userOptional = userRepo.findByName(name);
-        if (userOptional.isPresent())
-            return userOptional.get();
-
-        User newUser = new User(name);
-        userRepo.save(newUser);
-        return newUser;
+        return userOptional.orElseGet(() -> userRepo.save(new User(name)));
     }
 
     /**

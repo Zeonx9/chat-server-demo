@@ -1,7 +1,7 @@
 package com.ade.chat.config;
 
-import com.ade.chat.entities.Message;
-import com.ade.chat.entities.User;
+import com.ade.chat.domain.Message;
+import com.ade.chat.domain.User;
 import com.ade.chat.services.ChatService;
 import com.ade.chat.services.MessageService;
 import com.ade.chat.services.UserService;

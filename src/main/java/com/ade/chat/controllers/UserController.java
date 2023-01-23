@@ -1,7 +1,7 @@
 package com.ade.chat.controllers;
 
-import com.ade.chat.entities.Chat;
-import com.ade.chat.entities.User;
+import com.ade.chat.domain.Chat;
+import com.ade.chat.domain.User;
 import com.ade.chat.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

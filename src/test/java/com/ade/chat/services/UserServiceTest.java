@@ -1,7 +1,7 @@
 package com.ade.chat.services;
 
-import com.ade.chat.entities.Chat;
-import com.ade.chat.entities.User;
+import com.ade.chat.domain.Chat;
+import com.ade.chat.domain.User;
 import com.ade.chat.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
