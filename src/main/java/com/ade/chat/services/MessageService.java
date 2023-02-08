@@ -66,7 +66,7 @@ public class MessageService {
             return;
         }
 
-        var chat =  chatService.createChat(List.of(fromUserId, toUserId), true);
+        var chat =  chatService.createOrGetChat(List.of(fromUserId, toUserId), true);
         sendToChatFromUser(fromUser, chat, msg);
     }
 }

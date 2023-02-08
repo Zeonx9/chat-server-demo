@@ -59,18 +59,18 @@ public class ChatService {
     }
 
     /**
-     * Создает чат между пользователями. приватный диалог может быть создан лишь однажды
+     * Создает чат между пользователями. Или возвращает уже существующий личный диалог
      * @param ids список идентификаторов пользователей (ровно 2 ID)
      * @param isPrivate true для приватных диалогов false для бесед
      * @return созданный чат
-     * @throws IllegalStateException при попытке создать существующий личный диалог
      */
-    public Chat createChat(List<Long> ids, Boolean isPrivate) {
+    public Chat createOrGetChat(List<Long> ids, Boolean isPrivate) {
         if (isPrivate == null)
             isPrivate = false;
 
-        if (isPrivate && privateChatBetweenUsersWithIds(ids).isPresent()) {
-            throw new IllegalStateException("This chat already exists");
+        Optional<Chat> possiblePreviousPrivateChat = privateChatBetweenUsersWithIds(ids);
+        if (isPrivate && possiblePreviousPrivateChat.isPresent()) {
+            return possiblePreviousPrivateChat.get();
         }
 
         Chat chat = new Chat(isPrivate, new HashSet<>());

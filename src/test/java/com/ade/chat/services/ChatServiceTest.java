@@ -116,7 +116,7 @@ class ChatServiceTest {
         given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
         given(userService.getUserByIdOrException(u2.getId())).willReturn(u2);
         //when & then
-        assertThatThrownBy(() -> underTest.createChat(List.of(u1.getId(), u2.getId()), true))
+        assertThatThrownBy(() -> underTest.createOrGetChat(List.of(u1.getId(), u2.getId()), true))
                 .hasMessageContaining("This chat already exists");
 
     }
@@ -124,7 +124,7 @@ class ChatServiceTest {
     @Test
     void exceptionWhenCreatePrivateWithWrongNumberOfUsers() {
         //when & then
-        assertThatThrownBy(() -> underTest.createChat(List.of(), true))
+        assertThatThrownBy(() -> underTest.createOrGetChat(List.of(), true))
                 .hasMessageContaining("size of id list for private chat must equals 2");
 
     }

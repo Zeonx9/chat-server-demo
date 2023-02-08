@@ -106,7 +106,7 @@ class MessageServiceTest {
         given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
         given(userService.getUserByIdOrException(u2.getId())).willReturn(u2);
         given(chatService.privateChatBetweenUsers(u1, u2)).willReturn(Optional.empty());
-        given(chatService.createChat(List.of(u1.getId(), u2.getId()), true)).willReturn(chat);
+        given(chatService.createOrGetChat(List.of(u1.getId(), u2.getId()), true)).willReturn(chat);
         Message msg = new Message("text");
 
         //when

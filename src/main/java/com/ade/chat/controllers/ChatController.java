@@ -24,10 +24,10 @@ public class ChatController {
      * @param isPrivate если true то будет создан приватный чат, в противном случае беседа
      */
     @PostMapping("/chat")
-    public void createChat(
+    public void createOrGetChat(
             @RequestBody List<Long> ids,
             @RequestParam(required = false) Boolean isPrivate) {
-        chatService.createChat(ids, isPrivate);
+        chatService.createOrGetChat(ids, isPrivate);
     }
 
     /**

@@ -24,7 +24,7 @@ public class DBConfig {
                         List.of(1L, 3L),
                         List.of(1L, 2L, 3L)
                 );
-                chatIds.forEach(ids -> cs.createChat(ids, ids.size() == 2));
+                chatIds.forEach(ids -> cs.createOrGetChat(ids, ids.size() == 2));
 
                 ms.sendPrivateMessage(1L, 2L, new Message("Hello"));
                 ms.sendPrivateMessage(2L, 1L, new Message("Oh, Hi!"));
