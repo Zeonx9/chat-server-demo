@@ -44,7 +44,7 @@ class UserServiceTest {
     @Test
     void canGetExistingUserById() {
         // given
-        User user = new User("Artem");
+        User user = User.builder().username("Artem").build();
         given(userRepository.findById(user.getId()))
                 .willReturn(Optional.of(user));
 
@@ -58,7 +58,7 @@ class UserServiceTest {
     @Test
     void findAbsentUserWillThrowException() {
         // given
-        User user = new User("Artem");
+        User user = User.builder().username("Artem").build();
         given(userRepository.findById(user.getId()))
                 .willReturn(Optional.empty());
 
@@ -70,7 +70,7 @@ class UserServiceTest {
     @Test
     void canCreateUser() {
         // given
-        User user = new User("Artem");
+        User user = User.builder().username("Artem").build();
 
         // when
         underTest.createUser(user);
@@ -86,13 +86,13 @@ class UserServiceTest {
     @Test
     void exceptionIsThrownWhenCreateStudentThatExists() {
         // given
-        User user = new User("Artem");
-        given(userRepository.existsByName(user.getName()))
+        User user = User.builder().username("Artem").build();
+        given(userRepository.existsByUsername(user.getUsername()))
                 .willReturn(true);
 
         // when & then
         assertThatThrownBy(() -> underTest.createUser(user))
-                .hasMessageContaining("Name:" + user.getName() + " is taken already");
+                .hasMessageContaining("Name:" + user.getUsername() + " is taken already");
 
         verify(userRepository, never()).save(any());
     }
@@ -100,7 +100,8 @@ class UserServiceTest {
     @Test
     void getUserChats() {
         // given
-        User u1 = new User("Artem"), u2 = new User("Egor");
+        User u1 = User.builder().username("Artem").build(),
+                u2 = User.builder().username("Egor").build();
         Set<Chat> chatSet = Set.of(new Chat(true, Set.of(u1, u2)));
         u1.setChats(chatSet);
         u2.setChats(chatSet);
@@ -118,12 +119,12 @@ class UserServiceTest {
     @Test
     void getUserByNameWhenExist() {
         //given
-        User user = new User("Artem");
-        given(userRepository.findByName(user.getName()))
+        User user = User.builder().username("Artem").build();
+        given(userRepository.findByUsername(user.getUsername()))
                 .willReturn(Optional.of(user));
 
         // when
-        underTest.getUserByNameOrCreate(user.getName());
+        underTest.getUserByNameOrCreate(user.getUsername());
 
         // then
         verify(userRepository, never()).save(any());
@@ -133,7 +134,7 @@ class UserServiceTest {
     void getUserByNameWhenNotExist() {
         // given
         String name = "Artem";
-        given(userRepository.findByName(name))
+        given(userRepository.findByUsername(name))
                 .willReturn(Optional.empty());
 
         // when
@@ -144,6 +145,6 @@ class UserServiceTest {
         verify(userRepository).save(argumentCaptor.capture());
         var capturedUser = argumentCaptor.getValue();
 
-        assertThat(capturedUser.getName()).isEqualTo(name);
+        assertThat(capturedUser.getUsername()).isEqualTo(name);
     }
 }

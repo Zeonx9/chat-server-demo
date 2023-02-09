@@ -42,9 +42,9 @@ public class UserService {
      * @throws IllegalStateException если логин пользователя(имя) уже занято
      */
     public void createUser(User newUser) {
-        Boolean hasSuchUser = userRepo.existsByName(newUser.getName());
+        Boolean hasSuchUser = userRepo.existsByUsername(newUser.getUsername());
         if (hasSuchUser)
-            throw new IllegalStateException("Name:" + newUser.getName() + " is taken already");
+            throw new IllegalStateException("Name:" + newUser.getUsername() + " is taken already");
 
         userRepo.save(newUser);
     }
@@ -55,8 +55,8 @@ public class UserService {
      * @return созданного или полученного пользователя
      */
     public User getUserByNameOrCreate(String name) {
-        Optional<User> userOptional = userRepo.findByName(name);
-        return userOptional.orElseGet(() -> userRepo.save(new User(name)));
+        Optional<User> userOptional = userRepo.findByUsername(name);
+        return userOptional.orElseGet(() -> userRepo.save(User.builder().username(name).build()));
     }
 
     /**

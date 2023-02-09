@@ -26,11 +26,11 @@ class UserRepositoryTest {
     void itShouldFindTheStudentByName() {
         // given
         String name = "Artem";
-        User user = new User(name);
+        User user = User.builder().username(name).build();
         underTest.save(user);
 
         // when
-        Optional<User> foundUser = underTest.findByName(name);
+        Optional<User> foundUser = underTest.findByUsername(name);
 
         // then
         assertThat(foundUser).isPresent();
@@ -41,11 +41,11 @@ class UserRepositoryTest {
     @Test
     void itShouldCheckTheExistenceOfUserByName() {
         // given
-        User user = new User("Artem");
+        User user = User.builder().username("Artem").build();
         underTest.save(user);
 
         //when
-        Boolean result = underTest.existsByName(user.getName());
+        Boolean result = underTest.existsByUsername(user.getUsername());
 
         //then
         assertThat(result).isTrue();
@@ -54,10 +54,10 @@ class UserRepositoryTest {
     @Test
     void itShouldCheckTheAbsenceOfUserByName() {
         // given
-        User user = new User("Artem");
+        User user = User.builder().username("Artem").build();
 
         //when
-        Boolean result = underTest.existsByName(user.getName());
+        Boolean result = underTest.existsByUsername(user.getUsername());
 
         //then
         assertThat(result).isFalse();

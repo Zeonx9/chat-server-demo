@@ -4,6 +4,8 @@ import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.User;
 import com.ade.chat.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,8 +25,8 @@ public class UserController {
      * @return список всех доступных пользователей в базе данных
      */
     @GetMapping("/users")
-    public List<User> getUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<User>> getUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     /**
@@ -45,6 +47,7 @@ public class UserController {
      * @return список доступных чатов
      */
     @GetMapping("/users/{id}/chats")
+    @ResponseStatus(HttpStatus.OK)
     public List<Chat> getUserChats(@PathVariable Long id) {
         return userService.getUserChats(id);
     }
