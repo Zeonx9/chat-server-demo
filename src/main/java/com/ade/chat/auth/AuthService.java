@@ -49,20 +49,16 @@ public class AuthService {
      * @throws org.springframework.security.core.AuthenticationException если данные не верны
      */
     public AuthResponse login(AuthRequest request) {
-        System.out.println("пытаюсь зайти с реквестом " + request.getLogin() + " " + request.getPassword());
         authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getLogin(),
                         request.getPassword()
                 )
         );
-        System.out.println("после аутентикейшн");
         var user = userRepository.findByUsername(request.getLogin())
                 .orElseThrow(() -> new RuntimeException("Somehow user authenticated but not found"));
 
-        System.out.println("достали юзера из базы: " + user.getUsername() + ", " + user.getPassword());
         String jwtToken = jwtService.generateToken(user);
-        System.out.println("токен сгенерился " + jwtToken);
         return AuthResponse.builder()
                 .token(jwtToken)
                 .build();

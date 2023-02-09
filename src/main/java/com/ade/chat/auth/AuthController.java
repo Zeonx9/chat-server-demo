@@ -15,15 +15,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public AuthResponse register(@RequestBody AuthRequest request) {
-        return authService.register(request);
+    public ResponseEntity<AuthResponse>  register(@RequestBody AuthRequest request) {
+        return ResponseEntity.ok(authService.register(request));
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
-        System.out.println("Inside login controller: " + request.getLogin() + ", " + request.getPassword());
-        var response = authService.login(request);
-        System.out.println("Снова в контроллере уже с токеном, надеюсь: " + response.getToken());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(authService.login(request));
     }
 }

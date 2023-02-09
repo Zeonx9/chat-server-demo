@@ -32,10 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String username;
 
-        System.out.println("мы внутри фильтра");
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("реквест без токена");
             filterChain.doFilter(request, response);
             return;
         }
@@ -43,11 +40,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         jwt = authHeader.substring(7);
         username = jwtService.extractUsername(jwt);
 
-        System.out.println("тут есть токен: " + jwt + "\nusername = " + username);
-
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            System.out.println("подгрузили юзера: " + userDetails.getUsername() + ", " + userDetails.getPassword());
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 // get The authentication token
                 var authToken = new UsernamePasswordAuthenticationToken(

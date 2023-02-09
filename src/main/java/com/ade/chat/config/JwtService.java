@@ -21,12 +21,10 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        System.out.println("проверка токена на валидность " + username + " == " + userDetails.getUsername());
         return Objects.equals(username, userDetails.getUsername()) && !isTokenExpired(token);
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        System.out.println("генерируется токен");
         return Jwts
                 .builder()
                 .addClaims(extraClaims)

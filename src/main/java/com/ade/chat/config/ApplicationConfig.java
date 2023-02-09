@@ -22,11 +22,8 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         // overrides loadByUserName
-        return username -> {
-            System.out.println("ЮзерДетайлСервис ищем " + username + " вот его");
-            return userRepository.findByUsername(username)
+        return username -> userRepository.findByUsername(username)
                     .orElseThrow(() -> new UsernameNotFoundException("No such user with name:" + username));
-        };
     }
 
     @Bean
