@@ -107,7 +107,7 @@ class ChatServiceTest {
     }
 
     @Test
-    void exceptionWhenMoreNot2Ids() {
+    void returnExistingWhenTryToCreateExisting() {
         User u1 = new User(1L, null, null, null),
                 u2 = new User(2L, null, null, null);
         Chat chat = new Chat(1L, true, Set.of(u1, u2), null);
@@ -115,9 +115,11 @@ class ChatServiceTest {
         u2.setChats(Set.of(chat));
         given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
         given(userService.getUserByIdOrException(u2.getId())).willReturn(u2);
-        //when & then
-        assertThatThrownBy(() -> underTest.createOrGetChat(List.of(u1.getId(), u2.getId()), true))
-                .hasMessageContaining("This chat already exists");
+        //when
+        var returned = underTest.createOrGetChat(List.of(u1.getId(), u2.getId()), true);
+
+        //then
+        assertThat(returned).isEqualTo(chat);
 
     }
 
