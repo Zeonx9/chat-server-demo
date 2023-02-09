@@ -1,0 +1,11 @@
+ALTER TABLE users
+    ADD password VARCHAR(255);
+
+ALTER TABLE users
+    ADD role VARCHAR(255);
+
+ALTER TABLE users
+    ALTER COLUMN role SET DEFAULT 'USER';
+
+ALTER TABLE users
+    ALTER COLUMN password SET DEFAULT '0000';
