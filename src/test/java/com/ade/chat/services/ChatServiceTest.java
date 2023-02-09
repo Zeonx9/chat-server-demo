@@ -71,8 +71,8 @@ class ChatServiceTest {
     @Test
     void canFindCommonChat() {
         //given
-        User u1 = new User(1L, null, null, null),
-             u2 = new User(2L, null, null, null);
+        User u1 = User.builder().id(1L).build(),
+             u2 = User.builder().id(2L).build();
         Chat chat = new Chat(1L, true, Set.of(u1, u2), null);
         u1.setChats(Set.of(chat));
         u2.setChats(Set.of(chat));
@@ -92,8 +92,8 @@ class ChatServiceTest {
     @Test
     void noCommonChatNotFound() {
         //given
-        User u1 = new User(1L, null, null, Set.of()),
-                u2 = new User(2L, null, null, Set.of());
+        User u1 = User.builder().id(1L).chats(Set.of()).build(),
+                u2 = User.builder().id(2L).chats(Set.of()).build();
 
         given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
         given(userService.getUserByIdOrException(u2.getId())).willReturn(u2);
@@ -108,8 +108,8 @@ class ChatServiceTest {
 
     @Test
     void returnExistingWhenTryToCreateExisting() {
-        User u1 = new User(1L, null, null, null),
-                u2 = new User(2L, null, null, null);
+        User u1 = User.builder().id(1L).build(),
+                u2 = User.builder().id(2L).build();
         Chat chat = new Chat(1L, true, Set.of(u1, u2), null);
         u1.setChats(Set.of(chat));
         u2.setChats(Set.of(chat));

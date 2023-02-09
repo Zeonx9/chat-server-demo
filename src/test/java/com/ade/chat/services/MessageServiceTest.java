@@ -80,8 +80,8 @@ class MessageServiceTest {
     @Test
     void sendPrivateMessageToExisting() {
         //given
-        User u1 = new User(1L, null, null, null),
-             u2 = new User(2L, null, null, null);
+        User u1 = User.builder().id(1L).build(),
+                u2 = User.builder().id(2L).build();
         Chat chat = new Chat();
 
         given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
@@ -99,8 +99,8 @@ class MessageServiceTest {
     @Test
     void sendPrivateMessageWithoutChat() {
         //given
-        User u1 = new User(1L, null, null, Set.of()),
-                u2 = new User(2L, null, null, Set.of());
+        User u1 = User.builder().id(1L).chats(Set.of()).build(),
+                u2 = User.builder().id(2L).chats(Set.of()).build();
         Chat chat = new Chat();
 
         given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
