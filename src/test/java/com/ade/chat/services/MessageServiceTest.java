@@ -3,6 +3,7 @@ package com.ade.chat.services;
 import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
+import com.ade.chat.exception.NotAMemberException;
 import com.ade.chat.repositories.MessageRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -74,7 +74,8 @@ class MessageServiceTest {
 
         //when & then
         assertThatThrownBy(() -> underTest.sendMessage(user.getId(), chat.getId(), msg))
-                .hasMessageContaining( "This user: " + user.getId() + " is not a member of a chat: " + chat.getId());
+                .hasMessageContaining( "This user: " + user.getId() + " is not a member of a chat: " + chat.getId())
+                .isInstanceOf(NotAMemberException.class);
     }
 
     @Test
@@ -82,12 +83,8 @@ class MessageServiceTest {
         //given
         User u1 = User.builder().id(1L).build(),
                 u2 = User.builder().id(2L).build();
-        Chat chat = new Chat();
-
         given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
-        given(userService.getUserByIdOrException(u2.getId())).willReturn(u2);
-        given(chatService.privateChatBetweenUsers(u1, u2)).willReturn(Optional.of(chat));
-        Message msg = new Message("text");
+        Message msg = Message.builder().text("text").build();
 
         //when
         underTest.sendPrivateMessage(u1.getId(), u2.getId(), msg);
@@ -104,10 +101,8 @@ class MessageServiceTest {
         Chat chat = new Chat();
 
         given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
-        given(userService.getUserByIdOrException(u2.getId())).willReturn(u2);
-        given(chatService.privateChatBetweenUsers(u1, u2)).willReturn(Optional.empty());
         given(chatService.createOrGetChat(List.of(u1.getId(), u2.getId()), true)).willReturn(chat);
-        Message msg = new Message("text");
+        Message msg = Message.builder().text("text").build();
 
         //when
         underTest.sendPrivateMessage(u1.getId(), u2.getId(), msg);
