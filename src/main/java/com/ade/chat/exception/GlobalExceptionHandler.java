@@ -8,21 +8,42 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler
-    public ResponseEntity<AppError> catchNameAlreadyTakenException(NameAlreadyTakenException e) {
-        System.err.println(e.getMessage() + " это я обработал");
+
+    private ResponseEntity<AppError> handleTheException(Exception e, HttpStatus status) {
+        System.err.println(e.getMessage());
         return new ResponseEntity<>(
-                new AppError(e.getMessage(), HttpStatus.BAD_REQUEST.value()),
-                HttpStatus.BAD_REQUEST
+                new AppError(e.getMessage(), status.value()),
+                status
         );
     }
 
     @ExceptionHandler
+    public ResponseEntity<AppError> catchNameAlreadyTakenException(NameAlreadyTakenException e) {
+        return handleTheException(e, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<AppError> catchAuthenticationException(AuthenticationException e) {
-        System.err.println(e.getMessage() + " это я обработал");
-        return new ResponseEntity<>(
-                new AppError(e.getMessage(), HttpStatus.BAD_REQUEST.value()),
-                HttpStatus.BAD_REQUEST
-        );
+        return handleTheException(e, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<AppError> catchUserNotFoundException(UserNotFoundException e) {
+       return handleTheException(e, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<AppError> catchChatNotFoundException(ChatNotFoundException e) {
+        return handleTheException(e, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<AppError> catchChatIllegalMemberCount(IllegalMemberCount e) {
+        return handleTheException(e, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<AppError> catchNotAMemberException(NotAMemberException e) {
+        return handleTheException(e, HttpStatus.FORBIDDEN);
     }
 }
