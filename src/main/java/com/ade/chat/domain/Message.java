@@ -8,16 +8,18 @@ import java.time.LocalDateTime;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
-@Entity(name = "message")
-@Table(
-        name = "messages",
-        indexes = @Index(name = "chat_id_index", columnList = "chat_id")
-)
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @ToString
+@Builder
+@Entity(name = "message")
+@Table(
+        name = "messages",
+        indexes = @Index(name = "chat_id_index", columnList = "chat_id")
+)
 public class Message {
 
     @Id
@@ -45,8 +47,4 @@ public class Message {
     )
     @JsonIgnore
     private Chat chat;
-
-    public Message(String text) {
-        this.text = text;
-    }
 }

@@ -10,12 +10,13 @@ import java.util.Set;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
-@Entity(name = "chat")
-@Table(name = "chats")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
+@Entity(name = "chat")
+@Table(name = "chats")
 public class Chat {
     @Id
     @SequenceGenerator(name = "chat_sequence", sequenceName = "chat_sequence", allocationSize = 1)
@@ -24,7 +25,6 @@ public class Chat {
 
     @Column(name = "is_private")
     private Boolean isPrivate;
-
 
     @ManyToMany(
             fetch = FetchType.EAGER,
@@ -39,23 +39,15 @@ public class Chat {
             joinColumns = @JoinColumn(name = "chat_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @Builder.Default
     private Set<User> members = new HashSet<>();
 
     @OneToMany(mappedBy = "chat")
     @JsonIgnore
     private List<Message> messages;
 
-    public Chat(Boolean isPrivate, Set<User> members) {
-        this.isPrivate = isPrivate;
-        this.members = members;
-    }
-
     @Override
     public String toString() {
-        return "Chat{" +
-                "id=" + id +
-                ", isPrivate=" + isPrivate +
-                ", members=" + members +
-                '}';
+        return "Chat{id=" + id + ", isPrivate=" + isPrivate + ", members=" + members + "}";
     }
 }
