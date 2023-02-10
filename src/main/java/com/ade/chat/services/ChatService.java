@@ -3,6 +3,8 @@ package com.ade.chat.services;
 import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
+import com.ade.chat.exception.ChatNotFoundException;
+import com.ade.chat.exception.IllegalMemberCount;
 import com.ade.chat.repositories.ChatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,11 +24,11 @@ public class ChatService {
     /**
      * @param id идентификатор чата
      * @return найденный чат по идентификатору
-     * @throws IllegalStateException если чат не был найден
+     * @throws ChatNotFoundException если чат не был найден
      */
     public Chat getChatByIdOrException(Long id) {
         return chatRepo.findById(id)
-                .orElseThrow(() -> new IllegalStateException("No chat with such id: " + id));
+                .orElseThrow(() -> new ChatNotFoundException("No chat with such id: " + id));
     }
 
     /**
@@ -48,11 +50,12 @@ public class ChatService {
      * ищет пользователей по ID, затем их личный диалог
      * @param ids список идентификаторов пользователей (ровно 2 ID)
      * @return найденный общий приватный чат между переданными пользователями или Optional.empty()
-     * @throws IllegalArgumentException если размер списка ID не равен 2
+     * @throws IllegalMemberCount если размер списка ID не равен 2
+     * @throws com.ade.chat.exception.UserNotFoundException если в списке неверные ID
      */
     public Optional<Chat> privateChatBetweenUsersWithIds(List<Long> ids) {
         if (ids.size() != 2)
-            throw new IllegalArgumentException("size of id list for private chat must equals 2");
+            throw new IllegalMemberCount("size of id list for private chat must equals 2");
         User u1 = userService.getUserByIdOrException(ids.get(0));
         User u2 = userService.getUserByIdOrException(ids.get(1));
         return privateChatBetweenUsers(u1, u2);
@@ -73,7 +76,10 @@ public class ChatService {
             return possiblePreviousPrivateChat.get();
         }
 
-        Chat chat = new Chat(isPrivate, new HashSet<>());
+        Chat chat = Chat.builder()
+                .isPrivate(isPrivate)
+                .members(new HashSet<>())
+                .build();
         ids.forEach(id ->
                 chat.getMembers().add(userService.getUserByIdOrException(id))
         );
@@ -84,6 +90,7 @@ public class ChatService {
     /**
      * @param chatId идентификатор чата, из которого запрошены сообщения
      * @return список сообщений из соответствующего чата
+     * @throws ChatNotFoundException если дан неверный айди чата
      */
     public List<Message> getMessages(Long chatId) {
         return getChatByIdOrException(chatId).getMessages();

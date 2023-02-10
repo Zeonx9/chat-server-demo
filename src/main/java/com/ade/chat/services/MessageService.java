@@ -3,13 +3,13 @@ package com.ade.chat.services;
 import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
+import com.ade.chat.exception.NotAMemberException;
 import com.ade.chat.repositories.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,12 +24,13 @@ public class MessageService {
      * @param user отправитель сообщения
      * @param chat чат, в который сообщение было отправлено
      * @param msg само сообщение
+     * @return сообщение, которое было сохранено
      */
-    private void sendToChatFromUser(User user, Chat chat, Message msg) {
+    private Message sendToChatFromUser(User user, Chat chat, Message msg) {
         msg.setAuthor(user);
         msg.setChat(chat);
         msg.setDateTime(LocalDateTime.now());
-        messageRepo.save(msg);
+        return messageRepo.save(msg);
     }
 
     /**
@@ -37,17 +38,21 @@ public class MessageService {
      * @param userId идентификатор отправителя сообщения
      * @param chatId идентификатор чата, в который сообщение было отправлено
      * @param msg само сообщение
+     * @return сообщение, которое было сохранено
+     * @throws com.ade.chat.exception.UserNotFoundException если неверное айди пользователя
+     * @throws com.ade.chat.exception.ChatNotFoundException если неверное айди чата
+     * @throws NotAMemberException если пользователь не состоит в чате
      */
-    public void sendMessage(Long userId, Long chatId, Message msg) {
+    public Message sendMessage(Long userId, Long chatId, Message msg) {
         User user = userService.getUserByIdOrException(userId);
         Chat chat = chatService.getChatByIdOrException(chatId);
 
         if (!chat.getMembers().contains(user)) {
-            throw new IllegalStateException(
+            throw new NotAMemberException(
                     "This user: " + userId + " is not a member of a chat: " + chatId
             );
         }
-        sendToChatFromUser(user, chat, msg);
+        return sendToChatFromUser(user, chat, msg);
     }
 
     /**
@@ -55,18 +60,11 @@ public class MessageService {
      * @param fromUserId идентификатор отправителя сообщения
      * @param toUserId идентификатор получателя сообщения
      * @param msg само сообщение
+     * @throws com.ade.chat.exception.UserNotFoundException если неверное айди пользователя
      */
-    public void sendPrivateMessage(Long fromUserId, Long toUserId, Message msg) {
+    public Message sendPrivateMessage(Long fromUserId, Long toUserId, Message msg) {
         User fromUser = userService.getUserByIdOrException(fromUserId);
-        User toUser = userService.getUserByIdOrException(toUserId);
-
-        Optional<Chat> privateChat = chatService.privateChatBetweenUsers(fromUser, toUser);
-        if (privateChat.isPresent()) {
-            sendToChatFromUser(fromUser, privateChat.get(), msg);
-            return;
-        }
-
         var chat =  chatService.createOrGetChat(List.of(fromUserId, toUserId), true);
-        sendToChatFromUser(fromUser, chat, msg);
+        return sendToChatFromUser(fromUser, chat, msg);
     }
 }
