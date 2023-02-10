@@ -1,12 +1,16 @@
 package com.ade.chat.controllers;
 
-import com.ade.chat.domain.Chat;
-import com.ade.chat.domain.User;
+import com.ade.chat.dtos.ChatDto;
+import com.ade.chat.dtos.UserDto;
+import com.ade.chat.mappers.ChatMapper;
+import com.ade.chat.mappers.UserMapper;
 import com.ade.chat.services.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -19,25 +23,16 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
+    private final ChatMapper chatMapper;
 
     /**
      * GET реквест с полным путем /chat_api/v1/users
      * @return список всех доступных пользователей в базе данных
      */
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
-    }
-
-    /**
-     * GET реквест с полным путем /chat_api/v1/users
-     * получает информацию о пользователе по его имени или создает нового, если имя не было занято
-     * @param name логин(имя) пользователя для поиска
-     * @return всегда одного пользователя с заданным именем
-     */
-    @GetMapping("/user")
-    public User getUserByNameOrCreate(@RequestParam String name) {
-        return userService.getUserByNameOrCreate(name);
+    public ResponseEntity<List<UserDto>> getUsers() {
+        return ResponseEntity.ok(userMapper.toDtoList(userService.getAllUsers()));
     }
 
     /**
@@ -45,20 +40,10 @@ public class UserController {
      * получает список чатов доступных пользователю с заданным id
      * @param id id пользователя для поиска
      * @return список доступных чатов
+     * @throws com.ade.chat.exception.UserNotFoundException если передан не существующий айди пользователя
      */
     @GetMapping("/users/{id}/chats")
-    @ResponseStatus(HttpStatus.OK)
-    public List<Chat> getUserChats(@PathVariable Long id) {
-        return userService.getUserChats(id);
-    }
-
-    /**
-     * POST реквест с полным путем /chat_api/v1/user
-     * создает пользователя с заданными характеристиками
-     * @param newUser пользователь, информация о котором передана через тело запроса
-     */
-    @PostMapping("/user")
-    public void createUser(@RequestBody User newUser) {
-        userService.createUser(newUser);
+    public ResponseEntity<List<ChatDto>> getUserChats(@PathVariable Long id) {
+        return ResponseEntity.ok(chatMapper.toDtoList(userService.getUserChats(id)));
     }
 }
