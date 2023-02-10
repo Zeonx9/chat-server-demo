@@ -22,6 +22,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
+    /**
+     * Реализует логику фильтрования реквестов
+     * проверяет наличие в реквесте токена авторицации
+     * для полученного токена строит новый токен аутентификации в случае валидности токена
+     * и обновляет контекст в SecurityContextHolder
+     */
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
@@ -53,7 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
-                // authenticate user
+                // update authentication
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }

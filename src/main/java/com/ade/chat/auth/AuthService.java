@@ -2,6 +2,8 @@ package com.ade.chat.auth;
 
 import com.ade.chat.config.JwtService;
 import com.ade.chat.domain.User;
+import com.ade.chat.dtos.AuthRequest;
+import com.ade.chat.dtos.AuthResponse;
 import com.ade.chat.exception.NameAlreadyTakenException;
 import com.ade.chat.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;

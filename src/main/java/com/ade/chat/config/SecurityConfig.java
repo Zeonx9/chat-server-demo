@@ -18,6 +18,11 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
+    /**
+     * Настраивает SecurityFilterChain устанавливая набор енд-поинтов с открытым доступом
+     * и закрытые енд-поинты
+     * а так же указывает на используемый фильтр
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
