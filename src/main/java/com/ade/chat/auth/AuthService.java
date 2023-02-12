@@ -5,6 +5,7 @@ import com.ade.chat.domain.User;
 import com.ade.chat.dtos.AuthRequest;
 import com.ade.chat.dtos.AuthResponse;
 import com.ade.chat.exception.NameAlreadyTakenException;
+import com.ade.chat.mappers.UserMapper;
 import com.ade.chat.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +20,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     /**
      * Регистрирует нового пользователя с заданными данными
@@ -31,16 +33,17 @@ public class AuthService {
         if (userByName.isPresent())
             throw new NameAlreadyTakenException("Name: " + request.getLogin() + " is taken already");
 
-        User newUser = User.builder()
-                .username(request.getLogin())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
-                .build();
-
-        userRepository.save(newUser);
+        User newUser = userRepository.save(
+                User.builder()
+                        .username(request.getLogin())
+                        .password(passwordEncoder.encode(request.getPassword()))
+                        .role(Role.USER)
+                        .build()
+        );
         String jwtToken = jwtService.generateToken(newUser);
         return AuthResponse.builder()
                 .token(jwtToken)
+                .user(userMapper.toDto(newUser))
                 .build();
     }
 
@@ -63,6 +66,7 @@ public class AuthService {
         String jwtToken = jwtService.generateToken(user);
         return AuthResponse.builder()
                 .token(jwtToken)
+                .user(userMapper.toDto(user))
                 .build();
     }
 }
