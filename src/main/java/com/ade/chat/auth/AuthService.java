@@ -33,18 +33,8 @@ public class AuthService {
         if (userByName.isPresent())
             throw new NameAlreadyTakenException("Name: " + request.getLogin() + " is taken already");
 
-        User newUser = userRepository.save(
-                User.builder()
-                        .username(request.getLogin())
-                        .password(passwordEncoder.encode(request.getPassword()))
-                        .role(Role.USER)
-                        .build()
-        );
-        String jwtToken = jwtService.generateToken(newUser);
-        return AuthResponse.builder()
-                .token(jwtToken)
-                .user(userMapper.toDto(newUser))
-                .build();
+        User newUser = userRepository.save(setUpUser(request));
+        return generateResponseWithToken(newUser);
     }
 
     /**
@@ -63,10 +53,22 @@ public class AuthService {
         var user = userRepository.findByUsername(request.getLogin())
                 .orElseThrow(() -> new RuntimeException("Somehow user authenticated but not found"));
 
+        return generateResponseWithToken(user);
+    }
+
+    private AuthResponse generateResponseWithToken(User user) {
         String jwtToken = jwtService.generateToken(user);
         return AuthResponse.builder()
                 .token(jwtToken)
                 .user(userMapper.toDto(user))
+                .build();
+    }
+
+    private User setUpUser(AuthRequest request) {
+        return User.builder()
+                .username(request.getLogin())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.USER)
                 .build();
     }
 }
