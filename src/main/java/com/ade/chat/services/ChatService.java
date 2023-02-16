@@ -8,11 +8,9 @@ import com.ade.chat.exception.IllegalMemberCount;
 import com.ade.chat.repositories.ChatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -92,7 +90,15 @@ public class ChatService {
      * @return список сообщений из соответствующего чата
      * @throws ChatNotFoundException если дан неверный айди чата
      */
-    public List<Message> getMessages(Long chatId) {
-        return getChatByIdOrException(chatId).getMessages();
+    @Transactional
+    public List<Message> getMessages(Long chatId, Long userId) {
+        Chat chat = getChatByIdOrException(chatId);
+        if (userId != null) {
+            User user = userService.getUserByIdOrException(userId);
+            Set<Message> undelivered = new LinkedHashSet<>(user.getUndeliveredMessages());
+            undelivered.retainAll(chat.getMessages());
+            undelivered.forEach(message -> message.removeRecipient(user));
+        }
+        return chat.getMessages();
     }
 }

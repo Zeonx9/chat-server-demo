@@ -1,10 +1,10 @@
 package com.ade.chat.domain;
 
-import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -14,6 +14,7 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 @AllArgsConstructor
 @Getter
 @Setter
+@ToString
 @Builder
 @Entity(name = "chat")
 @Table(name = "chats")
@@ -40,14 +41,9 @@ public class Chat {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     @Builder.Default
-    private Set<User> members = new HashSet<>();
+    private Set<User> members = new LinkedHashSet<>();
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "chat")
-    @JsonIgnore
-    private List<Message> messages;
-
-    @Override
-    public String toString() {
-        return "Chat{id=" + id + ", isPrivate=" + isPrivate + ", members=" + members + "}";
-    }
+    private List<Message> messages = new ArrayList<>();
 }
