@@ -1,8 +1,10 @@
 package com.ade.chat.controllers;
 
 import com.ade.chat.dtos.ChatDto;
+import com.ade.chat.dtos.MessageDto;
 import com.ade.chat.dtos.UserDto;
 import com.ade.chat.mappers.ChatMapper;
+import com.ade.chat.mappers.MessageMapper;
 import com.ade.chat.mappers.UserMapper;
 import com.ade.chat.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
     private final ChatMapper chatMapper;
+    private final MessageMapper messageMapper;
 
     /**
      * GET реквест с полным путем /chat_api/v1/users
@@ -45,5 +48,22 @@ public class UserController {
     @GetMapping("/users/{id}/chats")
     public ResponseEntity<List<ChatDto>> getUserChats(@PathVariable Long id) {
         return ResponseEntity.ok(chatMapper.toDtoList(userService.getUserChats(id)));
+    }
+
+    /**
+     * GET реквест, с полным путем /chat_api/v1/user/{id}/undelivered_messages
+     * получает все сообщения, ранее не полученные этим пользователем
+     * @param id идентификатор пользователя
+     * @return список сообщений
+     * @throws com.ade.chat.exception.UserNotFoundException если неверен идентификатор
+     */
+    @GetMapping("/users/{id}/undelivered_messages")
+    public ResponseEntity<List<MessageDto>> getUndeliveredMessages(@PathVariable Long id) {
+        System.out.println("controller und mes");
+        return ResponseEntity.ok(
+                messageMapper.toDtoList(
+                        userService.getUndeliveredMessagesAndMarkAsDelivered(id)
+                )
+        );
     }
 }
