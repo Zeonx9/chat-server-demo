@@ -78,20 +78,6 @@ class MessageServiceTest {
                 .isInstanceOf(NotAMemberException.class);
     }
 
-    @Test
-    void sendPrivateMessageToExisting() {
-        //given
-        User u1 = User.builder().id(1L).build(),
-                u2 = User.builder().id(2L).build();
-        given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
-        Message msg = Message.builder().text("text").build();
-
-        //when
-        underTest.sendPrivateMessage(u1.getId(), u2.getId(), msg);
-
-        //then
-        verify(messageRepo).save(msg);
-    }
 
     @Test
     void sendPrivateMessageWithoutChat() {

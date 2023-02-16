@@ -10,10 +10,6 @@ CREATE TABLE IF NOT EXISTS messages_undelivered_to
     CONSTRAINT pk_messages_undelivered_to PRIMARY KEY (message_id, recipient_id)
 );
 
-
-ALTER TABLE messages
-    ADD CONSTRAINT FK_MESSAGES_ON_USER FOREIGN KEY (user_id) REFERENCES users (id);
-
 ALTER TABLE messages_undelivered_to
     ADD CONSTRAINT fk_mesundto_on_message FOREIGN KEY (message_id) REFERENCES messages (id);
 
