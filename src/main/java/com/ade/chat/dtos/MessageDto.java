@@ -16,4 +16,5 @@ public class MessageDto {
     private String text;
     private LocalDateTime dateTime;
     private UserDto author;
+    private Long chatId;
 }
