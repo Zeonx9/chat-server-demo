@@ -1,5 +1,6 @@
 package com.ade.chat.exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -44,6 +45,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<AppError> catchNotAMemberException(NotAMemberException e) {
+        return handleTheException(e, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<AppError> catchJwtExpiredException(ExpiredJwtException e) {
         return handleTheException(e, HttpStatus.FORBIDDEN);
     }
 }
