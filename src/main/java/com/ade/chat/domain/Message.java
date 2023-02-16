@@ -1,10 +1,13 @@
 package com.ade.chat.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
@@ -45,6 +48,33 @@ public class Message {
             name = "chat_id",
             referencedColumnName = "id"
     )
-    @JsonIgnore
     private Chat chat;
+
+    @ToString.Exclude
+    @ManyToMany
+    @JoinTable(
+            name = "messages_undelivered_to",
+            joinColumns = @JoinColumn(name = "message_id"),
+            inverseJoinColumns = @JoinColumn(name = "recipient_id")
+    )
+    private Set<User> undeliveredTo = new LinkedHashSet<>();
+
+    public void removeRecipient(User user) {
+        undeliveredTo.remove(user);
+        user.getUndeliveredMessages().remove(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Message message = (Message) o;
+        return id != null && Objects.equals(id, message.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
 }

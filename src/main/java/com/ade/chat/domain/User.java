@@ -4,13 +4,12 @@ import com.ade.chat.auth.Role;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
@@ -40,11 +39,13 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<Message> messages;
+    private List<Message> messages = new ArrayList<>();
 
     @ManyToMany(mappedBy = "members", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private Set<Chat> chats;
+    private Set<Chat> chats = new LinkedHashSet<>();
+
+    @ManyToMany(mappedBy = "undeliveredTo")
+    private Set<Message> undeliveredMessages = new LinkedHashSet<>();
 
     @Override
     public String toString() {
@@ -74,5 +75,18 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        User user = (User) o;
+        return id != null && Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }
