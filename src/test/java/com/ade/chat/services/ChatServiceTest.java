@@ -3,6 +3,8 @@ package com.ade.chat.services;
 import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
+import com.ade.chat.exception.ChatNotFoundException;
+import com.ade.chat.exception.IllegalMemberCount;
 import com.ade.chat.repositories.ChatRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,7 +53,8 @@ class ChatServiceTest {
 
         //when & then
         assertThatThrownBy(() -> underTest.getChatByIdOrException(chat.getId()))
-                .hasMessageContaining("No chat with such id: " + chat.getId());
+                .hasMessageContaining("No chat with such id: " + chat.getId())
+                .isInstanceOf(ChatNotFoundException.class);
     }
 
     @Test
@@ -62,7 +65,7 @@ class ChatServiceTest {
                 .willReturn(Optional.of(chat));
 
         //when
-        List<Message> messages = underTest.getMessages(chat.getId());
+        List<Message> messages = underTest.getMessages(chat.getId(), null);
 
         //then
         assertThat(messages).isEqualTo(chat.getMessages());
@@ -127,7 +130,8 @@ class ChatServiceTest {
     void exceptionWhenCreatePrivateWithWrongNumberOfUsers() {
         //when & then
         assertThatThrownBy(() -> underTest.createOrGetChat(List.of(), true))
-                .hasMessageContaining("size of id list for private chat must equals 2");
+                .hasMessageContaining("size of id list for private chat must equals 2")
+                .isInstanceOf(IllegalMemberCount.class);
 
     }
 }
