@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @Service
@@ -27,9 +28,13 @@ public class MessageService {
      * @return сообщение, которое было сохранено
      */
     private Message sendToChatFromUser(User user, Chat chat, Message msg) {
+        var otherMembers = new LinkedHashSet<>(chat.getMembers());
+        otherMembers.remove(user);
+
         msg.setAuthor(user);
         msg.setChat(chat);
         msg.setDateTime(LocalDateTime.now());
+        msg.setUndeliveredTo(otherMembers);
         return messageRepo.save(msg);
     }
 
