@@ -2,6 +2,7 @@ package com.ade.chat.services;
 
 import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.User;
+import com.ade.chat.exception.UserNotFoundException;
 import com.ade.chat.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,25 +62,26 @@ class UserServiceTest {
 
         // when & then
         assertThatThrownBy(() -> underTest.getUserByIdOrException(user.getId()))
-                .hasMessageContaining("No user with given id:" + user.getId());
+                .hasMessageContaining("No user with given id:" + user.getId())
+                .isInstanceOf(UserNotFoundException.class);
     }
 
     @Test
     void getUserChats() {
         // given
-        User u1 = User.builder().username("Artem").build(),
-                u2 = User.builder().username("Egor").build();
-        Set<Chat> chatSet = Set.of(Chat.builder().isPrivate(true).members(Set.of(u1, u2)).build());
-        u1.setChats(chatSet);
-        u2.setChats(chatSet);
+        Set<Chat> chats = Set.of(new Chat());
+        User u1 = User.builder()
+                .username("Artem")
+                .chats(chats)
+                .build();
 
         given(userRepository.findById(u1.getId()))
                 .willReturn(Optional.of(u1));
 
         // when
-        var chats = underTest.getUserChats(u1.getId());
+        var returnedChats = underTest.getUserChats(u1.getId());
 
         // then
-        assertThat(chats).isEqualTo(List.copyOf(chatSet));
+        assertThat(returnedChats).isEqualTo(List.copyOf(chats));
     }
 }

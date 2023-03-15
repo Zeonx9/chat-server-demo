@@ -37,11 +37,9 @@ public class ChatService {
     public Optional<Chat> privateChatBetweenUsers(User first, User second) {
         Set<Chat> intersect = new HashSet<>(first.getChats());
         intersect.retainAll(second.getChats());
-        for (Chat chat : intersect) {
-            if (chat.getIsPrivate())
-                return Optional.of(chat);
-        }
-        return Optional.empty();
+        return intersect.stream()
+                .filter(Chat::getIsPrivate)
+                .findAny();
     }
 
     /**
@@ -66,39 +64,50 @@ public class ChatService {
      * @return созданный чат
      */
     public Chat createOrGetChat(List<Long> ids, Boolean isPrivate) {
-        if (isPrivate == null)
+        if (isPrivate == null) {
             isPrivate = false;
-
-        Optional<Chat> possiblePreviousPrivateChat = privateChatBetweenUsersWithIds(ids);
-        if (isPrivate && possiblePreviousPrivateChat.isPresent()) {
-            return possiblePreviousPrivateChat.get();
         }
 
+        if (isPrivate){
+            Optional<Chat> possiblePreviousPrivateChat = privateChatBetweenUsersWithIds(ids);
+            if (possiblePreviousPrivateChat.isPresent()) {
+                return possiblePreviousPrivateChat.get();
+            }
+        }
+
+        return createChat(ids, isPrivate);
+    }
+
+    private Chat createChat(List<Long> ids, Boolean isPrivate) {
         Chat chat = Chat.builder()
                 .isPrivate(isPrivate)
-                .members(new HashSet<>())
                 .build();
-        ids.forEach(id ->
-                chat.getMembers().add(userService.getUserByIdOrException(id))
-        );
 
+        ids.forEach(id -> addMemberById(chat, id));
         return chatRepo.save(chat);
     }
 
+    private void addMemberById(Chat chat, Long id) {
+        chat.getMembers().add(userService.getUserByIdOrException(id));
+    }
+
     /**
+     * получает сообщения из чата для, и помечает их, как доставленные
      * @param chatId идентификатор чата, из которого запрошены сообщения
      * @return список сообщений из соответствующего чата
-     * @throws ChatNotFoundException если дан неверный айди чата
+     * @throws ChatNotFoundException если дан неверный ID чата
      */
     @Transactional
     public List<Message> getMessages(Long chatId, Long userId) {
         Chat chat = getChatByIdOrException(chatId);
-        if (userId != null) {
-            User user = userService.getUserByIdOrException(userId);
-            Set<Message> undelivered = new LinkedHashSet<>(user.getUndeliveredMessages());
-            undelivered.retainAll(chat.getMessages());
-            undelivered.forEach(message -> message.removeRecipient(user));
+        if (userId == null) {
+            return chat.getMessages();
         }
+
+        User user = userService.getUserByIdOrException(userId);
+        Set<Message> undelivered = new LinkedHashSet<>(user.getUndeliveredMessages());
+        undelivered.retainAll(chat.getMessages());
+        undelivered.forEach(message -> message.removeRecipient(user));
         return chat.getMessages();
     }
 }

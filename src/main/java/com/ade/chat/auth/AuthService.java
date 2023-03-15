@@ -30,8 +30,9 @@ public class AuthService {
      */
     public AuthResponse register(AuthRequest request) {
         var userByName = userRepository.findByUsername(request.getLogin());
-        if (userByName.isPresent())
+        if (userByName.isPresent()) {
             throw new NameAlreadyTakenException("Name: " + request.getLogin() + " is taken already");
+        }
 
         User newUser = userRepository.save(setUpUser(request));
         return generateResponseWithToken(newUser);
@@ -44,16 +45,18 @@ public class AuthService {
      * @throws org.springframework.security.core.AuthenticationException если данные не верны
      */
     public AuthResponse login(AuthRequest request) {
-        authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getLogin(),
-                        request.getPassword()
-                )
-        );
+        authManager.authenticate(getAuthToken(request));
         var user = userRepository.findByUsername(request.getLogin())
                 .orElseThrow(() -> new RuntimeException("Somehow user authenticated but not found"));
 
         return generateResponseWithToken(user);
+    }
+
+    private static UsernamePasswordAuthenticationToken getAuthToken(AuthRequest request) {
+        return new UsernamePasswordAuthenticationToken(
+                request.getLogin(),
+                request.getPassword()
+        );
     }
 
     private AuthResponse generateResponseWithToken(User user) {

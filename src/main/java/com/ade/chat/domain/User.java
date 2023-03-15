@@ -39,12 +39,15 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     @JsonIgnore
+    @Builder.Default
     private List<Message> messages = new ArrayList<>();
 
     @ManyToMany(mappedBy = "members", cascade = CascadeType.ALL)
+    @Builder.Default
     private Set<Chat> chats = new LinkedHashSet<>();
 
     @ManyToMany(mappedBy = "undeliveredTo")
+    @Builder.Default
     private Set<Message> undeliveredMessages = new LinkedHashSet<>();
 
     @Override
@@ -79,8 +82,12 @@ public class User implements UserDetails {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
+            return false;
+        }
         User user = (User) o;
         return id != null && Objects.equals(id, user.id);
     }

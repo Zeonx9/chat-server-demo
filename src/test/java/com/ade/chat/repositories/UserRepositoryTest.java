@@ -35,7 +35,6 @@ class UserRepositoryTest {
         // then
         assertThat(foundUser).isPresent();
         assertThat(foundUser.get()).isEqualTo(user);
-
     }
 
     @Test

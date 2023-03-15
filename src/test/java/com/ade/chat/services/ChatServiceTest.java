@@ -32,15 +32,21 @@ class ChatServiceTest {
         underTest = new ChatService(chatRepo, userService);
     }
 
+    private void givenRepositoryReturnsChat(Chat chat) {
+        given(chatRepo.findById(chat.getId())).willReturn(Optional.of(chat));
+    }
+
+    private void givenServiceReturnsUser(User user) {
+        given(userService.getUserByIdOrException(user.getId())).willReturn(user);
+    }
+
     @Test
     void canFindChatByIdIfExists() {
         //given
         Chat chat = new Chat();
-        given(chatRepo.findById(chat.getId())).willReturn(Optional.of(chat));
-
+        givenRepositoryReturnsChat(chat);
         // when
         Chat foundChat = underTest.getChatByIdOrException(chat.getId());
-
         // then
         assertThat(foundChat).isEqualTo(chat);
     }
@@ -50,74 +56,77 @@ class ChatServiceTest {
         //given
         Chat chat = new Chat();
         given(chatRepo.findById(chat.getId())).willReturn(Optional.empty());
-
         //when & then
         assertThatThrownBy(() -> underTest.getChatByIdOrException(chat.getId()))
                 .hasMessageContaining("No chat with such id: " + chat.getId())
                 .isInstanceOf(ChatNotFoundException.class);
     }
 
+    private Chat configureCommonChatBetween(User u1, User u2) {
+        Chat chat = Chat.builder().members(Set.of(u1, u2)).isPrivate(true).build();
+        u1.getChats().add(chat);
+        u2.getChats().add(chat);
+        return chat;
+    }
+
+    @Test
+    void canFindPresentPrivateChatBetweenUsers() {
+        //given
+        User u1 = new User();
+        User u2 = new User();
+        Chat chat = configureCommonChatBetween(u1, u2);
+        //when
+        Optional<Chat> commonChat = underTest.privateChatBetweenUsers(u1, u2);
+        //then
+        assertThat(commonChat.isPresent()).isTrue();
+        assertThat(commonChat.get()).isEqualTo(chat);
+    }
+    @Test
+    void emptyWhenNoPrivateChatBetweenUsers() {
+        //given
+        User u1 = new User();
+        User u2 = new User();
+        //when
+        Optional<Chat> commonChat = underTest.privateChatBetweenUsers(u1, u2);
+        //then
+        assertThat(commonChat).isEmpty();
+    }
+
+    @Test
+    void canGetPrivateByIds() {
+        //given
+        List<Long> ids = List.of(1L, 2L);
+        User u1 = User.builder().id(ids.get(0)).build();
+        User u2 = User.builder().id(ids.get(1)).build();
+        givenServiceReturnsUser(u1);
+        givenServiceReturnsUser(u2);
+        Chat chat = configureCommonChatBetween(u1, u2);
+        //when
+        Optional<Chat> commonChat = underTest.privateChatBetweenUsersWithIds(ids);
+        //then
+        assertThat(commonChat.isPresent()).isTrue();
+        assertThat(commonChat.get()).isEqualTo(chat);
+
+    }
+
     @Test
     void canGetMessages() {
         //given
         Chat chat = new Chat();
-        given(chatRepo.findById(chat.getId()))
-                .willReturn(Optional.of(chat));
-
+        givenRepositoryReturnsChat(chat);
         //when
         List<Message> messages = underTest.getMessages(chat.getId(), null);
-
         //then
         assertThat(messages).isEqualTo(chat.getMessages());
     }
 
     @Test
-    void canFindCommonChat() {
-        //given
-        User u1 = User.builder().id(1L).build(),
-             u2 = User.builder().id(2L).build();
-        Chat chat = new Chat(1L, true, Set.of(u1, u2), null);
-        u1.setChats(Set.of(chat));
-        u2.setChats(Set.of(chat));
-
-        given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
-        given(userService.getUserByIdOrException(u2.getId())).willReturn(u2);
-
-        // when
-        Optional<Chat> commonChat =
-                underTest.privateChatBetweenUsersWithIds(List.of(u1.getId(), u2.getId()));
-
-        // then
-        assertThat(commonChat).isPresent();
-        assertThat(commonChat.get()).isEqualTo(chat);
-    }
-
-    @Test
-    void noCommonChatNotFound() {
-        //given
-        User u1 = User.builder().id(1L).chats(Set.of()).build(),
-                u2 = User.builder().id(2L).chats(Set.of()).build();
-
-        given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
-        given(userService.getUserByIdOrException(u2.getId())).willReturn(u2);
-
-        // when
-        Optional<Chat> commonChat =
-                underTest.privateChatBetweenUsersWithIds(List.of(u1.getId(), u2.getId()));
-
-        // then
-        assertThat(commonChat).isEmpty();
-    }
-
-    @Test
     void returnExistingWhenTryToCreateExisting() {
-        User u1 = User.builder().id(1L).build(),
-                u2 = User.builder().id(2L).build();
-        Chat chat = new Chat(1L, true, Set.of(u1, u2), null);
-        u1.setChats(Set.of(chat));
-        u2.setChats(Set.of(chat));
-        given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
-        given(userService.getUserByIdOrException(u2.getId())).willReturn(u2);
+        User u1 = User.builder().id(1L).build();
+        User u2 = User.builder().id(2L).build();
+        Chat chat = configureCommonChatBetween(u1, u2);
+        givenServiceReturnsUser(u1);
+        givenServiceReturnsUser(u2);
         //when
         var returned = underTest.createOrGetChat(List.of(u1.getId(), u2.getId()), true);
 
@@ -132,6 +141,5 @@ class ChatServiceTest {
         assertThatThrownBy(() -> underTest.createOrGetChat(List.of(), true))
                 .hasMessageContaining("size of id list for private chat must equals 2")
                 .isInstanceOf(IllegalMemberCount.class);
-
     }
 }

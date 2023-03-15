@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -19,7 +19,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
     private final UserRepository userRepo;
 
     /**
@@ -46,6 +45,7 @@ public class UserService {
     public List<Chat> getUserChats(Long id) {
         return List.copyOf(getUserByIdOrException(id).getChats());
     }
+    
 
     /**
      * получает список сообщений, еще не доставленных пользователю и затем помечает их, как доставленные
@@ -55,14 +55,18 @@ public class UserService {
      */
     @Transactional
     public List<Message> getUndeliveredMessagesAndMarkAsDelivered(Long id) {
-        System.out.println("requesting undelivered messages");
         User user = getUserByIdOrException(id);
-        List<Message> messages = new ArrayList<>();
-        user.getUndeliveredMessages().forEach(message -> {
-            messages.add(message);
-            message.getUndeliveredTo().remove(user);
-        });
+        
+        List<Message> messages = user.getUndeliveredMessages().stream()
+                .map(message -> markDeliveredTo(message, user))
+                .collect(Collectors.toList());
+
         user.getUndeliveredMessages().clear();
         return messages;
+    }
+
+    private Message markDeliveredTo(Message message, User user) {
+        message.getUndeliveredTo().remove(user);
+        return message;
     }
 }
