@@ -18,7 +18,6 @@ import java.util.List;
 @RequestMapping("chat_api/v1")
 @RequiredArgsConstructor
 public class ChatController {
-
     private final ChatService chatService;
     private final ChatMapper chatMapper;
     private final MessageMapper messageMapper;

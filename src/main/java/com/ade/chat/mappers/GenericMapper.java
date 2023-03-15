@@ -1,5 +1,5 @@
 package com.ade.chat.mappers;
-import lombok.RequiredArgsConstructor;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
@@ -8,22 +8,28 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
-@RequiredArgsConstructor
-public class GenericMapper<E, D> {
+public abstract class GenericMapper<E, D> {
     private final ModelMapper mapper;
 
-    public D toDto(E entity, Class<D> dtoClass) {
-        return Objects.isNull(entity) ? null : mapper.map(entity, dtoClass);
+    protected GenericMapper(ModelMapper mapper) {
+        this.mapper = mapper;
     }
 
-    public E toEntity(D dto, Class<E> entityClass) {
-        return Objects.isNull(dto) ? null : mapper.map(dto, entityClass);
+    protected abstract Class<E> getEntityClass();
+    protected abstract Class<D> getDtoClass();
+
+    public D toDto(E entity) {
+        return Objects.isNull(entity) ? null : mapper.map(entity, getDtoClass());
     }
 
-    public List<D> toDtoList(List<E> entityList, Class<D> dtoClass) {
+    public E toEntity(D dto) {
+        return Objects.isNull(dto) ? null : mapper.map(dto, getEntityClass());
+    }
+
+    public List<D> toDtoList(List<E> entityList) {
         return entityList
                 .stream()
-                .map(entity -> toDto(entity, dtoClass))
+                .map(this::toDto)
                 .collect(Collectors.toList());
     }
 }

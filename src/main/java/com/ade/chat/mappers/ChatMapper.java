@@ -2,21 +2,22 @@ package com.ade.chat.mappers;
 
 import com.ade.chat.domain.Chat;
 import com.ade.chat.dtos.ChatDto;
-import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
-@RequiredArgsConstructor
-public class ChatMapper {
-    private final GenericMapper<Chat, ChatDto> mapper;
-
-    public ChatDto toDto(Chat chat) {
-        return mapper.toDto(chat, ChatDto.class);
+public class ChatMapper extends GenericMapper<Chat, ChatDto>{
+    public ChatMapper(ModelMapper mapper) {
+        super(mapper);
     }
 
-    public List<ChatDto> toDtoList(List<Chat> chatList) {
-        return mapper.toDtoList(chatList, ChatDto.class);
+    @Override
+    protected Class<Chat> getEntityClass() {
+        return Chat.class;
+    }
+
+    @Override
+    protected Class<ChatDto> getDtoClass() {
+        return ChatDto.class;
     }
 }
