@@ -25,7 +25,8 @@ public class Chat {
     private Long id;
 
     @Column(name = "is_private")
-    private Boolean isPrivate;
+    @Builder.Default
+    private Boolean isPrivate = false;
 
     @ManyToMany(
             fetch = FetchType.EAGER,
@@ -45,5 +46,9 @@ public class Chat {
 
     @ToString.Exclude
     @OneToMany(mappedBy = "chat")
+    @Builder.Default
     private List<Message> messages = new ArrayList<>();
+
+    @OneToOne(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Group group;
 }
