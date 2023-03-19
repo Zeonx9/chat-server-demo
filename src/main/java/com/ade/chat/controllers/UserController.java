@@ -23,7 +23,6 @@ import java.util.List;
 @RequestMapping("chat_api/v1")
 @RequiredArgsConstructor
 public class UserController {
-
     private final UserService userService;
     private final UserMapper userMapper;
     private final ChatMapper chatMapper;
@@ -59,7 +58,6 @@ public class UserController {
      */
     @GetMapping("/users/{id}/undelivered_messages")
     public ResponseEntity<List<MessageDto>> getUndeliveredMessages(@PathVariable Long id) {
-        System.out.println("controller und mes");
         return ResponseEntity.ok(
                 messageMapper.toDtoList(
                         userService.getUndeliveredMessagesAndMarkAsDelivered(id)
