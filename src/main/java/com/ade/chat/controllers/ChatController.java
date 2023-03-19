@@ -1,8 +1,10 @@
 package com.ade.chat.controllers;
 
 import com.ade.chat.dtos.ChatDto;
+import com.ade.chat.dtos.GroupRequest;
 import com.ade.chat.dtos.MessageDto;
 import com.ade.chat.mappers.ChatMapper;
+import com.ade.chat.mappers.GroupMapper;
 import com.ade.chat.mappers.MessageMapper;
 import com.ade.chat.services.ChatService;
 import lombok.RequiredArgsConstructor;
@@ -21,18 +23,24 @@ public class ChatController {
     private final ChatService chatService;
     private final ChatMapper chatMapper;
     private final MessageMapper messageMapper;
+    private final GroupMapper groupMapper;
 
-    /**
-     * POST реквест с полным путем chat_api/v1/chat
-     * @param ids список ID пользоваетелей, которые будут участниками чата
-     *            для приватных чатов обязательно только 2 ID в списке, иначе ошибка
-     * @param isPrivate если true то будет создан приватный чат, в противном случае беседа
-     */
-    @PostMapping("/chat")
-    public ResponseEntity<ChatDto> createOrGetChat(
-            @RequestBody List<Long> ids,
-            @RequestParam(required = false) Boolean isPrivate) {
-        return ResponseEntity.ok(chatMapper.toDto(chatService.createOrGetChat(ids, isPrivate)));
+    @GetMapping("/private_chat/{id1}/{id2}")
+    public ResponseEntity<ChatDto> getOrCreatePrivateChat(
+            @PathVariable Long id1,
+            @PathVariable Long id2
+    ) {
+        return ResponseEntity.ok(chatMapper.toDto(chatService.createOrGetPrivateChat(id1, id2)));
+    }
+
+    @PostMapping("group_chat")
+    public ResponseEntity<ChatDto> createGroupChat(@RequestBody GroupRequest groupRequest) {
+        return ResponseEntity.ok(chatMapper.toDto(
+                chatService.createGroupChat(
+                        groupRequest.getIds(),
+                        groupMapper.toEntity(groupRequest.getGroupInfo())
+                )
+        ));
     }
 
     /**
@@ -48,5 +56,19 @@ public class ChatController {
             @RequestParam(required = false) Long userId
     ) {
         return ResponseEntity.ok(messageMapper.toDtoList(chatService.getMessages(chatId, userId)));
+    }
+
+    /**
+     * POST реквест с полным путем chat_api/v1/chat
+     * @param ids список ID пользователей, которые будут участниками чата
+     *            для приватных чатов обязательно только 2 ID в списке, иначе ошибка
+     * @param isPrivate если true, то будет создан приватный чат, в противном случае беседа
+     */
+    @Deprecated
+    @PostMapping("/chat")
+    public ResponseEntity<ChatDto> createOrGetChat(
+            @RequestBody List<Long> ids,
+            @RequestParam(required = false) Boolean isPrivate) {
+        return ResponseEntity.ok(chatMapper.toDto(chatService.createOrGetChat(ids, isPrivate)));
     }
 }
