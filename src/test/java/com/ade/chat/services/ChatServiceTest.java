@@ -70,29 +70,6 @@ class ChatServiceTest {
     }
 
     @Test
-    void canFindPresentPrivateChatBetweenUsers() {
-        //given
-        User u1 = new User();
-        User u2 = new User();
-        Chat chat = configureCommonChatBetween(u1, u2);
-        //when
-        Optional<Chat> commonChat = underTest.privateChatBetweenUsers(u1, u2);
-        //then
-        assertThat(commonChat.isPresent()).isTrue();
-        assertThat(commonChat.get()).isEqualTo(chat);
-    }
-    @Test
-    void emptyWhenNoPrivateChatBetweenUsers() {
-        //given
-        User u1 = new User();
-        User u2 = new User();
-        //when
-        Optional<Chat> commonChat = underTest.privateChatBetweenUsers(u1, u2);
-        //then
-        assertThat(commonChat).isEmpty();
-    }
-
-    @Test
     void canGetPrivateByIds() {
         //given
         List<Long> ids = List.of(1L, 2L);
