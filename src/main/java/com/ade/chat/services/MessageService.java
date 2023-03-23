@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -19,24 +18,6 @@ public class MessageService {
     private final MessageRepository messageRepo;
     private final ChatService chatService;
     private final UserService userService;
-
-    /**
-     * сохраняет сообщение отправленное пользователем в чат
-     * @param user отправитель сообщения
-     * @param chat чат, в который сообщение было отправлено
-     * @param msg само сообщение
-     * @return сообщение, которое было сохранено
-     */
-    private Message sendToChatFromUser(User user, Chat chat, Message msg) {
-        var otherMembers = new LinkedHashSet<>(chat.getMembers());
-        otherMembers.remove(user);
-
-        msg.setAuthor(user);
-        msg.setChat(chat);
-        msg.setDateTime(LocalDateTime.now());
-        msg.setUndeliveredTo(otherMembers);
-        return messageRepo.save(msg);
-    }
 
     /**
      * сохраняет сообщение отправленное пользователем в чат
@@ -67,7 +48,18 @@ public class MessageService {
      */
     public Message sendPrivateMessage(Long fromUserId, Long toUserId, Message msg) {
         User fromUser = userService.getUserByIdOrException(fromUserId);
-        var chat =  chatService.createOrGetChat(List.of(fromUserId, toUserId), true);
+        var chat =  chatService.createOrGetPrivateChat(fromUserId, toUserId);
         return sendToChatFromUser(fromUser, chat, msg);
+    }
+
+    private Message sendToChatFromUser(User user, Chat chat, Message msg) {
+        var otherMembers = new LinkedHashSet<>(chat.getMembers());
+        otherMembers.remove(user);
+
+        msg.setAuthor(user);
+        msg.setChat(chat);
+        msg.setDateTime(LocalDateTime.now());
+        msg.setUndeliveredTo(otherMembers);
+        return messageRepo.save(msg);
     }
 }
