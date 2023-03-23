@@ -38,6 +38,13 @@ public class UserService {
     }
 
     /**
+     * @return список пользователей из заданной компании
+     */
+    public List<User> getAllUsersFromCompany(Long id) {
+        return userRepo.findByCompany_Id(id);
+    }
+
+    /**
      * @param id логин пользоваетля
      * @return список чатов, в которых состоит пользователь с указаннным идентификатором
      * @throws UserNotFoundException если не существует пользовваетля с указанным айди
@@ -65,7 +72,7 @@ public class UserService {
         return messages;
     }
 
-    private Message markDeliveredTo(Message message, User user) {
+    private static Message markDeliveredTo(Message message, User user) {
         message.getUndeliveredTo().remove(user);
         return message;
     }

@@ -38,6 +38,15 @@ public class UserController {
     }
 
     /**
+     * GET реквест с полным путем /chat_api/v1/users
+     * @return список всех доступных пользователей в базе данных
+     */
+    @GetMapping("/company/{id}/users")
+    public ResponseEntity<List<UserDto>> getCompanyUsers(@PathVariable Long id) {
+        return ResponseEntity.ok(userMapper.toDtoList(userService.getAllUsersFromCompany(id)));
+    }
+
+    /**
      * GET реквест с полным путем /chat_api/v1/users/{id}/chats
      * получает список чатов доступных пользователю с заданным id
      * @param id id пользователя для поиска
