@@ -12,11 +12,11 @@ import java.util.Set;
 @Setter
 @ToString
 @Builder
-@Entity
+@Entity(name = "company")
 @Table(name = "company")
 public class Company {
     @Id
-    @SequenceGenerator(name = "company_seq")
+    @SequenceGenerator(name = "company_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "company_seq")
     @Column(name = "id", nullable = false)
     private Long id;
@@ -26,5 +26,6 @@ public class Company {
 
     @OneToMany(mappedBy = "company", orphanRemoval = true)
     @ToString.Exclude
+    @Builder.Default
     private Set<User> employees = new LinkedHashSet<>();
 }
