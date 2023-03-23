@@ -5,6 +5,7 @@ import com.ade.chat.domain.User;
 import com.ade.chat.dtos.AuthRequest;
 import com.ade.chat.dtos.AuthResponse;
 import com.ade.chat.exception.NameAlreadyTakenException;
+import com.ade.chat.mappers.CompanyMapper;
 import com.ade.chat.mappers.UserMapper;
 import com.ade.chat.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class AuthService {
     private final AuthenticationManager authManager;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final CompanyMapper companyMapper;
 
     /**
      * Регистрирует нового пользователя с заданными данными
@@ -64,6 +66,7 @@ public class AuthService {
         return AuthResponse.builder()
                 .token(jwtToken)
                 .user(userMapper.toDto(user))
+                .company(companyMapper.toDto(user.getCompany()))
                 .build();
     }
 
