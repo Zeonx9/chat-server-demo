@@ -43,28 +43,4 @@ public class MessageController {
                 )
         );
     }
-
-    /**
-     * POST реквест с полным путем chat_api/v1/users/{fromUserId}/message/users/{toUserId}
-     * @param fromUserId идентификатор отправителя
-     * @param toUserId идентификатор получаетля
-     * @param msgDto сообщение, которое будет отправлено в приватный чат между указанными пользователями
-     * @throws com.ade.chat.exception.UserNotFoundException если неверное айди пользователя
-     */
-    @PostMapping("/users/{fromUserId}/message/users/{toUserId}")
-    public ResponseEntity<MessageDto> sendPrivateMessage(
-            @PathVariable Long fromUserId,
-            @PathVariable Long toUserId,
-            @RequestBody MessageDto msgDto
-    ) {
-        return ResponseEntity.ok(
-                messageMapper.toDto(
-                        messageService.sendPrivateMessage(
-                                fromUserId,
-                                toUserId,
-                                messageMapper.toEntity(msgDto)
-                        )
-                )
-        );
-    }
 }

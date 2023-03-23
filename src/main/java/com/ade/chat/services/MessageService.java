@@ -39,19 +39,6 @@ public class MessageService {
         return sendToChatFromUser(user, chat, msg);
     }
 
-    /**
-     * сохраняет личное сообщение от одного пользователя другому, если между ними не было диалога - он созадется
-     * @param fromUserId идентификатор отправителя сообщения
-     * @param toUserId идентификатор получателя сообщения
-     * @param msg само сообщение
-     * @throws com.ade.chat.exception.UserNotFoundException если неверное айди пользователя
-     */
-    public Message sendPrivateMessage(Long fromUserId, Long toUserId, Message msg) {
-        User fromUser = userService.getUserByIdOrException(fromUserId);
-        var chat =  chatService.createOrGetPrivateChat(fromUserId, toUserId);
-        return sendToChatFromUser(fromUser, chat, msg);
-    }
-
     private Message sendToChatFromUser(User user, Chat chat, Message msg) {
         var otherMembers = new LinkedHashSet<>(chat.getMembers());
         otherMembers.remove(user);

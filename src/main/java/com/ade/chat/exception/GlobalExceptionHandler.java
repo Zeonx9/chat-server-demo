@@ -1,6 +1,5 @@
 package com.ade.chat.exception;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -10,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    private ResponseEntity<AppError> handleTheException(Exception e, HttpStatus status) {
+    private static ResponseEntity<AppError> handleTheException(Exception e, HttpStatus status) {
         System.err.println(e.getMessage());
         return new ResponseEntity<>(
                 new AppError(e.getMessage(), status.value()),
@@ -49,7 +48,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<AppError> catchJwtExpiredException(ExpiredJwtException e) {
+    public ResponseEntity<AppError> catchCompanyNotFoundException(CompanyNotFoundException e) {
+        return handleTheException(e, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<AppError> catchAbsentGroupInfo(AbsentGroupInfoException e) {
         return handleTheException(e, HttpStatus.FORBIDDEN);
     }
 }
