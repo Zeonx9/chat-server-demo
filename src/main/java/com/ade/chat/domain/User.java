@@ -37,6 +37,10 @@ public class User implements UserDetails {
     @Column(name = "role")
     private Role role;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
+
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     @JsonIgnore
     @Builder.Default
