@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ChatMapper extends GenericMapper<Chat, ChatDto>{
-    public ChatMapper(ModelMapper mapper) {
+    protected ChatMapper(ModelMapper mapper) {
         super(mapper);
     }
 

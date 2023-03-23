@@ -25,6 +25,13 @@ public class ChatController {
     private final MessageMapper messageMapper;
     private final GroupMapper groupMapper;
 
+    /**
+     * GET запрос, который по заданным ID пользователей находит существующий диалог
+     * или создает новый в случае отсутствия.
+     * @param id1 идентификатор одного пользователя
+     * @param id2 идентификатор другого пользователя
+     * @return объект диалога
+     */
     @GetMapping("/private_chat/{id1}/{id2}")
     public ResponseEntity<ChatDto> getOrCreatePrivateChat(
             @PathVariable Long id1,
@@ -33,6 +40,12 @@ public class ChatController {
         return ResponseEntity.ok(chatMapper.toDto(chatService.createOrGetPrivateChat(id1, id2)));
     }
 
+    /**
+     * POST запрос, который по создает чат по списку идентификаторов пользователей входящих в него,
+     * а так же дополнительной информации описываемой в объекте GroupDto
+     * @param groupRequest DTO, которое несет информацию о группе для создания
+     * @return созданный объект чата
+     */
     @PostMapping("group_chat")
     public ResponseEntity<ChatDto> createGroupChat(@RequestBody GroupRequest groupRequest) {
         return ResponseEntity.ok(chatMapper.toDto(
