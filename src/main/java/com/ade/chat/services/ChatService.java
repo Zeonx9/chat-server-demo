@@ -4,8 +4,8 @@ import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.Group;
 import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
+import com.ade.chat.exception.AbsentGroupInfoException;
 import com.ade.chat.exception.ChatNotFoundException;
-import com.ade.chat.exception.IllegalMemberCount;
 import com.ade.chat.exception.NotAMemberException;
 import com.ade.chat.repositories.ChatRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ public class ChatService {
      */
     public Chat createOrGetPrivateChat(Long id1, Long id2) {
         Optional<Chat> existing = privateChatBetweenUsersByIds(id1, id2);
-        return existing.orElse(createChat(List.of(id1, id2), true, null));
+        return existing.orElse(createPrivateChat(id1, id2));
     }
 
     /**
@@ -51,7 +51,20 @@ public class ChatService {
      * @return созданный чат
      */
     public Chat createGroupChat(List<Long> ids, Group groupInfo) {
-        return createChat(ids, false, groupInfo);
+        if (groupInfo == null) {
+            throw new AbsentGroupInfoException("group chat creation require \"groupInfo\"");
+        }
+        if (!ids.contains(groupInfo.getCreator().getId())) {
+            throw new NotAMemberException("Creator is not a member of a group chat");
+        }
+
+        Chat chat = Chat.builder().isPrivate(false).group(groupInfo).build();
+        ids.forEach(id -> addMemberById(chat, id));
+
+        groupInfo.setCreationDate(LocalDate.now());
+        groupInfo.setChat(chat);
+
+        return chatRepo.save(chat);
     }
 
     /**
@@ -70,20 +83,12 @@ public class ChatService {
         return chat.getMessages();
     }
 
-    private Chat createChat(List<Long> ids, Boolean isPrivate, Group groupInfo) {
-        if (groupInfo != null) {
-            groupInfo.setCreationDate(LocalDate.now());
-            if (!ids.contains(groupInfo.getCreator().getId())) {
-                throw new NotAMemberException("Creator is not a member of a group chat");
-            }
-        }
-
+    private Chat createPrivateChat(Long id1, Long id2) {
         Chat chat = Chat.builder()
-                .isPrivate(isPrivate)
-                .group(groupInfo)
+                .isPrivate(true)
                 .build();
-
-        ids.forEach(id -> addMemberById(chat, id));
+        addMemberById(chat, id1);
+        addMemberById(chat, id2);
         return chatRepo.save(chat);
     }
 
@@ -109,35 +114,5 @@ public class ChatService {
         Set<Message> undelivered = new LinkedHashSet<>(user.getUndeliveredMessages());
         undelivered.retainAll(chat.getMessages());
         undelivered.forEach(message -> message.removeRecipient(user));
-    }
-
-    /**
-     * Создает чат между пользователями. Или возвращает уже существующий личный диалог
-     * @param ids список идентификаторов пользователей (ровно 2 ID)
-     * @param isPrivate true для приватных диалогов false для бесед
-     * @return созданный чат
-     */
-    @Deprecated
-    public Chat createOrGetChat(List<Long> ids, boolean isPrivate) {
-        if (isPrivate){
-            Optional<Chat> possiblePreviousPrivateChat = privateChatBetweenUsersWithIds(ids);
-            if (possiblePreviousPrivateChat.isPresent()) {
-                return possiblePreviousPrivateChat.get();
-            }
-        }
-        return createChat(ids, isPrivate, null);
-    }
-
-    /**
-     * ищет пользователей по ID, затем их личный диалог
-     * @param ids список идентификаторов пользователей (ровно 2 ID)
-     * @return найденный общий приватный чат между переданными пользователями или Optional.empty()
-     * @throws IllegalMemberCount если размер списка ID не равен 2
-     * @throws com.ade.chat.exception.UserNotFoundException если в списке неверные ID
-     */
-    public Optional<Chat> privateChatBetweenUsersWithIds(List<Long> ids) {
-        if (ids.size() != 2)
-            throw new IllegalMemberCount("size of id list for private chat must equals 2");
-        return privateChatBetweenUsersByIds(ids.get(0), ids.get(1));
     }
 }

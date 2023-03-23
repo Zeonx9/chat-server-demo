@@ -5,14 +5,14 @@ import lombok.*;
 
 import java.time.LocalDate;
 
-@Entity
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Table(name = "group")
+@Entity(name = "group")
+@Table(name = "groups")
 public class Group {
     @Id
     @SequenceGenerator(name = "group_seq", sequenceName = "group_seq", allocationSize = 1)

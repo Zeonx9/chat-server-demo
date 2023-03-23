@@ -4,7 +4,6 @@ import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
 import com.ade.chat.exception.ChatNotFoundException;
-import com.ade.chat.exception.IllegalMemberCount;
 import com.ade.chat.repositories.ChatRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,23 +69,6 @@ class ChatServiceTest {
     }
 
     @Test
-    void canGetPrivateByIds() {
-        //given
-        List<Long> ids = List.of(1L, 2L);
-        User u1 = User.builder().id(ids.get(0)).build();
-        User u2 = User.builder().id(ids.get(1)).build();
-        givenServiceReturnsUser(u1);
-        givenServiceReturnsUser(u2);
-        Chat chat = configureCommonChatBetween(u1, u2);
-        //when
-        Optional<Chat> commonChat = underTest.privateChatBetweenUsersWithIds(ids);
-        //then
-        assertThat(commonChat.isPresent()).isTrue();
-        assertThat(commonChat.get()).isEqualTo(chat);
-
-    }
-
-    @Test
     void canGetMessages() {
         //given
         Chat chat = new Chat();
@@ -97,26 +79,4 @@ class ChatServiceTest {
         assertThat(messages).isEqualTo(chat.getMessages());
     }
 
-    @Test
-    void returnExistingWhenTryToCreateExisting() {
-        User u1 = User.builder().id(1L).build();
-        User u2 = User.builder().id(2L).build();
-        Chat chat = configureCommonChatBetween(u1, u2);
-        givenServiceReturnsUser(u1);
-        givenServiceReturnsUser(u2);
-        //when
-        var returned = underTest.createOrGetChat(List.of(u1.getId(), u2.getId()), true);
-
-        //then
-        assertThat(returned).isEqualTo(chat);
-
-    }
-
-    @Test
-    void exceptionWhenCreatePrivateWithWrongNumberOfUsers() {
-        //when & then
-        assertThatThrownBy(() -> underTest.createOrGetChat(List.of(), true))
-                .hasMessageContaining("size of id list for private chat must equals 2")
-                .isInstanceOf(IllegalMemberCount.class);
-    }
 }
