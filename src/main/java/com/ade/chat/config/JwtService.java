@@ -1,6 +1,7 @@
 package com.ade.chat.config;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -56,8 +57,9 @@ public class JwtService {
      * извлекает имя пользователя из строки с токеном
      * @param token токен
      * @return имя пользователя
+     * @throws io.jsonwebtoken.ExpiredJwtException если токен просрочен
      */
-    public String extractUsername(String token) {
+    public String extractUsername(String token) throws ExpiredJwtException {
         return extractClaim(token, Claims::getSubject);
     }
 

@@ -4,7 +4,9 @@ import com.ade.chat.config.JwtService;
 import com.ade.chat.domain.User;
 import com.ade.chat.dtos.AuthRequest;
 import com.ade.chat.exception.NameAlreadyTakenException;
+import com.ade.chat.mappers.CompanyMapper;
 import com.ade.chat.mappers.UserMapper;
+import com.ade.chat.repositories.CompanyRepository;
 import com.ade.chat.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,14 +30,17 @@ import static org.mockito.Mockito.verify;
 class AuthServiceTest {
     private AuthService underTest;
     @Mock private UserRepository userRepository;
+    @Mock private CompanyRepository companyRepository;
     @Mock private JwtService jwtService;
     @Mock private AuthenticationManager authManager;
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private UserMapper userMapper;
+    @Mock private CompanyMapper companyMapper;
 
     @BeforeEach
     void setUp() {
-        underTest = new AuthService(userRepository, jwtService, authManager, passwordEncoder, userMapper);
+        underTest = new AuthService(userRepository, companyRepository, jwtService, authManager,
+                passwordEncoder, userMapper, companyMapper);
     }
 
     @Test

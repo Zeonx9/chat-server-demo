@@ -1,12 +1,15 @@
 package com.ade.chat.auth;
 
 import com.ade.chat.config.JwtService;
+import com.ade.chat.domain.Company;
 import com.ade.chat.domain.User;
 import com.ade.chat.dtos.AuthRequest;
 import com.ade.chat.dtos.AuthResponse;
+import com.ade.chat.exception.CompanyNotFoundException;
 import com.ade.chat.exception.NameAlreadyTakenException;
 import com.ade.chat.mappers.CompanyMapper;
 import com.ade.chat.mappers.UserMapper;
+import com.ade.chat.repositories.CompanyRepository;
 import com.ade.chat.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
+    private final CompanyRepository companyRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
     private final PasswordEncoder passwordEncoder;
@@ -26,7 +30,7 @@ public class AuthService {
 
     /**
      * Регистрирует нового пользователя с заданными данными
-     * @param request содержит имя и пароль
+     * @param request содержит имя, пароль и идентификатор компании
      * @return токен для созданного пользователя
      * @throws NameAlreadyTakenException если имя занято
      */
@@ -42,7 +46,7 @@ public class AuthService {
 
     /**
      * выполняет вход для указанного пользователя
-     * @param request содежит логин и пароль пользователя
+     * @param request содержит логин и пароль пользователя (идентификатор компании не нужен)
      * @return токен, если данные верны
      * @throws org.springframework.security.core.AuthenticationException если данные не верны
      */
@@ -71,10 +75,17 @@ public class AuthService {
     }
 
     private User setUpUser(AuthRequest request) {
+        if (request.getCompanyId() == null) {
+            throw new CompanyNotFoundException("No company Id passed to register request");
+        }
+        Company company = companyRepository.findById(request.getCompanyId())
+                .orElseThrow(() -> new CompanyNotFoundException("no company with id: " + request.getCompanyId()));
+
         return User.builder()
                 .username(request.getLogin())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
+                .company(company)
                 .build();
     }
 }

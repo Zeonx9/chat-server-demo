@@ -31,6 +31,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests()
                 .requestMatchers("/chat_api/v1/auth/**")
                 .permitAll()
+                .requestMatchers("/chat_api/v1/company/**")
+                .permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()

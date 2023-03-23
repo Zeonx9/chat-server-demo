@@ -1,10 +1,13 @@
 package com.ade.chat.config;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,8 +43,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        updateSecurityContextIfNecessary(request, jwt, jwtService.extractUsername(jwt));
+        final String userName;
+        try {
+            userName = jwtService.extractUsername(jwt);
+        } catch (ExpiredJwtException e) {
+            handleResponse(response, e);
+            return;
+        }
+
+        updateSecurityContextIfNecessary(request, jwt, userName);
         filterChain.doFilter(request, response);
+    }
+
+    private static void handleResponse(HttpServletResponse response, ExpiredJwtException e) throws IOException {
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.getWriter().write(e.getMessage());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     }
 
     private static String extractJwt(HttpServletRequest request) {
