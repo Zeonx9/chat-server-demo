@@ -1,6 +1,7 @@
 package com.ade.chat.repositories;
 
 import com.ade.chat.domain.User;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -12,5 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Boolean existsByUsername(String name);
 
-    List<User> findByCompany_Id(Long id);
+    List<User> findByCompany_Id(Long id, Sort sort);
+
+
 }

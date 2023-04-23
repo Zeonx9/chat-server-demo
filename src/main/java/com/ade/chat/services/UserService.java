@@ -6,9 +6,11 @@ import com.ade.chat.domain.User;
 import com.ade.chat.exception.UserNotFoundException;
 import com.ade.chat.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,14 +36,14 @@ public class UserService {
      * @return список всех достпупных пользователей
      */
     public List<User> getAllUsers() {
-        return userRepo.findAll();
+        return userRepo.findAll(Sort.by(Sort.Direction.ASC, "username"));
     }
 
     /**
      * @return список пользователей из заданной компании
      */
     public List<User> getAllUsersFromCompany(Long id) {
-        return userRepo.findByCompany_Id(id);
+        return userRepo.findByCompany_Id(id, Sort.by(Sort.Direction.ASC, "username"));
     }
 
     /**
@@ -50,7 +52,9 @@ public class UserService {
      * @throws UserNotFoundException если не существует пользовваетля с указанным айди
      */
     public List<Chat> getUserChats(Long id) {
-        return List.copyOf(getUserByIdOrException(id).getChats());
+        List<Chat> chats = new ArrayList<>(getUserByIdOrException(id).getChats());
+        chats.sort((c1, c2) -> c2.getLastMessageTime().compareTo(c1.getLastMessageTime()));
+        return chats;
     }
     
 

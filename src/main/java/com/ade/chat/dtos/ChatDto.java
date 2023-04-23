@@ -16,4 +16,5 @@ public class ChatDto {
     private Boolean isPrivate;
     private List<UserDto> members;
     private GroupDto group;
+    private MessageDto lastMessage;
 }

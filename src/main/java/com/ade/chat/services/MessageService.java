@@ -7,6 +7,7 @@ import com.ade.chat.exception.NotAMemberException;
 import com.ade.chat.repositories.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
@@ -29,6 +30,7 @@ public class MessageService {
      * @throws com.ade.chat.exception.ChatNotFoundException если неверное айди чата
      * @throws NotAMemberException если пользователь не состоит в чате
      */
+    @Transactional
     public Message sendMessage(Long userId, Long chatId, Message msg) {
         User user = userService.getUserByIdOrException(userId);
         Chat chat = chatService.getChatByIdOrException(chatId);
@@ -47,6 +49,8 @@ public class MessageService {
         msg.setChat(chat);
         msg.setDateTime(LocalDateTime.now());
         msg.setUndeliveredTo(otherMembers);
-        return messageRepo.save(msg);
+        Message saved = messageRepo.save(msg);
+        chat.setLastMessage(saved);
+        return saved;
     }
 }

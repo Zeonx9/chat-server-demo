@@ -80,6 +80,7 @@ public class ChatService {
             User user = userService.getUserByIdOrException(userId);
             markAsDeliveredAllFor(chat, user);
         }
+        chat.getMessages().sort(Comparator.comparing(Message::getDateTime));
         return chat.getMessages();
     }
 

@@ -24,7 +24,6 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
         indexes = @Index(name = "chat_id_index", columnList = "chat_id")
 )
 public class Message {
-
     @Id
     @SequenceGenerator(name = "message_sequence", sequenceName = "message_sequence", allocationSize = 1)
     @GeneratedValue(strategy = SEQUENCE, generator = "message_sequence")
