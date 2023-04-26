@@ -1,6 +1,7 @@
 package com.ade.chat.auth;
 
 import com.ade.chat.config.JwtService;
+import com.ade.chat.domain.Company;
 import com.ade.chat.domain.User;
 import com.ade.chat.dtos.AuthRequest;
 import com.ade.chat.exception.NameAlreadyTakenException;
@@ -44,7 +45,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void registerUserWithExistingLoginTrow() {
+    void registerUserWithExistingLoginThrow() {
         //given
         User existing = User.builder().username("Artem").build();
         given(userRepository.findByUsername(existing.getUsername())).willReturn(Optional.of(existing));
@@ -59,13 +60,19 @@ class AuthServiceTest {
     void canRegisterNewUser() {
         //given
         User newGuy = User.builder().username("Artem").build();
+        Company company = Company.builder().id(1L).build();
         String token = "token";
+        given(companyRepository.findById(1L)).willReturn(Optional.of(company));
         given(userRepository.findByUsername(newGuy.getUsername())).willReturn(Optional.empty());
         given(userRepository.save(any())).willReturn(newGuy);
         given(jwtService.generateToken(newGuy)).willReturn(token);
 
         // when
-        var response = underTest.register(AuthRequest.builder().login(newGuy.getUsername()).build());
+        var response = underTest.register(AuthRequest.builder()
+                .login(newGuy.getUsername())
+                .companyId(company.getId())
+                .build()
+        );
 
         //then
         assertThat(response.getToken()).isEqualTo(token);

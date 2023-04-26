@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +37,7 @@ class UserServiceTest {
         underTest.getAllUsers();
 
         // then
-        verify(userRepository).findAll();
+        verify(userRepository).findAll(Sort.by(Sort.Direction.ASC, "username"));
     }
 
     @Test

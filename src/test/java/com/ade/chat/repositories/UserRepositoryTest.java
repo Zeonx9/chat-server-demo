@@ -1,8 +1,8 @@
 package com.ade.chat.repositories;
 
+import com.ade.chat.containers.ContainersEnvironment;
 import com.ade.chat.domain.User;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -11,7 +11,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 
 @DataJpaTest
-class UserRepositoryTest {
+class UserRepositoryTest extends ContainersEnvironment {
 
     @Autowired
     private UserRepository underTest;
@@ -22,7 +22,6 @@ class UserRepositoryTest {
     }
 
     @Test
-    @Disabled
     void itShouldCheckTheAbsenceOfUserByName() {
         // given
         User user = User.builder().username("Artem").build();
