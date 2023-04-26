@@ -33,6 +33,7 @@ public class AuthService {
      * @param request содержит имя, пароль и идентификатор компании
      * @return токен для созданного пользователя
      * @throws NameAlreadyTakenException если имя занято
+     * @throws CompanyNotFoundException если не передан идентификатор компании
      */
     public AuthResponse register(AuthRequest request) {
         var userByName = userRepository.findByUsername(request.getLogin());

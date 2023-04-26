@@ -15,5 +15,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByCompany_Id(Long id, Sort sort);
 
-
 }

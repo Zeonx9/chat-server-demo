@@ -71,4 +71,16 @@ public class ChatController {
     ) {
         return ResponseEntity.ok(messageMapper.toDtoList(chatService.getMessages(chatId, userId)));
     }
+
+    /**
+     * GET реквест с полным путем chat_api/v1/chats/{chatId}
+     * возвращает чат по его id
+     * @param chatId идентификатор чата
+     * @return объект чата
+     * @throws com.ade.chat.exception.ChatNotFoundException если чата не существует
+     */
+    @GetMapping("/chats/{chatId}")
+    public ResponseEntity<ChatDto> getChatById(@PathVariable Long chatId) {
+        return ResponseEntity.ok(chatMapper.toDto(chatService.getChatByIdOrException(chatId)));
+    }
 }

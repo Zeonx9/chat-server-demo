@@ -10,7 +10,6 @@ import com.ade.chat.exception.NotAMemberException;
 import com.ade.chat.repositories.ChatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -39,7 +38,9 @@ public class ChatService {
      * @throws com.ade.chat.exception.UserNotFoundException если переданы неверные идентификаторы
      */
     public Chat createOrGetPrivateChat(Long id1, Long id2) {
+        System.out.print("chat request: " + id1 + " and " + id2);
         Optional<Chat> existing = privateChatBetweenUsersByIds(id1, id2);
+        System.out.println(existing.isPresent() ? " existed" : " created");
         return existing.orElse(createPrivateChat(id1, id2));
     }
 
@@ -51,6 +52,8 @@ public class ChatService {
      * @return созданный чат
      */
     public Chat createGroupChat(List<Long> ids, Group groupInfo) {
+        System.out.println("group creation request");
+
         if (groupInfo == null) {
             throw new AbsentGroupInfoException("group chat creation require \"groupInfo\"");
         }
@@ -67,13 +70,7 @@ public class ChatService {
         return chatRepo.save(chat);
     }
 
-    /**
-     * получает сообщения из чата для, и помечает их, как доставленные
-     * @param chatId идентификатор чата, из которого запрошены сообщения
-     * @return список сообщений из соответствующего чата
-     * @throws ChatNotFoundException если дан неверный ID чата
-     */
-    @Transactional
+
     public List<Message> getMessages(Long chatId, Long userId) {
         Chat chat = getChatByIdOrException(chatId);
         if (userId != null) {
