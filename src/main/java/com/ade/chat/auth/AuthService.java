@@ -5,23 +5,28 @@ import com.ade.chat.domain.Company;
 import com.ade.chat.domain.User;
 import com.ade.chat.dtos.AuthRequest;
 import com.ade.chat.dtos.AuthResponse;
+import com.ade.chat.dtos.ChangePasswordRequest;
+import com.ade.chat.dtos.CompanyRegisterRequest;
 import com.ade.chat.exception.CompanyNotFoundException;
 import com.ade.chat.exception.NameAlreadyTakenException;
 import com.ade.chat.mappers.CompanyMapper;
 import com.ade.chat.mappers.UserMapper;
-import com.ade.chat.repositories.CompanyRepository;
 import com.ade.chat.repositories.UserRepository;
+import com.ade.chat.services.CompanyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
-    private final CompanyRepository companyRepository;
+    private final CompanyService companyService;
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
     private final PasswordEncoder passwordEncoder;
@@ -59,6 +64,20 @@ public class AuthService {
         return generateResponseWithToken(user);
     }
 
+    /**
+     * Пытается выполнить вход, в случае удачи - изменяет пароль
+     * @param request содержит данные необходимые для смены пароля.
+     * @return новый токен
+     */
+    public AuthResponse changePassword(ChangePasswordRequest request) {
+        AuthResponse response = login(request.getAuthRequest());
+        userRepository.updatePasswordById(
+                passwordEncoder.encode(request.getNewPassword()),
+                response.getUser().getId()
+        );
+        return response;
+    }
+
     private static UsernamePasswordAuthenticationToken getAuthToken(AuthRequest request) {
         return new UsernamePasswordAuthenticationToken(
                 request.getLogin(),
@@ -79,8 +98,7 @@ public class AuthService {
         if (request.getCompanyId() == null) {
             throw new CompanyNotFoundException("No company Id passed to register request");
         }
-        Company company = companyRepository.findById(request.getCompanyId())
-                .orElseThrow(() -> new CompanyNotFoundException("no company with id: " + request.getCompanyId()));
+        Company company = companyService.getCompanyByIdOrException(request.getCompanyId());
 
         return User.builder()
                 .username(request.getLogin())
@@ -88,5 +106,28 @@ public class AuthService {
                 .role(Role.USER)
                 .company(company)
                 .build();
+    }
+
+    public List<AuthRequest> registerCompany(CompanyRegisterRequest request) {
+        Company company = companyService.registerCompany(
+                Company.builder().name(request.getCompanyName()).build()
+        );
+        List<AuthRequest> resultList = new ArrayList<>();
+        for (String employeeName : request.getEmployeeNameList()) {
+            AuthRequest authRequest = AuthRequest.builder()
+                    .companyId(company.getId())
+                    .login(employeeName)
+                    .password(randomSecurePassword())
+                    .build();
+
+            register(authRequest);
+            resultList.add(authRequest);
+        }
+        return resultList;
+    }
+
+    private String randomSecurePassword() {
+        // TODO implement
+        return "0000";
     }
 }

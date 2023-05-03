@@ -5,7 +5,6 @@ import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
 import com.ade.chat.exception.NotAMemberException;
 import com.ade.chat.repositories.MessageRepository;
-import com.ade.chat.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +18,6 @@ public class MessageService {
     private final MessageRepository messageRepo;
     private final ChatService chatService;
     private final UserService userService;
-    private final UserRepository userRepository;
 
     /**
      * сохраняет сообщение отправленное пользователем в чат
