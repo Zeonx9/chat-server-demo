@@ -8,11 +8,9 @@ import com.ade.chat.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 /**
@@ -64,16 +62,17 @@ public class UserService {
      * @return список сообщений
      * @throws UserNotFoundException если передан неверный идентификатор пользователя
      */
-    @Transactional
-    public List<Message> getUndeliveredMessagesAndMarkAsDelivered(Long id) {
+    public List<Message> getUndeliveredFor(Long id) {
         User user = getUserByIdOrException(id);
-        
-        List<Message> messages = user.getUndeliveredMessages().stream()
-                .map(message -> markDeliveredTo(message, user))
-                .collect(Collectors.toList());
+        return List.copyOf(user.getUndeliveredMessages());
+    }
 
-        user.getUndeliveredMessages().clear();
-        return messages;
+    public void markAsDelivered(List<Message> messages, Long userId) {
+        User user = getUserByIdOrException(userId);
+        for (Message msg : messages) {
+            msg.removeRecipient(user);
+        }
+        messages.forEach(user.getUndeliveredMessages()::remove);
     }
 
     private static Message markDeliveredTo(Message message, User user) {

@@ -77,7 +77,6 @@ public class ChatService {
             User user = userService.getUserByIdOrException(userId);
             markAsDeliveredAllFor(chat, user);
         }
-        chat.getMessages().sort(Comparator.comparing(Message::getDateTime));
         return chat.getMessages();
     }
 
@@ -112,5 +111,9 @@ public class ChatService {
         Set<Message> undelivered = new LinkedHashSet<>(user.getUndeliveredMessages());
         undelivered.retainAll(chat.getMessages());
         undelivered.forEach(message -> message.removeRecipient(user));
+    }
+
+    public void updateLastMessage(Long chatId, Message message) {
+        chatRepo.updateLastMessageById(message, chatId);
     }
 }

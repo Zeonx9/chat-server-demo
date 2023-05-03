@@ -5,6 +5,7 @@ import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
 import com.ade.chat.exception.NotAMemberException;
 import com.ade.chat.repositories.MessageRepository;
+import com.ade.chat.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class MessageService {
     private final MessageRepository messageRepo;
     private final ChatService chatService;
     private final UserService userService;
+    private final UserRepository userRepository;
 
     /**
      * сохраняет сообщение отправленное пользователем в чат
@@ -36,6 +38,7 @@ public class MessageService {
         if (!chat.getMembers().contains(user)) {
             throw new NotAMemberException("This user: " + userId + " is not a member of a chat: " + chatId);
         }
+        System.out.println("saving msg...");
         return sendToChatFromUser(user, chat, msg);
     }
 
@@ -44,10 +47,9 @@ public class MessageService {
         otherMembers.remove(user);
 
         msg.setAuthor(user);
-        msg.setChat(chat);
         msg.setDateTime(LocalDateTime.now());
         msg.setUndeliveredTo(otherMembers);
-        chat.setLastMessage(msg);
-        return  messageRepo.save(msg);
+        msg.setChat(chat);
+        return messageRepo.saveAndFlush(msg);
     }
 }

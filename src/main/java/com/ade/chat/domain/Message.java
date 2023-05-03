@@ -16,7 +16,6 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
 @Builder
 @Entity(name = "message")
 @Table(
@@ -60,7 +59,11 @@ public class Message {
 
     public void removeRecipient(User user) {
         undeliveredTo.remove(user);
-        user.getUndeliveredMessages().remove(this);
+    }
+
+    public void saveInChat(Chat chat) {
+        this.chat = chat;
+        chat.getMessages().add(this);
     }
 
     @Override
@@ -74,6 +77,11 @@ public class Message {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "{" + text + "}";
     }
 
 }
