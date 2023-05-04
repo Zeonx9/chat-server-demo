@@ -11,4 +11,7 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
+  main:
+    allow-bean-definition-overriding: true
+
 

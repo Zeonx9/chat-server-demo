@@ -12,7 +12,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-public class SecurityConfigurer {
+class SecurityConfigurer {
     @Bean
     public InMemoryUserDetailsManager userDetailsManager(PasswordEncoder encoder) {
         UserDetails user = User.withUsername("spring")

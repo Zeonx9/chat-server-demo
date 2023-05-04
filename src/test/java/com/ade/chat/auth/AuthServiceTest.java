@@ -4,11 +4,12 @@ import com.ade.chat.config.JwtService;
 import com.ade.chat.domain.Company;
 import com.ade.chat.domain.User;
 import com.ade.chat.dtos.AuthRequest;
+import com.ade.chat.dtos.RegisterData;
 import com.ade.chat.exception.NameAlreadyTakenException;
 import com.ade.chat.mappers.CompanyMapper;
 import com.ade.chat.mappers.UserMapper;
-import com.ade.chat.repositories.CompanyRepository;
 import com.ade.chat.repositories.UserRepository;
+import com.ade.chat.services.CompanyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.verify;
 class AuthServiceTest {
     private AuthService underTest;
     @Mock private UserRepository userRepository;
-    @Mock private CompanyRepository companyRepository;
+    @Mock private CompanyService companyService;
     @Mock private JwtService jwtService;
     @Mock private AuthenticationManager authManager;
     @Mock private PasswordEncoder passwordEncoder;
@@ -40,7 +41,7 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        underTest = new AuthService(userRepository, companyRepository, jwtService, authManager,
+        underTest = new AuthService(userRepository, companyService, jwtService, authManager,
                 passwordEncoder, userMapper, companyMapper);
     }
 
@@ -51,7 +52,11 @@ class AuthServiceTest {
         given(userRepository.findByUsername(existing.getUsername())).willReturn(Optional.of(existing));
 
         // when & then
-        assertThatThrownBy(() -> underTest.register(AuthRequest.builder().login(existing.getUsername()).build()))
+        assertThatThrownBy(() -> underTest.register(
+                RegisterData.builder()
+                        .authRequest(AuthRequest.builder().login(existing.getUsername()).build())
+                        .build()
+        ))
                 .isInstanceOf(NameAlreadyTakenException.class)
                 .hasMessageContaining("Name: " + existing.getUsername() + " is taken already");
     }
@@ -62,16 +67,19 @@ class AuthServiceTest {
         User newGuy = User.builder().username("Artem").build();
         Company company = Company.builder().id(1L).build();
         String token = "token";
-        given(companyRepository.findById(1L)).willReturn(Optional.of(company));
+        given(companyService.getCompanyByIdOrException(1L)).willReturn(company);
         given(userRepository.findByUsername(newGuy.getUsername())).willReturn(Optional.empty());
         given(userRepository.save(any())).willReturn(newGuy);
         given(jwtService.generateToken(newGuy)).willReturn(token);
 
         // when
-        var response = underTest.register(AuthRequest.builder()
-                .login(newGuy.getUsername())
-                .companyId(company.getId())
-                .build()
+        var response = underTest.register(
+                RegisterData.builder()
+                        .authRequest(AuthRequest.builder()
+                                .login(newGuy.getUsername())
+                                .companyId(company.getId())
+                                .build())
+                        .build()
         );
 
         //then
