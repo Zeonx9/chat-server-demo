@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
@@ -53,6 +54,15 @@ public class User implements UserDetails {
     @ManyToMany(mappedBy = "undeliveredTo")
     @Builder.Default
     private Set<Message> undeliveredMessages = new LinkedHashSet<>();
+
+    @Column(name = "real_name")
+    private String realName;
+
+    @Column(name = "surname")
+    private String surname;
+
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
 
     @Override
     public String toString() {

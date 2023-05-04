@@ -13,5 +13,5 @@ import java.util.List;
 @AllArgsConstructor
 public class CompanyRegisterRequest {
     private String companyName;
-    private List<String> employeeNameList;
+    private List<RegisterData> employeeNameList;
 }

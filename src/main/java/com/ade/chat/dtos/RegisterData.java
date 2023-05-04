@@ -11,9 +11,8 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
-    private Long id;
-    private String username;
+public class RegisterData {
+    private AuthRequest authRequest;
     private String realName;
     private String surname;
     private LocalDate dateOfBirth;

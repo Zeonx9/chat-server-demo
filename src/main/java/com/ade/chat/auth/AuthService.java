@@ -3,10 +3,7 @@ package com.ade.chat.auth;
 import com.ade.chat.config.JwtService;
 import com.ade.chat.domain.Company;
 import com.ade.chat.domain.User;
-import com.ade.chat.dtos.AuthRequest;
-import com.ade.chat.dtos.AuthResponse;
-import com.ade.chat.dtos.ChangePasswordRequest;
-import com.ade.chat.dtos.CompanyRegisterRequest;
+import com.ade.chat.dtos.*;
 import com.ade.chat.exception.CompanyNotFoundException;
 import com.ade.chat.exception.NameAlreadyTakenException;
 import com.ade.chat.mappers.CompanyMapper;
@@ -18,9 +15,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -40,13 +39,16 @@ public class AuthService {
      * @throws NameAlreadyTakenException если имя занято
      * @throws CompanyNotFoundException если не передан идентификатор компании
      */
-    public AuthResponse register(AuthRequest request) {
-        var userByName = userRepository.findByUsername(request.getLogin());
+    public AuthResponse register(RegisterData request) {
+        var userByName = userRepository.findByUsername(request.getAuthRequest().getLogin());
         if (userByName.isPresent()) {
-            throw new NameAlreadyTakenException("Name: " + request.getLogin() + " is taken already");
+            throw new NameAlreadyTakenException("Name: " + request.getAuthRequest().getLogin() + " is taken already");
         }
 
-        User newUser = userRepository.save(setUpUser(request));
+        User newUser = userRepository.save(setUpUser(request.getAuthRequest()));
+        newUser.setRealName(request.getRealName());
+        newUser.setSurname(request.getSurname());
+        newUser.setDateOfBirth(request.getDateOfBirth());
         return generateResponseWithToken(newUser);
     }
 
@@ -108,26 +110,30 @@ public class AuthService {
                 .build();
     }
 
+    @Transactional
     public List<AuthRequest> registerCompany(CompanyRegisterRequest request) {
         Company company = companyService.registerCompany(
                 Company.builder().name(request.getCompanyName()).build()
         );
         List<AuthRequest> resultList = new ArrayList<>();
-        for (String employeeName : request.getEmployeeNameList()) {
-            AuthRequest authRequest = AuthRequest.builder()
-                    .companyId(company.getId())
-                    .login(employeeName)
-                    .password(randomSecurePassword())
-                    .build();
+        for (RegisterData info : request.getEmployeeNameList()) {
+            info.getAuthRequest().setCompanyId(company.getId());
+            info.getAuthRequest().setPassword(randomSecurePassword());
 
-            register(authRequest);
-            resultList.add(authRequest);
+            register(info);
+
+            resultList.add(info.getAuthRequest());
         }
         return resultList;
     }
 
     private String randomSecurePassword() {
-        // TODO implement
-        return "0000";
+        Random random = new Random();
+        final int LEN = 4;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < LEN; ++i) {
+            sb.append((char) random.nextInt('a', 'z'));
+        }
+        return sb.toString();
     }
 }

@@ -1,9 +1,6 @@
 package com.ade.chat.auth;
 
-import com.ade.chat.dtos.AuthRequest;
-import com.ade.chat.dtos.AuthResponse;
-import com.ade.chat.dtos.ChangePasswordRequest;
-import com.ade.chat.dtos.CompanyRegisterRequest;
+import com.ade.chat.dtos.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,7 +27,7 @@ public class AuthController {
      * @throws com.ade.chat.exception.NameAlreadyTakenException если имя уже занято
      */
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody AuthRequest request) {
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterData request) {
         return ResponseEntity.ok(authService.register(request));
     }
 
@@ -52,6 +49,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.changePassword(passwordRequest));
     }
 
+    @PostMapping("company/register/users")
     public ResponseEntity<List<AuthRequest>> registerCompany(@RequestBody CompanyRegisterRequest request) {
         return ResponseEntity.ok(authService.registerCompany(request));
     }
