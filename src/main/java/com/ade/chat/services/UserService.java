@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -51,7 +52,7 @@ public class UserService {
      */
     public List<Chat> getUserChats(Long id) {
         List<Chat> chats = new ArrayList<>(getUserByIdOrException(id).getChats());
-        chats.sort((c1, c2) -> c2.getLastMessageTime().compareTo(c1.getLastMessageTime()));
+        chats.sort(Comparator.comparing(Chat::getLastMessageTime, Comparator.reverseOrder()));
         return chats;
     }
     
@@ -73,10 +74,5 @@ public class UserService {
             msg.removeRecipient(user);
         }
         messages.forEach(user.getUndeliveredMessages()::remove);
-    }
-
-    private static Message markDeliveredTo(Message message, User user) {
-        message.getUndeliveredTo().remove(user);
-        return message;
     }
 }

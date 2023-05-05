@@ -77,7 +77,9 @@ public class ChatService {
             User user = userService.getUserByIdOrException(userId);
             markAsDeliveredAllFor(chat, user);
         }
-        return chat.getMessages();
+        return chat.getMessages().stream()
+                .sorted(Comparator.comparing(Message::getDateTime))
+                .toList();
     }
 
     private Chat createPrivateChat(Long id1, Long id2) {
