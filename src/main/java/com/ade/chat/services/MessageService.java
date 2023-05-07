@@ -45,7 +45,9 @@ public class MessageService {
         otherMembers.remove(user);
 
         msg.setAuthor(user);
-        msg.setDateTime(LocalDateTime.now());
+        if (msg.getDateTime() == null)  {
+            msg.setDateTime(LocalDateTime.now());
+        }
         msg.setUndeliveredTo(otherMembers);
         msg.setChat(chat);
         return messageRepo.saveAndFlush(msg);
