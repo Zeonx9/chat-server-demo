@@ -38,9 +38,9 @@ public class ChatService {
      * @throws com.ade.chat.exception.UserNotFoundException если переданы неверные идентификаторы
      */
     public Chat createOrGetPrivateChat(Long id1, Long id2) {
-        System.out.print("chat request: " + id1 + " and " + id2);
+        System.out.print("chat request: " + id1 + " and " + id2 + " ");
         Optional<Chat> existing = privateChatBetweenUsersByIds(id1, id2);
-        System.out.println(existing.isPresent() ? " existed" : " created");
+        System.out.println(existing.isPresent() ? "existed" : "created");
         return existing.orElse(createPrivateChat(id1, id2));
     }
 
@@ -96,17 +96,10 @@ public class ChatService {
     }
 
     private Optional<Chat> privateChatBetweenUsersByIds(Long id1, Long id2) {
-        User u1 = userService.getUserByIdOrException(id1);
-        User u2 = userService.getUserByIdOrException(id2);
-        return privateChatBetweenUsers(u1, u2);
-    }
-
-    private Optional<Chat> privateChatBetweenUsers(User first, User second) {
-        Set<Chat> intersect = new HashSet<>(first.getChats());
-        intersect.retainAll(second.getChats());
-        return intersect.stream()
-                .filter(Chat::getIsPrivate)
-                .findAny();
+        Set<Chat> intersection = chatRepo.findByMembers_IdAndIsPrivateTrue(id1);
+        Set<Chat> other = chatRepo.findByMembers_IdAndIsPrivateTrue(id2);
+        intersection.retainAll(other);
+        return intersection.stream().findAny();
     }
 
     private void markAsDeliveredAllFor(Chat chat, User user) {

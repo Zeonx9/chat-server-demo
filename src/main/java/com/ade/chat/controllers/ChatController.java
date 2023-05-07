@@ -9,6 +9,7 @@ import com.ade.chat.mappers.MessageMapper;
 import com.ade.chat.services.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public class ChatController {
      * @return объект диалога
      */
     @GetMapping("/private_chat/{id1}/{id2}")
+    @Transactional
     public ResponseEntity<ChatDto> getOrCreatePrivateChat(
             @PathVariable Long id1,
             @PathVariable Long id2
