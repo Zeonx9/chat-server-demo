@@ -41,7 +41,7 @@ public class ChatService {
         System.out.print("chat request: " + id1 + " and " + id2 + " ");
         Optional<Chat> existing = privateChatBetweenUsersByIds(id1, id2);
         System.out.println(existing.isPresent() ? "existed" : "created");
-        return existing.orElse(createPrivateChat(id1, id2));
+        return existing.orElseGet(() -> createPrivateChat(id1, id2));
     }
 
     /**
