@@ -4,7 +4,9 @@ import com.ade.chat.config.JwtService;
 import com.ade.chat.domain.Company;
 import com.ade.chat.domain.User;
 import com.ade.chat.dtos.AuthRequest;
+import com.ade.chat.dtos.ChangePasswordRequest;
 import com.ade.chat.dtos.RegisterData;
+import com.ade.chat.dtos.UserDto;
 import com.ade.chat.exception.NameAlreadyTakenException;
 import com.ade.chat.mappers.CompanyMapper;
 import com.ade.chat.mappers.UserMapper;
@@ -101,5 +103,19 @@ class AuthServiceTest {
         var authToken = captor.getValue();
         assertThat(authToken.getPrincipal()).isEqualTo(request.getLogin());
         assertThat(authToken.getCredentials()).isEqualTo(request.getPassword());
+    }
+
+    @Test
+    void canChangePassword() {
+        ChangePasswordRequest request = new ChangePasswordRequest(new AuthRequest("a", "b", 1L), "c");
+        User u = new User();
+        UserDto uDto = new UserDto();
+        given(passwordEncoder.encode("c")).willReturn("d");
+        given(userRepository.findByUsername(request.getAuthRequest().getLogin())).willReturn(Optional.of(u));
+        given(userMapper.toDto(u)).willReturn(uDto);
+
+        underTest.changePassword(request);
+
+        verify(userRepository).updatePasswordById("d", uDto.getId());
     }
 }

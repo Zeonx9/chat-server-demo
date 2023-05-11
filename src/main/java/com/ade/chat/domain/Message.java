@@ -50,6 +50,7 @@ public class Message {
 
     @ToString.Exclude
     @ManyToMany
+    @Builder.Default
     @JoinTable(
             name = "messages_undelivered_to",
             joinColumns = @JoinColumn(name = "message_id"),
@@ -59,11 +60,6 @@ public class Message {
 
     public void removeRecipient(User user) {
         undeliveredTo.remove(user);
-    }
-
-    public void saveInChat(Chat chat) {
-        this.chat = chat;
-        chat.getMessages().add(this);
     }
 
     @Override

@@ -50,6 +50,6 @@ public class MessageService {
         }
         msg.setUndeliveredTo(otherMembers);
         msg.setChat(chat);
-        return messageRepo.saveAndFlush(msg);
+        return messageRepo.save(msg);
     }
 }

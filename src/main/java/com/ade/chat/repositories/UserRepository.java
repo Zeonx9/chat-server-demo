@@ -14,12 +14,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Transactional
     @Modifying
     @Query("update user u set u.password = ?1 where u.id = ?2")
-    int updatePasswordById(String password, Long id);
+    void updatePasswordById(String password, Long id);
 
     Optional<User> findByUsername(String name);
 
     Boolean existsByUsername(String name);
 
+    @Query("select u from user u where u.company.id = ?1 and u.role = 'USER'")
     List<User> findByCompany_Id(Long id, Sort sort);
+
+
 
 }
