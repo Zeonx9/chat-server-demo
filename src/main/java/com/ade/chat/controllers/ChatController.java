@@ -49,7 +49,7 @@ public class ChatController {
      * @param groupRequest DTO, которое несет информацию о группе для создания
      * @return созданный объект чата
      */
-    @PostMapping("group_chat")
+    @PostMapping("/group_chat")
     public ResponseEntity<ChatDto> createGroupChat(@RequestBody GroupRequest groupRequest) {
         return ResponseEntity.ok(chatMapper.toDto(
                 chatService.createGroupChat(

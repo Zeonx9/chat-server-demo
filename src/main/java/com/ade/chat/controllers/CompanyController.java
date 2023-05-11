@@ -19,7 +19,6 @@ public class CompanyController {
 
     @PostMapping("/company/register")
     public ResponseEntity<CompanyDto> registerCompany(@RequestBody CompanyDto company) {
-        System.out.println();
         return ResponseEntity.ok(companyMapper.toDto(
                 companyService.registerCompany(companyMapper.toEntity(company))
         ));

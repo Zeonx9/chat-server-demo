@@ -80,6 +80,40 @@ public class AuthService {
         return response;
     }
 
+    @Transactional
+    public List<AuthRequest> registerCompany(CompanyRegisterRequest request) {
+        Company company = companyService.registerCompany(
+                Company.builder().name(request.getCompanyName()).build()
+        );
+        List<AuthRequest> resultList = new ArrayList<>();
+
+        User admin = registerAdmin(company);
+        resultList.add(new AuthRequest(admin.getUsername(), admin.getPassword(), company.getId()));
+
+        for (RegisterData info : request.getEmployeeNameList()) {
+            info.getAuthRequest().setCompanyId(company.getId());
+            info.getAuthRequest().setPassword(randomSecurePassword());
+
+            register(info);
+
+            resultList.add(info.getAuthRequest());
+        }
+        return resultList;
+    }
+
+    private User registerAdmin(Company company) {
+        String password = randomSecurePassword();
+        User admin = User.builder()
+                .role(Role.ADMIN)
+                .username("ADMIN_" + company.getName())
+                .password(passwordEncoder.encode(password))
+                .company(company)
+                .build();
+        User saved = userRepository.save(admin);
+        saved.setPassword(password);
+        return saved;
+    }
+
     private static UsernamePasswordAuthenticationToken getAuthToken(AuthRequest request) {
         return new UsernamePasswordAuthenticationToken(
                 request.getLogin(),
@@ -108,23 +142,6 @@ public class AuthService {
                 .role(Role.USER)
                 .company(company)
                 .build();
-    }
-
-    @Transactional
-    public List<AuthRequest> registerCompany(CompanyRegisterRequest request) {
-        Company company = companyService.registerCompany(
-                Company.builder().name(request.getCompanyName()).build()
-        );
-        List<AuthRequest> resultList = new ArrayList<>();
-        for (RegisterData info : request.getEmployeeNameList()) {
-            info.getAuthRequest().setCompanyId(company.getId());
-            info.getAuthRequest().setPassword(randomSecurePassword());
-
-            register(info);
-
-            resultList.add(info.getAuthRequest());
-        }
-        return resultList;
     }
 
     private String randomSecurePassword() {

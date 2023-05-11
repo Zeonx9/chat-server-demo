@@ -43,12 +43,25 @@ public class AuthController {
     }
 
 
+    /**
+     * PUT запрос для смены пароля
+     * @param passwordRequest DTO, содержащий старые данные для входа, чтобы подтвердить личность и новый пароль
+     * @return новые данные для входа или ошибку.
+     */
     @PutMapping("/user/password")
     @Transactional
     public ResponseEntity<AuthResponse> changePassword(@RequestBody ChangePasswordRequest passwordRequest) {
         return ResponseEntity.ok(authService.changePassword(passwordRequest));
     }
 
+
+    /**
+     * POST запрос для создания новой компании и регистрации в ней пользователей с заданными личными данными.
+     * Пароли генерируются автоматически и представляют собой случайную последовательность букв.
+     * Этот пароль может быть изменен позже.
+     * @param request содержит информацию о новой компании и пользователях
+     * @return список данных для авторизации.
+     */
     @PostMapping("company/register/users")
     public ResponseEntity<List<AuthRequest>> registerCompany(@RequestBody CompanyRegisterRequest request) {
         return ResponseEntity.ok(authService.registerCompany(request));
