@@ -11,12 +11,13 @@ import java.util.Set;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
-
+/**
+ * Сущность сообщения, все сообщения должны храниться в чатах
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
 @Builder
 @Entity(name = "message")
 @Table(
@@ -24,7 +25,6 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
         indexes = @Index(name = "chat_id_index", columnList = "chat_id")
 )
 public class Message {
-
     @Id
     @SequenceGenerator(name = "message_sequence", sequenceName = "message_sequence", allocationSize = 1)
     @GeneratedValue(strategy = SEQUENCE, generator = "message_sequence")
@@ -52,6 +52,7 @@ public class Message {
 
     @ToString.Exclude
     @ManyToMany
+    @Builder.Default
     @JoinTable(
             name = "messages_undelivered_to",
             joinColumns = @JoinColumn(name = "message_id"),
@@ -61,7 +62,6 @@ public class Message {
 
     public void removeRecipient(User user) {
         undeliveredTo.remove(user);
-        user.getUndeliveredMessages().remove(this);
     }
 
     @Override
@@ -75,6 +75,11 @@ public class Message {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "{" + text + "}";
     }
 
 }

@@ -6,10 +6,11 @@ import com.ade.chat.domain.User;
 import com.ade.chat.exception.UserNotFoundException;
 import com.ade.chat.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -19,7 +20,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
     private final UserRepository userRepo;
 
     /**
@@ -35,7 +35,14 @@ public class UserService {
      * @return список всех достпупных пользователей
      */
     public List<User> getAllUsers() {
-        return userRepo.findAll();
+        return userRepo.findAll(Sort.by(Sort.Direction.ASC, "username"));
+    }
+
+    /**
+     * @return список пользователей из заданной компании
+     */
+    public List<User> getAllUsersFromCompany(Long id) {
+        return userRepo.findByCompany_Id(id, Sort.by(Sort.Direction.ASC, "username"));
     }
 
     /**
@@ -44,8 +51,11 @@ public class UserService {
      * @throws UserNotFoundException если не существует пользовваетля с указанным айди
      */
     public List<Chat> getUserChats(Long id) {
-        return List.copyOf(getUserByIdOrException(id).getChats());
+        List<Chat> chats = new ArrayList<>(getUserByIdOrException(id).getChats());
+        chats.sort(Comparator.comparing(Chat::getLastMessageTime, Comparator.reverseOrder()));
+        return chats;
     }
+    
 
     /**
      * получает список сообщений, еще не доставленных пользователю и затем помечает их, как доставленные
@@ -53,16 +63,16 @@ public class UserService {
      * @return список сообщений
      * @throws UserNotFoundException если передан неверный идентификатор пользователя
      */
-    @Transactional
-    public List<Message> getUndeliveredMessagesAndMarkAsDelivered(Long id) {
-        System.out.println("requesting undelivered messages");
+    public List<Message> getUndeliveredFor(Long id) {
         User user = getUserByIdOrException(id);
-        List<Message> messages = new ArrayList<>();
-        user.getUndeliveredMessages().forEach(message -> {
-            messages.add(message);
-            message.getUndeliveredTo().remove(user);
-        });
-        user.getUndeliveredMessages().clear();
-        return messages;
+        return List.copyOf(user.getUndeliveredMessages());
+    }
+
+    public void markAsDelivered(List<Message> messages, Long userId) {
+        User user = getUserByIdOrException(userId);
+        for (Message msg : messages) {
+            msg.removeRecipient(user);
+        }
+        messages.forEach(user.getUndeliveredMessages()::remove);
     }
 }

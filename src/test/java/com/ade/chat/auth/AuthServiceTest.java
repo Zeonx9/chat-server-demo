@@ -1,11 +1,17 @@
 package com.ade.chat.auth;
 
 import com.ade.chat.config.JwtService;
+import com.ade.chat.domain.Company;
 import com.ade.chat.domain.User;
 import com.ade.chat.dtos.AuthRequest;
+import com.ade.chat.dtos.ChangePasswordRequest;
+import com.ade.chat.dtos.RegisterData;
+import com.ade.chat.dtos.UserDto;
 import com.ade.chat.exception.NameAlreadyTakenException;
+import com.ade.chat.mappers.CompanyMapper;
 import com.ade.chat.mappers.UserMapper;
 import com.ade.chat.repositories.UserRepository;
+import com.ade.chat.services.CompanyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,24 +34,31 @@ import static org.mockito.Mockito.verify;
 class AuthServiceTest {
     private AuthService underTest;
     @Mock private UserRepository userRepository;
+    @Mock private CompanyService companyService;
     @Mock private JwtService jwtService;
     @Mock private AuthenticationManager authManager;
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private UserMapper userMapper;
+    @Mock private CompanyMapper companyMapper;
 
     @BeforeEach
     void setUp() {
-        underTest = new AuthService(userRepository, jwtService, authManager, passwordEncoder, userMapper);
+        underTest = new AuthService(userRepository, companyService, jwtService, authManager,
+                passwordEncoder, userMapper, companyMapper);
     }
 
     @Test
-    void registerUserWithExistingLoginTrow() {
+    void registerUserWithExistingLoginThrow() {
         //given
         User existing = User.builder().username("Artem").build();
         given(userRepository.findByUsername(existing.getUsername())).willReturn(Optional.of(existing));
 
         // when & then
-        assertThatThrownBy(() -> underTest.register(AuthRequest.builder().login(existing.getUsername()).build()))
+        assertThatThrownBy(() -> underTest.register(
+                RegisterData.builder()
+                        .authRequest(AuthRequest.builder().login(existing.getUsername()).build())
+                        .build()
+        ))
                 .isInstanceOf(NameAlreadyTakenException.class)
                 .hasMessageContaining("Name: " + existing.getUsername() + " is taken already");
     }
@@ -54,16 +67,21 @@ class AuthServiceTest {
     void canRegisterNewUser() {
         //given
         User newGuy = User.builder().username("Artem").build();
-        String token = "token";
+        Company company = Company.builder().id(1L).build();
+        given(companyService.getCompanyByIdOrException(1L)).willReturn(company);
         given(userRepository.findByUsername(newGuy.getUsername())).willReturn(Optional.empty());
-        given(userRepository.save(any())).willReturn(newGuy);
-        given(jwtService.generateToken(newGuy)).willReturn(token);
 
         // when
-        var response = underTest.register(AuthRequest.builder().login(newGuy.getUsername()).build());
+        underTest.register(
+                RegisterData.builder()
+                        .authRequest(AuthRequest.builder()
+                                .login(newGuy.getUsername())
+                                .companyId(company.getId())
+                                .build())
+                        .build()
+        );
 
-        //then
-        assertThat(response.getToken()).isEqualTo(token);
+        verify(userRepository).save(any());
     }
 
     @Test
@@ -81,5 +99,19 @@ class AuthServiceTest {
         var authToken = captor.getValue();
         assertThat(authToken.getPrincipal()).isEqualTo(request.getLogin());
         assertThat(authToken.getCredentials()).isEqualTo(request.getPassword());
+    }
+
+    @Test
+    void canChangePassword() {
+        ChangePasswordRequest request = new ChangePasswordRequest(new AuthRequest("a", "b", 1L), "c");
+        User u = new User();
+        UserDto uDto = new UserDto();
+        given(passwordEncoder.encode("c")).willReturn("d");
+        given(userRepository.findByUsername(request.getAuthRequest().getLogin())).willReturn(Optional.of(u));
+        given(userMapper.toDto(u)).willReturn(uDto);
+
+        underTest.changePassword(request);
+
+        verify(userRepository).updatePasswordById("d", uDto.getId());
     }
 }

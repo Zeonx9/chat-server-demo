@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class AuthRequest {
     private String login;
     private String password;
+    private Long companyId;
 }

@@ -9,10 +9,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
+/**
+ * Сущность пользователя, наверное главная сущность в приложении, через нее происходит всякое взаимодействие
+ */
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,15 +41,31 @@ public class User implements UserDetails {
     @Column(name = "role")
     private Role role;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
+
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     @JsonIgnore
+    @Builder.Default
     private List<Message> messages = new ArrayList<>();
 
     @ManyToMany(mappedBy = "members", cascade = CascadeType.ALL)
+    @Builder.Default
     private Set<Chat> chats = new LinkedHashSet<>();
 
     @ManyToMany(mappedBy = "undeliveredTo")
+    @Builder.Default
     private Set<Message> undeliveredMessages = new LinkedHashSet<>();
+
+    @Column(name = "real_name")
+    private String realName;
+
+    @Column(name = "surname")
+    private String surname;
+
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
 
     @Override
     public String toString() {
@@ -79,8 +99,12 @@ public class User implements UserDetails {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
+            return false;
+        }
         User user = (User) o;
         return id != null && Objects.equals(id, user.id);
     }

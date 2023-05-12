@@ -10,6 +10,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * дополнительная конфигурация, подключает фильтр и указывает какие запросы должны быть защищены
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -29,10 +32,10 @@ public class SecurityConfig {
                 .csrf()
                 .disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/chat_api/v1/auth/**")
-                .permitAll()
-                .anyRequest()
-                .authenticated()
+                .requestMatchers("/chat_api/v1/auth/login").permitAll()
+                .requestMatchers("/chat_api/v1/auth/register").hasAuthority("ADMIN")
+                .requestMatchers("/chat_api/v1/auth/company/**").hasAuthority("SUPER_ADMIN")
+                .anyRequest().authenticated()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

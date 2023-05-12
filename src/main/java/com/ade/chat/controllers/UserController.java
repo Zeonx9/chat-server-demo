@@ -1,5 +1,6 @@
 package com.ade.chat.controllers;
 
+import com.ade.chat.domain.Message;
 import com.ade.chat.dtos.ChatDto;
 import com.ade.chat.dtos.MessageDto;
 import com.ade.chat.dtos.UserDto;
@@ -9,10 +10,8 @@ import com.ade.chat.mappers.UserMapper;
 import com.ade.chat.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,7 +22,6 @@ import java.util.List;
 @RequestMapping("chat_api/v1")
 @RequiredArgsConstructor
 public class UserController {
-
     private final UserService userService;
     private final UserMapper userMapper;
     private final ChatMapper chatMapper;
@@ -36,6 +34,15 @@ public class UserController {
     @GetMapping("/users")
     public ResponseEntity<List<UserDto>> getUsers() {
         return ResponseEntity.ok(userMapper.toDtoList(userService.getAllUsers()));
+    }
+
+    /**
+     * GET реквест с полным путем /chat_api/v1/users
+     * @return список всех доступных пользователей в базе данных
+     */
+    @GetMapping("/company/{id}/users")
+    public ResponseEntity<List<UserDto>> getCompanyUsers(@PathVariable Long id) {
+        return ResponseEntity.ok(userMapper.toDtoList(userService.getAllUsersFromCompany(id)));
     }
 
     /**
@@ -57,13 +64,11 @@ public class UserController {
      * @return список сообщений
      * @throws com.ade.chat.exception.UserNotFoundException если неверен идентификатор
      */
+    @Transactional
     @GetMapping("/users/{id}/undelivered_messages")
     public ResponseEntity<List<MessageDto>> getUndeliveredMessages(@PathVariable Long id) {
-        System.out.println("controller und mes");
-        return ResponseEntity.ok(
-                messageMapper.toDtoList(
-                        userService.getUndeliveredMessagesAndMarkAsDelivered(id)
-                )
-        );
+        List<Message> result = userService.getUndeliveredFor(id);
+        userService.markAsDelivered(result, id);
+        return ResponseEntity.ok(messageMapper.toDtoList(result));
     }
 }

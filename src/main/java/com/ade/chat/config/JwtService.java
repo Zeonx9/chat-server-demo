@@ -1,6 +1,7 @@
 package com.ade.chat.config;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -15,6 +16,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
+/**
+ * Сервис, работающий с JWT токенами
+ */
 @Service
 public class JwtService {
     /**
@@ -40,12 +44,13 @@ public class JwtService {
      * @return созданный токен
      */
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        final long DAY_AS_MILLIS = 1000 * 60 * 60 * 24;
         return Jwts
                 .builder()
                 .addClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + DAY_AS_MILLIS))
                 .signWith(getSingingKey(), SignatureAlgorithm.HS256)
                 .compact();
 
@@ -55,8 +60,9 @@ public class JwtService {
      * извлекает имя пользователя из строки с токеном
      * @param token токен
      * @return имя пользователя
+     * @throws io.jsonwebtoken.ExpiredJwtException если токен просрочен
      */
-    public String extractUsername(String token) {
+    public String extractUsername(String token) throws ExpiredJwtException {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -69,54 +75,29 @@ public class JwtService {
         return generateToken(new HashMap<>(), userDetails);
     }
 
-    /**
-     * создать HMAC Ключ из секретной строки
-     * @return созданный ключ
-     */
+
     private Key getSingingKey() {
         byte [] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    /**
-     * достает все данные из токена
-     * @param token токен
-     * @return объект Claims
-     */
     private Claims extractAllClaims(String token) {
-        return Jwts
-                .parserBuilder()
+        return Jwts.parserBuilder()
                 .setSigningKey(getSingingKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
 
-    /**
-     * вспомагательная функция для получение данных из объекта Claims
-     * @param token токен
-     * @param claimFunction функция для получение нужных данных
-     * @return требуемые данные
-     */
     private  <T> T extractClaim(String token, Function<Claims, T> claimFunction) {
         final Claims claims = extractAllClaims(token);
         return claimFunction.apply(claims);
     }
 
-    /**
-     * достает врема прекращения действия
-     * @param token токен
-     * @return полученное время
-     */
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    /**
-     * проверяет закончился ли срок действия токена
-     * @param token токен
-     * @return true если срок истек иначе false
-     */
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }

@@ -12,9 +12,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
-import java.util.Set;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
@@ -76,24 +73,5 @@ class MessageServiceTest {
         assertThatThrownBy(() -> underTest.sendMessage(user.getId(), chat.getId(), msg))
                 .hasMessageContaining( "This user: " + user.getId() + " is not a member of a chat: " + chat.getId())
                 .isInstanceOf(NotAMemberException.class);
-    }
-
-
-    @Test
-    void sendPrivateMessageWithoutChat() {
-        //given
-        User u1 = User.builder().id(1L).chats(Set.of()).build(),
-                u2 = User.builder().id(2L).chats(Set.of()).build();
-        Chat chat = new Chat();
-
-        given(userService.getUserByIdOrException(u1.getId())).willReturn(u1);
-        given(chatService.createOrGetChat(List.of(u1.getId(), u2.getId()), true)).willReturn(chat);
-        Message msg = Message.builder().text("text").build();
-
-        //when
-        underTest.sendPrivateMessage(u1.getId(), u2.getId(), msg);
-
-        //then
-        verify(messageRepo).save(msg);
     }
 }
