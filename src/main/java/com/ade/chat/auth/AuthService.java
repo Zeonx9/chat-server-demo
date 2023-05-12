@@ -39,17 +39,17 @@ public class AuthService {
      * @throws NameAlreadyTakenException если имя занято
      * @throws CompanyNotFoundException если не передан идентификатор компании
      */
-    public AuthResponse register(RegisterData request) {
+    public AuthRequest register(RegisterData request) {
         var userByName = userRepository.findByUsername(request.getAuthRequest().getLogin());
         if (userByName.isPresent()) {
             throw new NameAlreadyTakenException("Name: " + request.getAuthRequest().getLogin() + " is taken already");
         }
+        if (request.getAuthRequest().getPassword() == null) {
+            request.getAuthRequest().setPassword(randomSecurePassword());
+        }
 
-        User newUser = userRepository.save(setUpUser(request.getAuthRequest()));
-        newUser.setRealName(request.getRealName());
-        newUser.setSurname(request.getSurname());
-        newUser.setDateOfBirth(request.getDateOfBirth());
-        return generateResponseWithToken(newUser);
+        userRepository.save(setUpUser(request));
+        return request.getAuthRequest();
     }
 
     /**
@@ -87,31 +87,25 @@ public class AuthService {
         );
         List<AuthRequest> resultList = new ArrayList<>();
 
-        User admin = registerAdmin(company);
-        resultList.add(new AuthRequest(admin.getUsername(), admin.getPassword(), company.getId()));
+        resultList.add(registerAdmin(company));
 
         for (RegisterData info : request.getEmployeeNameList()) {
             info.getAuthRequest().setCompanyId(company.getId());
-            info.getAuthRequest().setPassword(randomSecurePassword());
-
-            register(info);
-
-            resultList.add(info.getAuthRequest());
+            resultList.add(register(info));
         }
         return resultList;
     }
 
-    private User registerAdmin(Company company) {
+    private AuthRequest registerAdmin(Company company) {
         String password = randomSecurePassword();
-        User admin = User.builder()
+        User admin = userRepository.save(User.builder()
                 .role(Role.ADMIN)
                 .username("ADMIN_" + company.getName())
                 .password(passwordEncoder.encode(password))
                 .company(company)
-                .build();
-        User saved = userRepository.save(admin);
-        saved.setPassword(password);
-        return saved;
+                .build()
+        );
+        return new AuthRequest(admin.getUsername(), password, company.getId());
     }
 
     private static UsernamePasswordAuthenticationToken getAuthToken(AuthRequest request) {
@@ -127,20 +121,24 @@ public class AuthService {
                 .token(jwtToken)
                 .user(userMapper.toDto(user))
                 .company(companyMapper.toDto(user.getCompany()))
+                .isAdmin(user.getRole() != Role.USER)
                 .build();
     }
 
-    private User setUpUser(AuthRequest request) {
-        if (request.getCompanyId() == null) {
+    private User setUpUser(RegisterData request) {
+        if (request.getAuthRequest().getCompanyId() == null) {
             throw new CompanyNotFoundException("No company Id passed to register request");
         }
-        Company company = companyService.getCompanyByIdOrException(request.getCompanyId());
+        Company company = companyService.getCompanyByIdOrException(request.getAuthRequest().getCompanyId());
 
         return User.builder()
-                .username(request.getLogin())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .username(request.getAuthRequest().getLogin())
+                .password(passwordEncoder.encode(request.getAuthRequest().getPassword()))
                 .role(Role.USER)
                 .company(company)
+                .realName(request.getRealName())
+                .surname(request.getSurname())
+                .dateOfBirth(request.getDateOfBirth())
                 .build();
     }
 

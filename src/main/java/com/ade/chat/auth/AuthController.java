@@ -27,7 +27,7 @@ public class AuthController {
      * @throws com.ade.chat.exception.NameAlreadyTakenException если имя уже занято
      */
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterData request) {
+    public ResponseEntity<AuthRequest> register(@RequestBody RegisterData request) {
         return ResponseEntity.ok(authService.register(request));
     }
 

@@ -13,4 +13,5 @@ public class AuthResponse {
     private String token;
     private UserDto user;
     private CompanyDto company;
+    private boolean isAdmin;
 }

@@ -109,6 +109,9 @@ public class ChatService {
     }
 
     public void updateLastMessage(Long chatId, Message message) {
-        chatRepo.updateLastMessageById(message, chatId);
+        Chat chat = getChatByIdOrException(chatId);
+        if (chat.getLastMessageTime().isBefore(message.getDateTime())) {
+            chatRepo.updateLastMessageById(message, chatId);
+        }
     }
 }

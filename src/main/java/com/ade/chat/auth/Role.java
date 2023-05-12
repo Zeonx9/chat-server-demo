@@ -2,5 +2,6 @@ package com.ade.chat.auth;
 
 public enum Role {
     USER,
-    ADMIN
+    ADMIN,
+    SUPER_ADMIN
 }

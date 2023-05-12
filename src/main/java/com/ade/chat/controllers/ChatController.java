@@ -35,10 +35,7 @@ public class ChatController {
      */
     @GetMapping("/private_chat/{id1}/{id2}")
     @Transactional
-    public ResponseEntity<ChatDto> getOrCreatePrivateChat(
-            @PathVariable Long id1,
-            @PathVariable Long id2
-    ) {
+    public ResponseEntity<ChatDto> getOrCreatePrivateChat(@PathVariable Long id1, @PathVariable Long id2) {
         System.out.println("requested private chat between" + id1 + " and " + id2);
         return ResponseEntity.ok(chatMapper.toDto(chatService.createOrGetPrivateChat(id1, id2)));
     }

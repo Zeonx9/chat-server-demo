@@ -68,14 +68,11 @@ class AuthServiceTest {
         //given
         User newGuy = User.builder().username("Artem").build();
         Company company = Company.builder().id(1L).build();
-        String token = "token";
         given(companyService.getCompanyByIdOrException(1L)).willReturn(company);
         given(userRepository.findByUsername(newGuy.getUsername())).willReturn(Optional.empty());
-        given(userRepository.save(any())).willReturn(newGuy);
-        given(jwtService.generateToken(newGuy)).willReturn(token);
 
         // when
-        var response = underTest.register(
+        underTest.register(
                 RegisterData.builder()
                         .authRequest(AuthRequest.builder()
                                 .login(newGuy.getUsername())
@@ -84,8 +81,7 @@ class AuthServiceTest {
                         .build()
         );
 
-        //then
-        assertThat(response.getToken()).isEqualTo(token);
+        verify(userRepository).save(any());
     }
 
     @Test

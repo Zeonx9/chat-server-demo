@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -100,6 +101,8 @@ class ChatServiceTest {
     @Test
     void canUpdateLastMessage() {
         Message msg = new Message();
+        msg.setDateTime(LocalDateTime.now());
+        given(chatRepo.findById(1L)).willReturn(Optional.of(new Chat()));
         underTest.updateLastMessage(1L, msg);
         verify(chatRepo).updateLastMessageById(msg, 1L);
     }
