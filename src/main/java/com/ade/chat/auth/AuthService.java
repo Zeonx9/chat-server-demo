@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Сервис, обрабатывающий запросы связанные с авторизацией и безопасностью
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -33,9 +36,9 @@ public class AuthService {
     private final CompanyMapper companyMapper;
 
     /**
-     * Регистрирует нового пользователя с заданными данными
+     * Регистрирует нового пользователя с заданными данными, если пароль не задан, то будет создан случайный
      * @param request содержит имя, пароль и идентификатор компании
-     * @return токен для созданного пользователя
+     * @return данные для входа для нового пользователя
      * @throws NameAlreadyTakenException если имя занято
      * @throws CompanyNotFoundException если не передан идентификатор компании
      */
@@ -80,6 +83,11 @@ public class AuthService {
         return response;
     }
 
+    /**
+     * метод для регистрации компании вместе со списком пользователей
+     * @param request содержит информацию о компании и ее пользователях
+     * @return список данных для входа созданных пользователей
+     */
     @Transactional
     public List<AuthRequest> registerCompany(CompanyRegisterRequest request) {
         Company company = companyService.registerCompany(

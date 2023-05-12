@@ -8,6 +8,9 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Сущность компании, каждый пользователь должен быть прикреплен к единственному объекту компании
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

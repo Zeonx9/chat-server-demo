@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 
+/**
+ * сервис обрабатываюий логику отправки сообщений
+ */
 @Service
 @RequiredArgsConstructor
 public class MessageService {

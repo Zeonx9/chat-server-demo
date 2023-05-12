@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.*;
 
+/**
+ * Сервис, обрабатывающий запросы и реализующий логику работы с чатами
+ */
 @Service
 @RequiredArgsConstructor
 public class ChatService {

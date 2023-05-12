@@ -16,6 +16,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
+/**
+ * Сервис, работающий с JWT токенами
+ */
 @Service
 public class JwtService {
     /**

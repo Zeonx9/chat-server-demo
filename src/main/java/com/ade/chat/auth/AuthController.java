@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 
+/**
+ * Контроллер, управляющий запросами связанными с авторизацией и безопасностью
+ */
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("chat_api/v1/auth")

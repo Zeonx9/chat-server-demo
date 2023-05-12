@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Обобщенный маппер, от которого наследуются все мапперы для конкретных сущностей
+ */
 @Component
 public abstract class GenericMapper<E, D> {
     private final ModelMapper mapper;

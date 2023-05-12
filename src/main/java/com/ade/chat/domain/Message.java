@@ -11,7 +11,9 @@ import java.util.Set;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
-
+/**
+ * Сущность сообщения, все сообщения должны храниться в чатах
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

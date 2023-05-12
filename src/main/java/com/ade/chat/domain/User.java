@@ -14,6 +14,9 @@ import java.util.*;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
+/**
+ * Сущность пользователя, наверное главная сущность в приложении, через нее происходит всякое взаимодействие
+ */
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

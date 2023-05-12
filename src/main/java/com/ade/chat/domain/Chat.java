@@ -9,6 +9,9 @@ import java.util.*;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
+/**
+ * Сущность чат. Хранит информацию о самом чате, позволяет получить доступ к сообщениям и пользователям из этого чата
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

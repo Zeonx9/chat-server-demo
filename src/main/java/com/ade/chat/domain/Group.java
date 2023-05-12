@@ -7,6 +7,9 @@ import org.hibernate.Hibernate;
 import java.time.LocalDate;
 import java.util.Objects;
 
+/**
+ * Сущность описвыющая групповой чат, личные чаты не имеют связи с такой сущностью
+ */
 @Getter
 @Setter
 @Builder

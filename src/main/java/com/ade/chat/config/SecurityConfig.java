@@ -10,6 +10,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * дополнительная конфигурация, подключает фильтр и указывает какие запросы должны быть защищены
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
