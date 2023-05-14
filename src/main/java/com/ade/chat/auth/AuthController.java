@@ -25,7 +25,7 @@ public class AuthController {
 
     /**
      * POST запрос, который регистрирует нового пользователя
-     * @param request - данные для регистрации
+     * @param request данные для регистрации
      * @return токен полученный после регистрации
      * @throws com.ade.chat.exception.NameAlreadyTakenException если имя уже занято
      */
@@ -36,7 +36,7 @@ public class AuthController {
 
     /**
      * POST запрос, который регистрирует нового пользователя
-     * @param request - данные для входа
+     * @param request данные для входа
      * @return токен полученный после входа
      * @throws org.springframework.security.core.AuthenticationException если данные не верны
      */
@@ -44,7 +44,6 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
-
 
     /**
      * PUT запрос для смены пароля
