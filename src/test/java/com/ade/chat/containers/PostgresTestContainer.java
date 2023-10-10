@@ -3,7 +3,7 @@ package com.ade.chat.containers;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 public class PostgresTestContainer extends PostgreSQLContainer<PostgresTestContainer> {
-    public static final String IMAGE_VERSION = "postgres:11.1";
+    public static final String IMAGE_VERSION = "postgres:alpine";
     public static final String DATABASE_NAME = "test";
     public static PostgresTestContainer container;
 

@@ -1,6 +1,7 @@
 package com.ade.chat.config;
 
 import com.ade.chat.repositories.UserRepository;
+import io.jsonwebtoken.Jwt;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
@@ -66,5 +67,10 @@ public class ApplicationConfig {
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
+    }
+
+    @Bean
+    public JwtService jwtService() {
+        return new JwtService();
     }
 }
