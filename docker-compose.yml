@@ -23,10 +23,10 @@ services:
 
 
   backend:
-    image: zzzzeonnnnn/chat_backend:1
+    image: "zzzzeonnnnn/${IMAGE_TAG}"
     build: .
     ports:
-      - "8080:8080"
+      - "${HOST_PORT}:8080"
     environment:
       PG_HOST: db
       PG_DB: chat_db
