@@ -33,6 +33,8 @@ public class SecurityConfig {
                 .disable()
                 .authorizeHttpRequests()
                 .requestMatchers("/chat_api/v1/auth/login").permitAll()
+                .requestMatchers("/swagger-ui").permitAll()
+                .requestMatchers("/v3/api-docs").permitAll()
                 .requestMatchers("/chat_api/v1/auth/register").hasAuthority("ADMIN")
                 .requestMatchers("/chat_api/v1/auth/company/**").hasAuthority("SUPER_ADMIN")
                 .anyRequest().authenticated()
