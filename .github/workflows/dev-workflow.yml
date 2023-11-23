@@ -48,26 +48,26 @@ jobs:
           push: true
           tags: ${{ env.DOCKER_IMAGE_TAG }}
 
-    deploy:
-      runs-on: ubuntu-latest
-      needs: docker-image
+  deploy:
+    runs-on: ubuntu-latest
+    needs: docker-image
 
-      steps:
-        - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-        - name: Send .env.dev & docker-compose.yml file to the virtual machine
-          uses: appleboy/scp-action@v0.1.4
-          with:
-            host: ${{ secrets.HOST }}
-            username: ${{ secrets.USERNAME }}
-            password: ${{ secrets.PASSWORD }}
-            source: ".env.dev, docker-compose.yml"
-            target: /app/dev/
+      - name: Send .env.dev & docker-compose.yml file to the virtual machine
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          source: ".env.dev, docker-compose.yml"
+          target: /app/dev/
 
-        - name: Start backend service
-          uses: garygrossgarten/github-action-ssh@release
-          with:
-            command: cd /app/dev && docker compose --env-file=.env.dev up -d
-            host: ${{ secrets.HOST }}
-            username: ${{ secrets.USERNAME }}
-            password: ${{ secrets.PASSWORD }}
+      - name: Start backend service
+        uses: garygrossgarten/github-action-ssh@release
+        with:
+          command: cd /app/dev && docker compose --env-file=.env.dev up -d
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
