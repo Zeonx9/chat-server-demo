@@ -7,8 +7,9 @@ on:
     branches: ['dev']
 
 env:
-  # tag should be the same as in .env.dev file
+  # tag should be the same as in .env file
   DOCKER_IMAGE_TAG: zzzzeonnnnn/chat_backend:dev-1
+  HOST_FOLDER: /app/dev/
 
 jobs:
   test:
@@ -55,7 +56,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Send .env.dev & docker-compose.yml file to the virtual machine
+      - name: Send .env & docker-compose.yml file to the virtual machine
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.HOST }}
@@ -67,7 +68,7 @@ jobs:
       - name: Start backend service
         uses: garygrossgarten/github-action-ssh@release
         with:
-          command: cd /app/dev/ && pwd && ls -la && docker compose --env-file=.env.dev down && docker compose --env-file=.env.dev pull && docker compose --env-file=.env.dev up -d
+          command: cd /app/dev/ && mv .env.dev .env && docker compose down && docker compose pull && docker compose up -d
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
