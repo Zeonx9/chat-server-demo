@@ -1,6 +1,7 @@
 package com.ade.chat.auth;
 
 import com.ade.chat.dtos.*;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +21,12 @@ public class AuthController {
 
 
     /**
-     * Регистрирует нового пользователя
+     * Регистрирует нового пользователя, требует уровень доступа ADMIN
      * @param request данные для регистрации
      * @return токен полученный после регистрации
      * @throws com.ade.chat.exception.NameAlreadyTakenException если имя уже занято
      */
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/register")
     public ResponseEntity<AuthRequest> register(@RequestBody RegisterData request) {
         return ResponseEntity.ok(authService.register(request));
@@ -42,10 +44,11 @@ public class AuthController {
     }
 
     /**
-     * Изменяет пароль на указанный, требует предоставления текущих данных для авторизации
+     * Изменяет пароль на указанный, требует предоставления текущих данных для авторизации, требует уровня доступа USER
      * @param passwordRequest DTO, содержащий старые данные для входа, чтобы подтвердить личность и новый пароль
      * @return новые данные для входа или ошибку.
      */
+    @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/user/password")
     @Transactional
     public ResponseEntity<AuthResponse> changePassword(@RequestBody ChangePasswordRequest passwordRequest) {
@@ -54,12 +57,13 @@ public class AuthController {
 
 
     /**
-     * Создает новую компанию и регистрирует в ней пользователей с заданными личными данными.
+     * Создает новую компанию и регистрирует в ней пользователей с заданными личными данными, требует уровень доступа SUPER_ADMIN
      * Пароли генерируются автоматически и представляют собой случайную последовательность букв.
      * Этот пароль может быть изменен позже.
      * @param request содержит информацию о новой компании и пользователях
      * @return список данных для авторизации.
      */
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("company/register/users")
     public ResponseEntity<List<AuthRequest>> registerCompany(@RequestBody CompanyRegisterRequest request) {
         return ResponseEntity.ok(authService.registerCompany(request));

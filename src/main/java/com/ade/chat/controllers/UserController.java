@@ -8,6 +8,7 @@ import com.ade.chat.mappers.ChatMapper;
 import com.ade.chat.mappers.MessageMapper;
 import com.ade.chat.mappers.UserMapper;
 import com.ade.chat.services.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +17,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Отвечает за операции с пользователями
+ * Отвечает за операции с пользователями, все методы требуют уровень доступа USER
  */
 @RestController
 @RequestMapping("chat_api/v1")
+@SecurityRequirement(name = "Bearer Authentication")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
