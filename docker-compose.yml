@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:alpine
+    volumes:
+      - chat_db_vol:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: chat_db
+      POSTGRES_USER: chat_user
+      POSTGRES_PASSWORD: chat_password
+
+    ports:
+      - "${POSTGRES_PORT}:5432"
+
+    restart: always
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-U", "admin"]
+      interval: 20s
+      timeout: 20s
+      retries: 5
+
+
+  backend:
+    image: "zzzzeonnnnn/${IMAGE_TAG}"
+    build: .
+    ports:
+      - "${HOST_PORT}:8080"
+    environment:
+      PG_HOST: db
+      PG_DB: chat_db
+      PG_USER: chat_user
+      PG_PASSWORD: chat_password
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+#    healthcheck:
+#      test: "curl --fail --silent localhost:8081/actuator/health | grep UP || exit 1"
+#      interval: 20s
+#      timeout: 5s
+#      retries: 5
+
+volumes:
+  chat_db_vol:

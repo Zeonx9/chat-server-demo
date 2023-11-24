@@ -15,7 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
- * Главынй файл конфигурации приложения
+ * Главный файл конфигурации приложения
  */
 @Configuration
 @RequiredArgsConstructor
@@ -23,7 +23,7 @@ public class ApplicationConfig {
     private final UserRepository userRepository;
 
     /**
-     * создает UserDetailsService, который позволяет подгрузить данные из базы данных
+     * Создает UserDetailsService, который позволяет подгрузить данные из базы данных
      * перегружает метод loadByUserName
      */
     @Bean
@@ -66,5 +66,10 @@ public class ApplicationConfig {
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
+    }
+
+    @Bean
+    public JwtService jwtService() {
+        return new JwtService();
     }
 }

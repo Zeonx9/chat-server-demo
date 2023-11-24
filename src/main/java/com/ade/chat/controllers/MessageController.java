@@ -5,15 +5,17 @@ import com.ade.chat.dtos.MessageDto;
 import com.ade.chat.mappers.MessageMapper;
 import com.ade.chat.services.ChatService;
 import com.ade.chat.services.MessageService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Spring REST контроллер, отвечающий за операции над сообщениями
+ * Отвечает за операции над сообщениями, все методы требую уровень доступа USER
  */
 @RestController
 @RequestMapping("chat_api/v1")
+@SecurityRequirement(name = "Bearer Authentication")
 @RequiredArgsConstructor
 public class MessageController {
 
@@ -22,7 +24,7 @@ public class MessageController {
     private final ChatService chatService;
 
     /**
-     * POST реквест с полным путем chat_api/v1/users/{userId}/chats/{chatId}/message
+     * Сохраняет отправленное сообщение
      * @param chatId идентификатор чата, в который будет отправлено сообщение
      * @param userId идентификатор пользователя, отправляющего сообщение
      * @param msgDto сообщение, которое будет отправлено
