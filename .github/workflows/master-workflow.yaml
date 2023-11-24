@@ -2,9 +2,9 @@ name: backend production ci cd pipeline
 
 on:
   push:
-    branches: ['dev']
+    branches: ['master']
   pull_request:
-    branches: ['dev']
+    branches: ['master']
 
 env:
   # tag should be the same as in .env file
