@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Spring REST контроллер, отвечающий за операции над сообщениями
+ * Отвечает за операции над сообщениями
  */
 @RestController
 @RequestMapping("chat_api/v1")
@@ -22,7 +22,7 @@ public class MessageController {
     private final ChatService chatService;
 
     /**
-     * POST реквест с полным путем chat_api/v1/users/{userId}/chats/{chatId}/message
+     * Сохраняет отправленное сообщение
      * @param chatId идентификатор чата, в который будет отправлено сообщение
      * @param userId идентификатор пользователя, отправляющего сообщение
      * @param msgDto сообщение, которое будет отправлено

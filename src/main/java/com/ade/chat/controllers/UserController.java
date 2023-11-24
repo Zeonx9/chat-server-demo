@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Spring REST контроллер, отвечающий за опереции с пользователями
+ * Отвечает за операции с пользователями
  */
 @RestController
 @RequestMapping("chat_api/v1")
@@ -28,7 +28,7 @@ public class UserController {
     private final MessageMapper messageMapper;
 
     /**
-     * GET реквест с полным путем /chat_api/v1/users
+     * Получает список всех пользователей системы
      * @return список всех доступных пользователей в базе данных
      */
     @GetMapping("/users")
@@ -37,7 +37,8 @@ public class UserController {
     }
 
     /**
-     * GET реквест с полным путем /chat_api/v1/users
+     * Получает список пользователей, принадлежащих указанной компании
+     * @param id идентификатор компании
      * @return список всех доступных пользователей в базе данных
      */
     @GetMapping("/company/{id}/users")
@@ -46,8 +47,7 @@ public class UserController {
     }
 
     /**
-     * GET реквест с полным путем /chat_api/v1/users/{id}/chats
-     * получает список чатов доступных пользователю с заданным id
+     * Получает список чатов доступных пользователю с заданным id
      * @param id id пользователя для поиска
      * @return список доступных чатов
      * @throws com.ade.chat.exception.UserNotFoundException если передан не существующий айди пользователя
@@ -58,8 +58,7 @@ public class UserController {
     }
 
     /**
-     * GET реквест, с полным путем /chat_api/v1/user/{id}/undelivered_messages
-     * получает все сообщения, ранее не полученные этим пользователем
+     * Получает все сообщения, ранее не полученные этим пользователем
      * @param id идентификатор пользователя
      * @return список сообщений
      * @throws com.ade.chat.exception.UserNotFoundException если неверен идентификатор

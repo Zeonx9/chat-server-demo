@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Spring REST контроллер, отвечающий за операции с чатами
+ * Отвечает за операции с чатами
  */
 @RestController
 @RequestMapping("chat_api/v1")
@@ -27,7 +27,7 @@ public class ChatController {
     private final GroupMapper groupMapper;
 
     /**
-     * GET запрос, который по заданным ID пользователей находит существующий диалог
+     * Находит существующий диалог по заданным ID пользователей
      * или создает новый в случае отсутствия.
      * @param id1 идентификатор одного пользователя
      * @param id2 идентификатор другого пользователя
@@ -41,7 +41,7 @@ public class ChatController {
     }
 
     /**
-     * POST запрос, который по создает чат по списку идентификаторов пользователей входящих в него,
+     * Создает чат по списку идентификаторов пользователей входящих в него,
      * а так же дополнительной информации описываемой в объекте GroupDto
      * @param groupRequest DTO, которое несет информацию о группе для создания
      * @return созданный объект чата
@@ -57,8 +57,7 @@ public class ChatController {
     }
 
     /**
-     * GET реквест с полным путем chat_api/v1/chats/{chatId}/messages
-     * получает список сообщений из указанного чата
+     * Возвращает список сообщений из указанного чата
      * @param chatId идентификатор чата
      * @return список сообщений чата
      * @throws com.ade.chat.exception.ChatNotFoundException если нет чата с таким айди
@@ -72,8 +71,7 @@ public class ChatController {
     }
 
     /**
-     * GET реквест с полным путем chat_api/v1/chats/{chatId}
-     * возвращает чат по его id
+     * Возвращает чат по его id
      * @param chatId идентификатор чата
      * @return объект чата
      * @throws com.ade.chat.exception.ChatNotFoundException если чата не существует

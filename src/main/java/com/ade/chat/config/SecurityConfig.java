@@ -11,7 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * дополнительная конфигурация, подключает фильтр и указывает какие запросы должны быть защищены
+ * Дополнительная конфигурация, подключает фильтр и указывает какие запросы должны быть защищены
  */
 @Configuration
 @EnableWebSecurity
@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .requestMatchers("/chat_api/v1/auth/login").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/v3/api-docs/**").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/chat_api/v1/auth/register").hasAuthority("ADMIN")
                 .requestMatchers("/chat_api/v1/auth/company/**").hasAuthority("SUPER_ADMIN")
                 .anyRequest().authenticated()
