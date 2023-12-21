@@ -50,7 +50,7 @@ public class User implements UserDetails {
     @Builder.Default
     private List<Message> messages = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "members", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "members", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @Builder.Default
     private Set<Chat> chats = new LinkedHashSet<>();
 
@@ -66,6 +66,14 @@ public class User implements UserDetails {
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column(name = "is_online")
+    private Boolean isOnline;
+
+    private String patronymic;
 
     @Override
     public String toString() {
