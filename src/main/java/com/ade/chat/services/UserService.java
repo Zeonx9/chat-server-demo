@@ -3,6 +3,7 @@ package com.ade.chat.services;
 import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
+import com.ade.chat.dtos.UserDto;
 import com.ade.chat.exception.UserNotFoundException;
 import com.ade.chat.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,10 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 
 /**
@@ -46,7 +51,7 @@ public class UserService {
     }
 
     /**
-     * @param id логин пользоваетля
+     * @param id логин пользоваетеля
      * @return список чатов, в которых состоит пользователь с указаннным идентификатором
      * @throws UserNotFoundException если не существует пользовваетля с указанным айди
      */
@@ -58,7 +63,7 @@ public class UserService {
     
 
     /**
-     * получает список сообщений, еще не доставленных пользователю и затем помечает их, как доставленные
+     * Получает список сообщений, еще не доставленных пользователю и затем помечает их, как доставленные
      * @param id идентификатор пользователя
      * @return список сообщений
      * @throws UserNotFoundException если передан неверный идентификатор пользователя
@@ -74,5 +79,24 @@ public class UserService {
             msg.removeRecipient(user);
         }
         messages.forEach(user.getUndeliveredMessages()::remove);
+    }
+
+    /**
+     * Меняет поля, если новые значения заданы
+     */
+    public User updateUserData(Long id, UserDto newUser) {
+        User user = getUserByIdOrException(id);
+        setIfNotNull(newUser::getRealName, user::setRealName);
+        setIfNotNull(newUser::getSurname, user::setSurname);
+        setIfNotNull(newUser::getDateOfBirth, user::setDateOfBirth);
+        return user;
+    }
+
+    private <T> void  setIfNotNull(Supplier<T> getter, Consumer<T> setter) {
+        T newValue = getter.get();
+        if (newValue == null) {
+            return;
+        }
+        setter.accept(newValue);
     }
 }

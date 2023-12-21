@@ -1,6 +1,7 @@
 package com.ade.chat.controllers;
 
 import com.ade.chat.domain.Message;
+import com.ade.chat.domain.User;
 import com.ade.chat.dtos.ChatDto;
 import com.ade.chat.dtos.MessageDto;
 import com.ade.chat.dtos.UserDto;
@@ -71,5 +72,19 @@ public class UserController {
         List<Message> result = userService.getUndeliveredFor(id);
         userService.markAsDelivered(result, id);
         return ResponseEntity.ok(messageMapper.toDtoList(result));
+    }
+
+    /**
+     * Изменяет поля пользователя на переданные значение, игнорирует пропуски (null)
+     * обновляются поля: realName, surname, dateOfBirth
+     * @param id Идентификатор пользователя для обновления полей
+     * @param newUser содержит новые значения полей
+     * @throws com.ade.chat.exception.UserNotFoundException если id не верный
+     */
+    @Transactional
+    @PutMapping("/users/{id}")
+    public ResponseEntity<UserDto> updateUserData(@PathVariable Long id, @RequestBody UserDto newUser) {
+        User updatedUser = userService.updateUserData(id, newUser);
+        return ResponseEntity.ok(userMapper.toDto(updatedUser));
     }
 }
