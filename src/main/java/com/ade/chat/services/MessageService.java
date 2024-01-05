@@ -39,7 +39,6 @@ public class MessageService {
         if (!chat.getMembers().contains(user)) {
             throw new NotAMemberException("This user: " + userId + " is not a member of a chat: " + chatId);
         }
-        System.out.println("saving msg...");
         return sendToChatFromUser(user, chat, msg);
     }
 
