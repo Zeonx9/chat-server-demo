@@ -2,6 +2,7 @@ package com.ade.chat.controllers;
 
 import com.ade.chat.domain.Message;
 import com.ade.chat.dtos.ChatDto;
+import com.ade.chat.dtos.ConnectEvent;
 import com.ade.chat.dtos.MessageDto;
 import com.ade.chat.dtos.UserDto;
 import com.ade.chat.mappers.ChatMapper;
@@ -11,6 +12,10 @@ import com.ade.chat.services.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
