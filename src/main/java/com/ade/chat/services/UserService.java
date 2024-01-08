@@ -1,7 +1,6 @@
 package com.ade.chat.services;
 
 import com.ade.chat.domain.Chat;
-import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
 import com.ade.chat.dtos.UserDto;
 import com.ade.chat.exception.UserNotFoundException;
@@ -35,7 +34,7 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("No user with given id:" + id));
     }
     /**
-     * @return список всех достпупных пользователей
+     * @return список всех доступных пользователей
      */
     public List<User> getAllUsers() {
         return userRepo.findAll(Sort.by(Sort.Direction.ASC, "username"));
@@ -49,34 +48,14 @@ public class UserService {
     }
 
     /**
-     * @param id логин пользоваетеля
-     * @return список чатов, в которых состоит пользователь с указаннным идентификатором
-     * @throws UserNotFoundException если не существует пользовваетля с указанным айди
+     * @param id логин пользователя
+     * @return список чатов, в которых состоит пользователь с указанным идентификатором
+     * @throws UserNotFoundException если не существует пользователя с указанным айди
      */
     public List<Chat> getUserChats(Long id) {
         List<Chat> chats = new ArrayList<>(getUserByIdOrException(id).getChats());
         chats.sort(Comparator.comparing(Chat::getLastMessageTime, Comparator.reverseOrder()));
         return chats;
-    }
-    
-
-    /**
-     * Получает список сообщений, еще не доставленных пользователю и затем помечает их, как доставленные
-     * @param id идентификатор пользователя
-     * @return список сообщений
-     * @throws UserNotFoundException если передан неверный идентификатор пользователя
-     */
-    public List<Message> getUndeliveredFor(Long id) {
-        User user = getUserByIdOrException(id);
-        return List.copyOf(user.getUndeliveredMessages());
-    }
-
-    public void markAsDelivered(List<Message> messages, Long userId) {
-        User user = getUserByIdOrException(userId);
-        for (Message msg : messages) {
-            msg.removeRecipient(user);
-        }
-        messages.forEach(user.getUndeliveredMessages()::remove);
     }
 
     /**

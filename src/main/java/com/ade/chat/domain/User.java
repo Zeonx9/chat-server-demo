@@ -46,17 +46,12 @@ public class User implements UserDetails {
     private Company company;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
-    @JsonIgnore
     @Builder.Default
     private List<Message> messages = new ArrayList<>();
 
     @ManyToMany(mappedBy = "members", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @Builder.Default
     private Set<Chat> chats = new LinkedHashSet<>();
-
-    @ManyToMany(mappedBy = "undeliveredTo")
-    @Builder.Default
-    private Set<Message> undeliveredMessages = new LinkedHashSet<>();
 
     @Column(name = "real_name")
     private String realName;
@@ -73,7 +68,12 @@ public class User implements UserDetails {
     @Column(name = "is_online")
     private Boolean isOnline;
 
+    @Column(name = "patronymic")
     private String patronymic;
+
+    @OneToMany(mappedBy = "user")
+    @Builder.Default
+    private Set<UnreadCounter> chatUnreadCounters = new HashSet<>();
 
     @Override
     public String toString() {

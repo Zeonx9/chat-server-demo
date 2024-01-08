@@ -15,7 +15,6 @@ import java.util.Objects;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @Entity(name = "group")
 @Table(name = "groups")
 public class Group {
@@ -25,7 +24,6 @@ public class Group {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @ToString.Exclude
     @OneToOne(cascade = CascadeType.ALL, optional = false, orphanRemoval = true)
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
@@ -36,7 +34,6 @@ public class Group {
     @Column(name = "creation_date", nullable = false)
     private LocalDate creationDate;
 
-    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "creator_id")
     private User creator;
@@ -56,5 +53,10 @@ public class Group {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "group{id=" + id + ", chat_id=" + chat.getId() + ", name=" + name + "}";
     }
 }

@@ -82,10 +82,6 @@ public class ChatService {
 
     public List<Message> getMessages(Long chatId, Long userId) {
         Chat chat = getChatByIdOrException(chatId);
-        if (userId != null) {
-            User user = userService.getUserByIdOrException(userId);
-            markAsDeliveredAllFor(chat, user);
-        }
         return chat.getMessages().stream()
                 .sorted(Comparator.comparing(Message::getDateTime))
                 .toList();
@@ -112,12 +108,6 @@ public class ChatService {
         Set<Chat> other = chatRepo.findByMembers_IdAndIsPrivateTrue(id2);
         intersection.retainAll(other);
         return intersection.stream().findAny();
-    }
-
-    private void markAsDeliveredAllFor(Chat chat, User user) {
-        Set<Message> undelivered = new LinkedHashSet<>(user.getUndeliveredMessages());
-        undelivered.retainAll(chat.getMessages());
-        undelivered.forEach(message -> message.removeRecipient(user));
     }
 
     public void updateLastMessage(Long chatId, Message message) {

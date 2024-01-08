@@ -15,7 +15,7 @@ public class CompanyService {
     private final CompanyRepository companyRepository;
 
     /**
-     * регистрирует новую компанию
+     * Регистрирует новую компанию
      * @param company содержит информацию о компании
      * @return сохраненную компанию
      */
@@ -24,7 +24,7 @@ public class CompanyService {
     }
 
     /**
-     * получить компанию по ее идентификатору
+     * Получить компанию по ее идентификатору
      * @param id идентификатор компании
      * @return найденную компанию
      * @throws CompanyNotFoundException если нет компании с таким идентификатором

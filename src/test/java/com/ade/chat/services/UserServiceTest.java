@@ -1,7 +1,6 @@
 package com.ade.chat.services;
 
 import com.ade.chat.domain.Chat;
-import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
 import com.ade.chat.exception.UserNotFoundException;
 import com.ade.chat.repositories.UserRepository;
@@ -12,7 +11,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -89,32 +90,5 @@ class UserServiceTest {
 
         // then
         assertThat(returnedChats).isEqualTo(List.copyOf(chats));
-    }
-
-    @Test
-    void canGetUndeliveredMessages() {
-        List<Message> messages = List.of(new Message());
-        User u = User.builder().undeliveredMessages(Set.copyOf(messages)).build();
-
-        given(userRepository.findById(u.getId())).willReturn(Optional.of(u));
-
-        List<Message> result = underTest.getUndeliveredFor(u.getId());
-        assertThat(result).isEqualTo(messages);
-    }
-
-    @Test
-    void canMarkGivenMessagesAsDelivered() {
-        List<Message> messages = new ArrayList<>(List.of(new Message()));
-        User u = User.builder().undeliveredMessages(new HashSet<>(messages)).build();
-        for (Message m : u.getUndeliveredMessages()) {
-            m.setUndeliveredTo(new HashSet<>(Set.of(u)));
-        }
-        given(userRepository.findById(u.getId())).willReturn(Optional.of(u));
-
-        underTest.markAsDelivered(messages, u.getId());
-        for (Message m : messages) {
-            assertThat(m.getUndeliveredTo().contains(u)).isFalse();
-        }
-        assertThat(u.getUndeliveredMessages().isEmpty()).isTrue();
     }
 }

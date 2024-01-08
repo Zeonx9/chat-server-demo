@@ -50,20 +50,6 @@ public class Message {
     )
     private Chat chat;
 
-    @ToString.Exclude
-    @ManyToMany
-    @Builder.Default
-    @JoinTable(
-            name = "messages_undelivered_to",
-            joinColumns = @JoinColumn(name = "message_id"),
-            inverseJoinColumns = @JoinColumn(name = "recipient_id")
-    )
-    private Set<User> undeliveredTo = new LinkedHashSet<>();
-
-    public void removeRecipient(User user) {
-        undeliveredTo.remove(user);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

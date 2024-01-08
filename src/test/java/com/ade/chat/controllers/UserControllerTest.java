@@ -1,10 +1,8 @@
 package com.ade.chat.controllers;
 
 import com.ade.chat.domain.Chat;
-import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
 import com.ade.chat.mappers.ChatMapper;
-import com.ade.chat.mappers.MessageMapper;
 import com.ade.chat.mappers.UserMapper;
 import com.ade.chat.services.UserService;
 import org.junit.jupiter.api.Test;
@@ -32,7 +30,6 @@ public class UserControllerTest {
     @MockBean private UserService userService;
     @MockBean private UserMapper userMapper;
     @MockBean private ChatMapper chatMapper;
-    @MockBean private MessageMapper messageMapper;
 
     @Test
     @WithMockUser(value = "spring")
@@ -62,17 +59,6 @@ public class UserControllerTest {
         mockMvc.perform(get("/chat_api/v1/users/1/chats").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
         verify(chatMapper).toDtoList(chats);
-    }
-
-    @Test
-    @WithMockUser(value = "spring")
-    public void canGetUndeliveredMessages() throws Exception {
-        List<Message> messages = List.of(new Message());
-        given(userService.getUndeliveredFor(1L)).willReturn(messages);
-        mockMvc.perform(get("/chat_api/v1/users/1/undelivered_messages").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-        verify(userService).markAsDelivered(messages, 1L);
-        verify(messageMapper).toDtoList(messages);
     }
 
 }
