@@ -36,7 +36,7 @@ class ChatServiceTest {
 
     @BeforeEach
     void setUp() {
-        underTest = new ChatService(chatRepo, userService);
+        underTest = new ChatService(chatRepo, userService, null, null);
     }
 
     private void givenRepositoryReturnsChat(Chat chat) {

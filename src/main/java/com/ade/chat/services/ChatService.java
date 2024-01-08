@@ -4,11 +4,15 @@ import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.Group;
 import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
+import com.ade.chat.dtos.ChatDto;
 import com.ade.chat.exception.AbsentGroupInfoException;
 import com.ade.chat.exception.ChatNotFoundException;
 import com.ade.chat.exception.NotAMemberException;
+import com.ade.chat.mappers.ChatMapper;
 import com.ade.chat.repositories.ChatRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -19,9 +23,12 @@ import java.util.*;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ChatService {
     private final ChatRepository chatRepo;
     private final UserService userService;
+    private final ChatMapper chatMapper;
+    private final SimpMessagingTemplate messagingTemplate;
 
     /**
      * @param id идентификатор чата
@@ -34,29 +41,25 @@ public class ChatService {
     }
 
     /**
-     * проверяет наличие чата, возвращает его или создает новый в случае отсутствия
+     * Проверяет наличие чата, возвращает его или создает новый в случае отсутствия
      * @param id1 идентификатор первого пользователя
      * @param id2 идентификатор второго пользователя
      * @return диалог
      * @throws com.ade.chat.exception.UserNotFoundException если переданы неверные идентификаторы
      */
     public Chat createOrGetPrivateChat(Long id1, Long id2) {
-        System.out.print("chat request: " + id1 + " and " + id2 + " ");
         Optional<Chat> existing = privateChatBetweenUsersByIds(id1, id2);
-        System.out.println(existing.isPresent() ? "existed" : "created");
         return existing.orElseGet(() -> createPrivateChat(id1, id2));
     }
 
     /**
-     * создает новый групповой чат между произвольным числом пользователей
+     * Создает новый групповой чат между произвольным числом пользователей
      * устанавливает дату создания
      * @param ids список идентификаторов участников
      * @param groupInfo содержит дополнительную информацию о беседе
      * @return созданный чат
      */
     public Chat createGroupChat(List<Long> ids, Group groupInfo) {
-        System.out.println("group creation request");
-
         if (groupInfo == null) {
             throw new AbsentGroupInfoException("group chat creation require \"groupInfo\"");
         }
@@ -70,7 +73,10 @@ public class ChatService {
         groupInfo.setCreationDate(LocalDate.now());
         groupInfo.setChat(chat);
 
-        return chatRepo.save(chat);
+        Chat saved = chatRepo.save(chat);
+        log.info("group chat created: members={}", saved.getMembers().stream().map(User::getId).toList());
+        sendCreationNotificationToMembers(saved);
+        return saved;
     }
 
 
@@ -91,7 +97,10 @@ public class ChatService {
                 .build();
         addMemberById(chat, id1);
         addMemberById(chat, id2);
-        return chatRepo.save(chat);
+        Chat saved = chatRepo.save(chat);
+        log.info("private chat created: members={}", saved.getMembers().stream().map(User::getId).toList());
+        sendCreationNotificationToMembers(saved);
+        return saved;
     }
 
     private void addMemberById(Chat chat, Long id) {
@@ -115,6 +124,13 @@ public class ChatService {
         Chat chat = getChatByIdOrException(chatId);
         if (chat.getLastMessageTime().isBefore(message.getDateTime())) {
             chatRepo.updateLastMessageById(message, chatId);
+        }
+    }
+
+    private void sendCreationNotificationToMembers(Chat chat) {
+        ChatDto chatDto = chatMapper.toDto(chat);
+        for (var member : chatDto.getMembers()) {
+            messagingTemplate.convertAndSendToUser(member.getId().toString(), "/queue/chats", chatDto);
         }
     }
 }
