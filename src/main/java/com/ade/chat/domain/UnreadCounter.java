@@ -1,12 +1,10 @@
 package com.ade.chat.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,7 +12,8 @@ import lombok.Setter;
 @Table(name = "unread_counter")
 public class UnreadCounter {
     @EmbeddedId
-    private ChatUserKey id;
+    @Builder.Default
+    private ChatUserKey id = new ChatUserKey();
 
     @ManyToOne
     @MapsId("chatId")
@@ -27,5 +26,6 @@ public class UnreadCounter {
     private User user;
 
     @Column(name = "count")
-    private Integer count;
+    @Builder.Default
+    private Integer count = 0;
 }

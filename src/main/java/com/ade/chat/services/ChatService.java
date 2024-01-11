@@ -1,15 +1,14 @@
 package com.ade.chat.services;
 
-import com.ade.chat.domain.Chat;
-import com.ade.chat.domain.Group;
-import com.ade.chat.domain.Message;
-import com.ade.chat.domain.User;
+import com.ade.chat.domain.*;
 import com.ade.chat.dtos.ChatDto;
+import com.ade.chat.dtos.ReadNotification;
 import com.ade.chat.exception.AbsentGroupInfoException;
 import com.ade.chat.exception.ChatNotFoundException;
 import com.ade.chat.exception.NotAMemberException;
 import com.ade.chat.mappers.ChatMapper;
 import com.ade.chat.repositories.ChatRepository;
+import com.ade.chat.repositories.UnreadCounterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -29,6 +28,7 @@ public class ChatService {
     private final UserService userService;
     private final ChatMapper chatMapper;
     private final SimpMessagingTemplate messagingTemplate;
+    private final UnreadCounterRepository counterRepository;
 
     /**
      * @param id идентификатор чата
@@ -74,9 +74,17 @@ public class ChatService {
         groupInfo.setChat(chat);
 
         Chat saved = chatRepo.save(chat);
+        saved.getMembers().forEach(member -> addUnreadCounter(saved, member));
+
         log.info("group chat created: members={}", saved.getMembers().stream().map(User::getId).toList());
         sendCreationNotificationToMembers(saved);
         return saved;
+    }
+
+    private void addUnreadCounter(Chat chat, User member) {
+        var counter = UnreadCounter.builder().chat(chat).user(member).build();
+        var saved = counterRepository.save(counter);
+        chat.getMemberUnreadCounters().add(saved);
     }
 
 
@@ -94,6 +102,9 @@ public class ChatService {
         addMemberById(chat, id1);
         addMemberById(chat, id2);
         Chat saved = chatRepo.save(chat);
+        addUnreadCounter(saved, userService.getUserByIdOrException(id1));
+        addUnreadCounter(saved, userService.getUserByIdOrException(id2));
+
         log.info("private chat created: members={}", saved.getMembers().stream().map(User::getId).toList());
         sendCreationNotificationToMembers(saved);
         return saved;
@@ -110,10 +121,9 @@ public class ChatService {
         return intersection.stream().findAny();
     }
 
-    public void updateLastMessage(Long chatId, Message message) {
-        Chat chat = getChatByIdOrException(chatId);
+    public void updateLastMessage(Chat chat, Message message) {
         if (chat.getLastMessageTime().isBefore(message.getDateTime())) {
-            chatRepo.updateLastMessageById(message, chatId);
+            chatRepo.updateLastMessageById(message, chat.getId());
         }
     }
 
@@ -122,5 +132,26 @@ public class ChatService {
         for (var member : chatDto.getMembers()) {
             messagingTemplate.convertAndSendToUser(member.getId().toString(), "/queue/chats", chatDto);
         }
+    }
+
+    public void changeUnreadCounter(Chat chat, User user) {
+        for (var member : chat.getMembers()) {
+            if (user != member) {
+                counterRepository.incrementCountByChatAndUser(chat, member);
+            }
+        }
+    }
+
+    private void sendReadNotificationToChatMembers(Chat chat, ReadNotification notification) {
+        for (var member : chat.getMembers()) {
+            messagingTemplate.convertAndSendToUser(member.getId().toString(), "/queue/read_notifications", notification);
+        }
+    }
+
+    public void processReadNotification(ReadNotification notification) {
+        Chat chat = getChatByIdOrException(notification.getChatId());
+        User user = userService.getUserByIdOrException(notification.getUserId());
+        counterRepository.setCountToZeroByChatAndUser(chat, user);
+        sendReadNotificationToChatMembers(chat, notification);
     }
 }

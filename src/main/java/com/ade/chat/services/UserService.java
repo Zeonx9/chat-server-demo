@@ -1,6 +1,7 @@
 package com.ade.chat.services;
 
 import com.ade.chat.domain.Chat;
+import com.ade.chat.domain.UnreadCounter;
 import com.ade.chat.domain.User;
 import com.ade.chat.dtos.UserDto;
 import com.ade.chat.exception.UserNotFoundException;
@@ -75,5 +76,15 @@ public class UserService {
             return;
         }
         setter.accept(newValue);
+    }
+
+    public List<UnreadCounter> getChatCountersByUserId(Long id) {
+        return getUserByIdOrException(id).getChatUnreadCounters().stream()
+                .filter((counter) -> counter.getCount() != 0)
+                .toList();
+    }
+
+    public void setOnline(Long id) {
+        getUserByIdOrException(id).setIsOnline(true);
     }
 }

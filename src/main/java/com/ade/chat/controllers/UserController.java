@@ -2,8 +2,10 @@ package com.ade.chat.controllers;
 
 import com.ade.chat.domain.User;
 import com.ade.chat.dtos.ChatDto;
+import com.ade.chat.dtos.UnreadCounterDto;
 import com.ade.chat.dtos.UserDto;
 import com.ade.chat.mappers.ChatMapper;
+import com.ade.chat.mappers.UnreadCounterMapper;
 import com.ade.chat.mappers.UserMapper;
 import com.ade.chat.services.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -25,6 +27,7 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
     private final ChatMapper chatMapper;
+    private final UnreadCounterMapper counterMapper;
 
     /**
      * Получает список всех пользователей системы
@@ -68,5 +71,10 @@ public class UserController {
     public ResponseEntity<UserDto> updateUserData(@PathVariable Long id, @RequestBody UserDto newUser) {
         User updatedUser = userService.updateUserData(id, newUser);
         return ResponseEntity.ok(userMapper.toDto(updatedUser));
+    }
+
+    @GetMapping("/users/{id}/chats/unread")
+    public ResponseEntity<List<UnreadCounterDto>> getUnreadInChatsForUser(@PathVariable Long id) {
+        return ResponseEntity.ok(counterMapper.toDtoList(userService.getChatCountersByUserId(id)));
     }
 }

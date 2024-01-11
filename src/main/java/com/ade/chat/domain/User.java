@@ -1,7 +1,6 @@
 package com.ade.chat.domain;
 
 import com.ade.chat.auth.Role;
-import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;

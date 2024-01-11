@@ -3,9 +3,12 @@ package com.ade.chat.services;
 import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
+import com.ade.chat.dtos.MessageDto;
 import com.ade.chat.exception.NotAMemberException;
+import com.ade.chat.mappers.MessageMapper;
 import com.ade.chat.repositories.MessageRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,6 +23,8 @@ public class MessageService {
     private final MessageRepository messageRepo;
     private final ChatService chatService;
     private final UserService userService;
+    private final MessageMapper messageMapper;
+    private final SimpMessagingTemplate messagingTemplate;
 
     /**
      * Сохраняет сообщение отправленное пользователем в чат
@@ -38,7 +43,11 @@ public class MessageService {
         if (!chat.getMembers().contains(user)) {
             throw new NotAMemberException("This user: " + userId + " is not a member of a chat: " + chatId);
         }
-        return sendToChatFromUser(user, chat, msg);
+        Message sent = sendToChatFromUser(user, chat, msg);
+        chatService.updateLastMessage(chat, sent);
+        chatService.changeUnreadCounter(chat, user);
+        sentMessageNotifications(sent, chat);
+        return sent;
     }
 
     private Message sendToChatFromUser(User user, Chat chat, Message msg) {
@@ -48,5 +57,12 @@ public class MessageService {
         }
         msg.setChat(chat);
         return messageRepo.save(msg);
+    }
+
+    private void sentMessageNotifications(Message message, Chat chat) {
+        MessageDto sentAsDto = messageMapper.toDto(message);
+        for (var member: chat.getMembers()) {
+            messagingTemplate.convertAndSendToUser(member.getId().toString(), "/queue/messages", sentAsDto);
+        }
     }
 }

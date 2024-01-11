@@ -18,5 +18,4 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     @Query("select c from chat c inner join c.members members where members.id = ?1 and c.isPrivate = true")
     Set<Chat> findByMembers_IdAndIsPrivateTrue(Long id);
 
-
 }

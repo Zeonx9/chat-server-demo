@@ -57,6 +57,7 @@ public class Chat {
     private Message lastMessage;
 
     @OneToMany(mappedBy = "chat")
+    @Builder.Default
     private Set<UnreadCounter> memberUnreadCounters = new HashSet<>();
 
 

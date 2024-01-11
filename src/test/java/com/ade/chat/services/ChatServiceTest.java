@@ -7,12 +7,15 @@ import com.ade.chat.domain.User;
 import com.ade.chat.exception.AbsentGroupInfoException;
 import com.ade.chat.exception.ChatNotFoundException;
 import com.ade.chat.exception.NotAMemberException;
+import com.ade.chat.mappers.ChatMapper;
 import com.ade.chat.repositories.ChatRepository;
+import com.ade.chat.repositories.UnreadCounterRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -32,11 +35,14 @@ class ChatServiceTest {
 
     @Mock private ChatRepository chatRepo;
     @Mock private UserService userService;
+    @Mock private ChatMapper chatMapper;
+    @Mock private SimpMessagingTemplate messagingTemplate;
+    @Mock private UnreadCounterRepository counterRepository;
     private ChatService underTest;
 
     @BeforeEach
     void setUp() {
-        underTest = new ChatService(chatRepo, userService, null, null);
+        underTest = new ChatService(chatRepo, userService, chatMapper, messagingTemplate, counterRepository);
     }
 
     private void givenRepositoryReturnsChat(Chat chat) {
@@ -101,9 +107,10 @@ class ChatServiceTest {
     @Test
     void canUpdateLastMessage() {
         Message msg = new Message();
+        Chat chat = Chat.builder().id(1L).build();
         msg.setDateTime(LocalDateTime.now());
-        given(chatRepo.findById(1L)).willReturn(Optional.of(new Chat()));
-        underTest.updateLastMessage(1L, msg);
+        given(chatRepo.findById(1L)).willReturn(Optional.of(chat));
+        underTest.updateLastMessage(chat, msg);
         verify(chatRepo).updateLastMessageById(msg, 1L);
     }
 

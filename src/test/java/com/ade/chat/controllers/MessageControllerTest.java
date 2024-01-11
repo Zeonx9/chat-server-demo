@@ -1,5 +1,6 @@
 package com.ade.chat.controllers;
 
+import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.Message;
 import com.ade.chat.dtos.MessageDto;
 import com.ade.chat.mappers.MessageMapper;
@@ -40,6 +41,7 @@ public class MessageControllerTest {
         MessageDto messageDto = MessageDto.builder().text("text").build();
         Message message = new Message();
         Message out = Message.builder().id(34L).build();
+        Chat chat = Chat.builder().id(2L).build();
         given(messageMapper.toEntity(messageDto)).willReturn(message);
         given(messageService.sendMessage(1L, 2L, message)).willReturn(out);
 
@@ -49,7 +51,7 @@ public class MessageControllerTest {
                 .with(csrf())
         ).andExpect(status().isOk());
 
-        verify(chatService).updateLastMessage(2L, out);
+        verify(chatService).updateLastMessage(chat, out);
         verify(messageMapper).toDto(out);
     }
 
