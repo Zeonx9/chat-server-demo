@@ -24,7 +24,7 @@ public class MessageService {
     private final ChatService chatService;
     private final UserService userService;
     private final MessageMapper messageMapper;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final ChatMessagingTemplate messagingTemplate;
 
     /**
      * Сохраняет сообщение отправленное пользователем в чат
@@ -46,7 +46,7 @@ public class MessageService {
         Message sent = sendToChatFromUser(user, chat, msg);
         chatService.updateLastMessage(chat, sent);
         chatService.changeUnreadCounter(chat, user);
-        sentMessageNotifications(sent, chat);
+        messagingTemplate.sendMessageNotificationsToMembers(sent, chat);
         return sent;
     }
 
@@ -57,12 +57,5 @@ public class MessageService {
         }
         msg.setChat(chat);
         return messageRepo.save(msg);
-    }
-
-    private void sentMessageNotifications(Message message, Chat chat) {
-        MessageDto sentAsDto = messageMapper.toDto(message);
-        for (var member: chat.getMembers()) {
-            messagingTemplate.convertAndSendToUser(member.getId().toString(), "/queue/messages", sentAsDto);
-        }
     }
 }

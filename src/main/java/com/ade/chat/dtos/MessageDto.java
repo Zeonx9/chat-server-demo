@@ -17,4 +17,5 @@ public class MessageDto {
     private LocalDateTime dateTime;
     private UserDto author;
     private Long chatId;
+    private Boolean isAuxiliary = false;
 }

@@ -48,6 +48,10 @@ public class Message {
     )
     private Chat chat;
 
+    @Builder.Default
+    @Column(name = "is_auxiliary")
+    private Boolean isAuxiliary = false;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -38,7 +38,6 @@ public class ChatController {
     @GetMapping("/private_chat/{id1}/{id2}")
     @Transactional
     public ResponseEntity<ChatDto> getOrCreatePrivateChat(@PathVariable Long id1, @PathVariable Long id2) {
-        System.out.println("requested private chat between" + id1 + " and " + id2);
         return ResponseEntity.ok(chatMapper.toDto(chatService.createOrGetPrivateChat(id1, id2)));
     }
 
@@ -81,5 +80,50 @@ public class ChatController {
     @GetMapping("/chats/{chatId}")
     public ResponseEntity<ChatDto> getChatById(@PathVariable Long chatId) {
         return ResponseEntity.ok(chatMapper.toDto(chatService.getChatByIdOrException(chatId)));
+    }
+
+    /**
+     * Добавляет нового пользователя в существующую беседу
+     * @param chatId идентификатор чата
+     * @param memberId идентификатор добавляемого пользователя
+     * @param invitorId идентификатор приглашающего пользователя
+     * @return измененный чат
+     */
+    @PutMapping("/chats/{chatId}/new_member/{memberId}/invitor/{invitorId}")
+    @Transactional
+    public ResponseEntity<ChatDto> addNewChatMember(
+            @PathVariable Long chatId,
+            @PathVariable Long memberId,
+            @PathVariable Long invitorId
+    ) {
+        return ResponseEntity.ok(chatMapper.toDto(chatService.addNewMember(chatId, memberId, invitorId)));
+    }
+
+    /**
+     * Удаляет выбранный чат, это может сделать только создатель чата
+     * @param chatId идентификатор удаляемого чата
+     * @param ownerId идентификатор удаляющего пользователя
+     * @return удаленный чат
+     */
+    @DeleteMapping("/chats/{chatId}/user/{ownerId}")
+    public ResponseEntity<ChatDto> deleteChatById(@PathVariable Long chatId, @PathVariable Long ownerId) {
+        return ResponseEntity.ok(chatMapper.toDto(chatService.deleteChatById(chatId, ownerId)));
+    }
+
+    /**
+     * Удаляет выбранный чат, это может сделать только создатель чата
+     * @param chatId идентификатор чата
+     * @param memberId идентификатор удаляемого пользователя
+     * @param deleterId идентификатор удаляющего пользователя
+     * @return удаленный чат
+     */
+    @PutMapping("/chats/{chatId}/delete_member/{memberId}/deleter/{deleterId}")
+    @Transactional
+    public ResponseEntity<ChatDto> deleteChatMember(
+            @PathVariable Long chatId,
+            @PathVariable Long memberId,
+            @PathVariable Long deleterId
+    ) {
+       return ResponseEntity.ok(chatMapper.toDto(chatService.deleteMember(chatId, memberId, deleterId)));
     }
 }

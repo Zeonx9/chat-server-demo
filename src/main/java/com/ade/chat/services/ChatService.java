@@ -5,9 +5,11 @@ import com.ade.chat.dtos.ChatDto;
 import com.ade.chat.dtos.ReadNotification;
 import com.ade.chat.exception.AbsentGroupInfoException;
 import com.ade.chat.exception.ChatNotFoundException;
+import com.ade.chat.exception.IllegalMemberCount;
 import com.ade.chat.exception.NotAMemberException;
 import com.ade.chat.mappers.ChatMapper;
 import com.ade.chat.repositories.ChatRepository;
+import com.ade.chat.repositories.MessageRepository;
 import com.ade.chat.repositories.UnreadCounterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +17,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -24,10 +27,10 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class ChatService {
+    private final MessageRepository messageRepository;
     private final ChatRepository chatRepo;
     private final UserService userService;
-    private final ChatMapper chatMapper;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final ChatMessagingTemplate messagingTemplate;
     private final UnreadCounterRepository counterRepository;
 
     /**
@@ -77,7 +80,7 @@ public class ChatService {
         saved.getMembers().forEach(member -> addUnreadCounter(saved, member));
 
         log.info("group chat created: members={}", saved.getMembers().stream().map(User::getId).toList());
-        sendCreationNotificationToMembers(saved);
+        messagingTemplate.sendCreationNotificationToMembers(saved);
         return saved;
     }
 
@@ -106,7 +109,7 @@ public class ChatService {
         addUnreadCounter(saved, userService.getUserByIdOrException(id2));
 
         log.info("private chat created: members={}", saved.getMembers().stream().map(User::getId).toList());
-        sendCreationNotificationToMembers(saved);
+        messagingTemplate.sendCreationNotificationToMembers(saved);
         return saved;
     }
 
@@ -127,13 +130,6 @@ public class ChatService {
         }
     }
 
-    private void sendCreationNotificationToMembers(Chat chat) {
-        ChatDto chatDto = chatMapper.toDto(chat);
-        for (var member : chatDto.getMembers()) {
-            messagingTemplate.convertAndSendToUser(member.getId().toString(), "/queue/chats", chatDto);
-        }
-    }
-
     public void changeUnreadCounter(Chat chat, User user) {
         for (var member : chat.getMembers()) {
             if (user != member) {
@@ -142,16 +138,84 @@ public class ChatService {
         }
     }
 
-    private void sendReadNotificationToChatMembers(Chat chat, ReadNotification notification) {
-        for (var member : chat.getMembers()) {
-            messagingTemplate.convertAndSendToUser(member.getId().toString(), "/queue/read_notifications", notification);
-        }
-    }
-
     public void processReadNotification(ReadNotification notification) {
         Chat chat = getChatByIdOrException(notification.getChatId());
         User user = userService.getUserByIdOrException(notification.getUserId());
         counterRepository.setCountToZeroByChatAndUser(chat, user);
-        sendReadNotificationToChatMembers(chat, notification);
+        messagingTemplate.sendReadNotificationToMembers(chat, notification);
+    }
+
+    public Chat addNewMember(Long chatId, Long memberId, Long invitorId) {
+        Chat chat = getChatByIdOrException(chatId);
+        User newMember = userService.getUserByIdOrException(memberId);
+        User invitor = userService.getUserByIdOrException(invitorId);
+
+        if (chat.getIsPrivate()) {
+            throw new IllegalMemberCount("Cannot add new member to a private chat");
+        }
+        if (!chat.getMembers().contains(invitor)) {
+            throw new NotAMemberException("Invitor should be a member of a chat");
+        }
+
+        chat.getMembers().add(newMember);
+
+        Message addMemberMessage = createAuxilaryMessage(
+                String.format("%s added %s to the Chat", invitor.getUsername(), newMember.getUsername()),
+                chat
+        );
+        chat.getMessages().add(addMemberMessage);
+
+        messagingTemplate.sendToUserChatQueue(newMember.getId(), chat);
+        messagingTemplate.sendMessageNotificationsToMembers(addMemberMessage, chat);
+        return chatRepo.save(chat);
+    }
+
+    public Chat deleteChatById(Long chatId, Long ownerId) {
+        Chat chat = getChatByIdOrException(chatId);
+        User owner = userService.getUserByIdOrException(ownerId);
+        if (chat.getIsPrivate()) {
+            throw new AbsentGroupInfoException("Cannot delete private Chat");
+        }
+        if (chat.getGroup().getCreator() != owner) {
+            throw new NotAMemberException("Only creator can delete the chat");
+        }
+        messagingTemplate.sendDeleteNotificationToMembers(chat);
+        chatRepo.delete(chat);
+        return chat;
+    }
+
+    private Message createAuxilaryMessage(String text, Chat chat) {
+        return messageRepository.save(
+                Message.builder()
+                .isAuxiliary(true)
+                .text(text)
+                .chat(chat)
+                .dateTime(LocalDateTime.now())
+                .build()
+        );
+    }
+
+    public Chat deleteMember(Long chatId, Long memberId, Long deleterId) {
+        Chat chat = getChatByIdOrException(chatId);
+        User member = userService.getUserByIdOrException(memberId);
+        User deleter = userService.getUserByIdOrException(deleterId);
+
+        if (chat.getIsPrivate()) {
+            throw new IllegalMemberCount("Cannot delete member from a private chat");
+        }
+        if (chat.getGroup().getCreator() != deleter) {
+            throw new NotAMemberException("Only creator can delete members from chat");
+        }
+
+        Message deletedMemberAuxiliaryMessage = createAuxilaryMessage(
+                String.format("%s added %s to the Chat", deleter.getUsername(), member.getUsername()),
+                chat
+        );
+        chat.getMessages().add(deletedMemberAuxiliaryMessage);
+        messagingTemplate.sendMessageNotificationsToMembers(deletedMemberAuxiliaryMessage, chat);
+        messagingTemplate.sendToUserChatDeleteQueue(member.getId(), chat);
+
+        chat.getMembers().remove(member);
+        return chatRepo.save(chat);
     }
 }
