@@ -3,12 +3,9 @@ package com.ade.chat.services;
 import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
-import com.ade.chat.dtos.MessageDto;
 import com.ade.chat.exception.NotAMemberException;
-import com.ade.chat.mappers.MessageMapper;
 import com.ade.chat.repositories.MessageRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,7 +20,6 @@ public class MessageService {
     private final MessageRepository messageRepo;
     private final ChatService chatService;
     private final UserService userService;
-    private final MessageMapper messageMapper;
     private final ChatMessagingTemplate messagingTemplate;
 
     /**

@@ -26,16 +26,8 @@ public class ChatMessagingTemplate {
         sendToUser(userId, "/queue/messages", message);
     }
 
-    public void sendToUserMessageQueue(Long userId, Message message) {
-        sendToUserMessageQueue(userId, messageMapper.toDto(message));
-    }
-
     public void sendToUserChatQueue(Long userId, ChatDto chat) {
         sendToUser(userId, "/queue/chats", chat);
-    }
-
-    public void sendToUserChatQueue(Long userId, Chat chat) {
-        sendToUserChatQueue(userId, chatMapper.toDto(chat));
     }
 
     public void sendToUserNotificationQueue(Long userId, ReadNotification notification) {
@@ -44,6 +36,10 @@ public class ChatMessagingTemplate {
 
     public void sendToUserChatDeleteQueue(Long userId, ChatDto chat) {
         sendToUser(userId, "/queue/chats_delete", chat);
+    }
+
+    public void sendToUserChatQueue(Long userId, Chat chat) {
+        sendToUserChatQueue(userId, chatMapper.toDto(chat));
     }
 
     public void sendToUserChatDeleteQueue(Long userId, Chat chat) {
@@ -73,7 +69,7 @@ public class ChatMessagingTemplate {
     public void sendMessageNotificationsToMembers(Message message, Chat chat) {
         MessageDto sentAsDto = messageMapper.toDto(message);
         for (var member: chat.getMembers()) {
-            messagingTemplate.convertAndSendToUser(member.getId().toString(), "/queue/messages", sentAsDto);
+            sendToUserMessageQueue(member.getId(), sentAsDto);
         }
     }
 }
