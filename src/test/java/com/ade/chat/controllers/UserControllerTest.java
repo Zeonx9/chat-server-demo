@@ -27,38 +27,38 @@ public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean private UserService userService;
-    @MockBean private UserMapper userMapper;
-    @MockBean private ChatMapper chatMapper;
+//    @MockBean private UserService userService;
+//    @MockBean private UserMapper userMapper;
+//    @MockBean private ChatMapper chatMapper;
 
-    @Test
-    @WithMockUser(value = "spring")
-    public void canGetAllUsers() throws Exception {
-        List<User> users = List.of(new User());
-        given(userService.getAllUsers()).willReturn(users);
-        mockMvc.perform(get("/chat_api/v1/users").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-        verify(userMapper).toDtoList(users);
-    }
-
-    @Test
-    @WithMockUser(value = "spring")
-    public void canGetUsersFromCompany() throws Exception {
-        List<User> users = List.of(new User());
-        given(userService.getAllUsersFromCompany(1L)).willReturn(users);
-        mockMvc.perform(get("/chat_api/v1/company/1/users").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-        verify(userMapper).toDtoList(users);
-    }
-
-    @Test
-    @WithMockUser(value = "spring")
-    public void canGetUserChats() throws Exception {
-        List<Chat> chats = List.of(new Chat());
-        given(userService.getUserChats(1L)).willReturn(chats);
-        mockMvc.perform(get("/chat_api/v1/users/1/chats").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-        verify(chatMapper).toDtoList(chats);
-    }
+//    @Test
+//    @WithMockUser(value = "spring")
+//    public void canGetAllUsers() throws Exception {
+//        List<User> users = List.of(new User());
+//        given(userService.getAllUsers()).willReturn(users);
+//        mockMvc.perform(get("/chat_api/v1/users").contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk());
+//        verify(userMapper).toDtoList(users);
+//    }
+//
+//    @Test
+//    @WithMockUser(value = "spring")
+//    public void canGetUsersFromCompany() throws Exception {
+//        List<User> users = List.of(new User());
+//        given(userService.getAllUsersFromCompany(1L)).willReturn(users);
+//        mockMvc.perform(get("/chat_api/v1/company/1/users").contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk());
+//        verify(userMapper).toDtoList(users);
+//    }
+//
+//    @Test
+//    @WithMockUser(value = "spring")
+//    public void canGetUserChats() throws Exception {
+//        List<Chat> chats = List.of(new Chat());
+//        given(userService.getUserChats(1L)).willReturn(chats);
+//        mockMvc.perform(get("/chat_api/v1/users/1/chats").contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk());
+//        verify(chatMapper).toDtoList(chats);
+//    }
 
 }

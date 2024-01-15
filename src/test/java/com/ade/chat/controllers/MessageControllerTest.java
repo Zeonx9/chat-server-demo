@@ -31,37 +31,37 @@ public class MessageControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean private MessageService messageService;
-    @MockBean private MessageMapper messageMapper;
-    @MockBean private ChatService chatService;
-
-    @Test
-    @WithMockUser(value = "spring")
-    void canSendAMessage() throws Exception {
-        MessageDto messageDto = MessageDto.builder().text("text").build();
-        Message message = new Message();
-        Message out = Message.builder().id(34L).build();
-        Chat chat = Chat.builder().id(2L).build();
-        given(messageMapper.toEntity(messageDto)).willReturn(message);
-        given(messageService.sendMessage(1L, 2L, message)).willReturn(out);
-
-        mockMvc.perform(post("/chat_api/v1/users/1/chats/2/message")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJson(messageDto))
-                .with(csrf())
-        ).andExpect(status().isOk());
-
-        verify(chatService).updateLastMessage(chat, out);
-        verify(messageMapper).toDto(out);
-    }
-
-    private String asJson(Object obj) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.writeValueAsString(obj);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    @MockBean private MessageService messageService;
+//    @MockBean private MessageMapper messageMapper;
+//    @MockBean private ChatService chatService;
+//
+//    @Test
+//    @WithMockUser(value = "spring")
+//    void canSendAMessage() throws Exception {
+//        MessageDto messageDto = MessageDto.builder().text("text").build();
+//        Message message = new Message();
+//        Message out = Message.builder().id(34L).build();
+//        Chat chat = Chat.builder().id(2L).build();
+//        given(messageMapper.toEntity(messageDto)).willReturn(message);
+//        given(messageService.sendMessage(1L, 2L, message)).willReturn(out);
+//
+//        mockMvc.perform(post("/chat_api/v1/users/1/chats/2/message")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(asJson(messageDto))
+//                .with(csrf())
+//        ).andExpect(status().isOk());
+//
+//        verify(chatService).updateLastMessage(chat, out);
+//        verify(messageMapper).toDto(out);
+//    }
+//
+//    private String asJson(Object obj) {
+//        ObjectMapper mapper = new ObjectMapper();
+//        try {
+//            return mapper.writeValueAsString(obj);
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
 }

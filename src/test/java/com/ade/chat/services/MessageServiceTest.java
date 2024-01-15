@@ -25,8 +25,7 @@ class MessageServiceTest {
     @Mock private MessageRepository messageRepo;
     @Mock private UserService userService;
     @Mock private ChatService chatService;
-    @Mock private MessageMapper messageMapper;
-    @Mock private SimpMessagingTemplate messagingTemplate;
+    @Mock private ChatMessagingTemplate messagingTemplate;
     private MessageService underTest;
 
     @BeforeEach
@@ -35,7 +34,6 @@ class MessageServiceTest {
                 messageRepo,
                 chatService,
                 userService,
-                messageMapper,
                 messagingTemplate
         );
     }
