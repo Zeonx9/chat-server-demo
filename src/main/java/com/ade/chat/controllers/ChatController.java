@@ -68,7 +68,7 @@ public class ChatController {
             @PathVariable Long chatId,
             @RequestParam(required = false) Long userId
     ) {
-        return ResponseEntity.ok(messageMapper.toDtoList(chatService.getMessages(chatId, userId)));
+        return ResponseEntity.ok(messageMapper.toDtoList(chatService.getMessages(chatId)));
     }
 
     /**

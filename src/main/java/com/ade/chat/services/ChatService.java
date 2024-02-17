@@ -1,19 +1,16 @@
 package com.ade.chat.services;
 
 import com.ade.chat.domain.*;
-import com.ade.chat.dtos.ChatDto;
 import com.ade.chat.dtos.ReadNotification;
 import com.ade.chat.exception.AbsentGroupInfoException;
 import com.ade.chat.exception.ChatNotFoundException;
 import com.ade.chat.exception.IllegalMemberCount;
 import com.ade.chat.exception.NotAMemberException;
-import com.ade.chat.mappers.ChatMapper;
 import com.ade.chat.repositories.ChatRepository;
 import com.ade.chat.repositories.MessageRepository;
 import com.ade.chat.repositories.UnreadCounterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -91,7 +88,11 @@ public class ChatService {
     }
 
 
-    public List<Message> getMessages(Long chatId, Long userId) {
+    /**
+     * @param chatId идентификатор чата
+     * @return список сообщений из чата сортированный по времени сообщений.
+     */
+    public List<Message> getMessages(Long chatId) {
         Chat chat = getChatByIdOrException(chatId);
         return chat.getMessages().stream()
                 .sorted(Comparator.comparing(Message::getDateTime))
@@ -124,12 +125,20 @@ public class ChatService {
         return intersection.stream().findAny();
     }
 
+    /**
+     * @param chat чат, в котором нужно обновить последнее сообщение
+     * @param message новое последнее сообщение
+     */
     public void updateLastMessage(Chat chat, Message message) {
         if (chat.getLastMessageTime().isBefore(message.getDateTime())) {
             chatRepo.updateLastMessageById(message, chat.getId());
         }
     }
 
+    /**
+     * @param chat чат, в котором нужно поменять количество непрочитанных сообщений
+     * @param user член чата, для которого считаются сообщения
+     */
     public void changeUnreadCounter(Chat chat, User user) {
         for (var member : chat.getMembers()) {
             if (user != member) {
@@ -138,6 +147,11 @@ public class ChatService {
         }
     }
 
+    /**
+     * Сбрасывает счетчик непрочитанных для прочитавшего пользователя
+     * и пересылает уведомление о прочтении всем членам чата
+     * @param notification уведомление о прочтении от пользователя
+     */
     public void processReadNotification(ReadNotification notification) {
         Chat chat = getChatByIdOrException(notification.getChatId());
         User user = userService.getUserByIdOrException(notification.getUserId());
@@ -145,6 +159,13 @@ public class ChatService {
         messagingTemplate.sendReadNotificationToMembers(chat, notification);
     }
 
+    /**
+     * Добавляет нового члена в чат, добавляет вспомогательное сообщение о добавлении
+     * @param chatId идентификатор чата, чат должен быть групповым
+     * @param memberId идентификатор добавляемого пользователя
+     * @param invitorId идентификатор, приглашающего, должен быть членом чата
+     * @return измененный чат
+     */
     public Chat addNewMember(Long chatId, Long memberId, Long invitorId) {
         Chat chat = getChatByIdOrException(chatId);
         User newMember = userService.getUserByIdOrException(memberId);
@@ -170,13 +191,21 @@ public class ChatService {
         return chatRepo.save(chat);
     }
 
-    public Chat deleteChatById(Long chatId, Long ownerId) {
+
+    /**
+     * Удаляет чат, сделать это может только создатель чата
+     * @param chatId идентификатор чата
+     * @param deleterId идентификатор удаляющего
+     * @throws NotAMemberException при попытке удаления не создателем
+     * @return измененный чат
+     */
+    public Chat deleteChatById(Long chatId, Long deleterId) {
         Chat chat = getChatByIdOrException(chatId);
-        User owner = userService.getUserByIdOrException(ownerId);
+        User deleter = userService.getUserByIdOrException(deleterId);
         if (chat.getIsPrivate()) {
             throw new AbsentGroupInfoException("Cannot delete private Chat");
         }
-        if (chat.getGroup().getCreator() != owner) {
+        if (chat.getGroup().getCreator() != deleter) {
             throw new NotAMemberException("Only creator can delete the chat");
         }
         messagingTemplate.sendDeleteNotificationToMembers(chat);
@@ -195,6 +224,15 @@ public class ChatService {
         );
     }
 
+    /**
+     * Удаляет члена из чата, при этом он теряет историю сообщений,
+     * может сделать это только создатель чата, создает вспомогательное сообщение об удалении,
+     * посылает всем членам чата уведомление
+     * @param chatId идентификатор чата
+     * @param memberId идентификатор удаляемого
+     * @param deleterId идентификатор удаляющего
+     * @return измененный чат
+     */
     public Chat deleteMember(Long chatId, Long memberId, Long deleterId) {
         Chat chat = getChatByIdOrException(chatId);
         User member = userService.getUserByIdOrException(memberId);

@@ -66,7 +66,9 @@ public class UserService {
         User user = getUserByIdOrException(id);
         setIfNotNull(newUser::getRealName, user::setRealName);
         setIfNotNull(newUser::getSurname, user::setSurname);
+        setIfNotNull(newUser::getPatronymic, user::setPatronymic);
         setIfNotNull(newUser::getDateOfBirth, user::setDateOfBirth);
+        setIfNotNull(newUser::getPhoneNumber, user::setPhoneNumber);
         return user;
     }
 
@@ -78,13 +80,29 @@ public class UserService {
         setter.accept(newValue);
     }
 
+    /**
+     * @param id идентификатор пользователя
+     * @return информацию о непрочитанных сообщениях в чатах данного пользователя
+     */
     public List<UnreadCounter> getChatCountersByUserId(Long id) {
         return getUserByIdOrException(id).getChatUnreadCounters().stream()
                 .filter((counter) -> counter.getCount() != 0)
                 .toList();
     }
 
+    /**
+     * Устанавливает пользователю статус Online
+     * @param id идентификатор пользователя
+     */
     public void setOnline(Long id) {
         getUserByIdOrException(id).setIsOnline(true);
+    }
+
+    /**
+     * Устанавливает пользователю статус Offline
+     * @param id идентификатор пользователя
+     */
+    public void setOffline(Long id) {
+        getUserByIdOrException(id).setIsOnline(false);
     }
 }
