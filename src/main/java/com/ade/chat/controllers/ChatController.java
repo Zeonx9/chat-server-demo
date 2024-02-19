@@ -64,10 +64,7 @@ public class ChatController {
      * @throws com.ade.chat.exception.ChatNotFoundException если нет чата с таким айди
      */
     @GetMapping("/chats/{chatId}/messages")
-    public ResponseEntity<List<MessageDto>> getMessages(
-            @PathVariable Long chatId,
-            @RequestParam(required = false) Long userId
-    ) {
+    public ResponseEntity<List<MessageDto>> getMessages(@PathVariable Long chatId) {
         return ResponseEntity.ok(messageMapper.toDtoList(chatService.getMessages(chatId)));
     }
 
