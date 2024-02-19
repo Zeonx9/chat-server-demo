@@ -8,7 +8,7 @@ on:
 
 env:
   # tag should be the same as in .env file
-  DOCKER_IMAGE_TAG: zzzzeonnnnn/chat_backend:dev-1
+  DOCKER_IMAGE_TAG: zzzzeonnnnn/chat_backend:dev-2
   HOST_FOLDER: /app/dev/
 
 jobs:
