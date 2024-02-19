@@ -22,3 +22,12 @@ spring:
 
   main:
     allow-bean-definition-overriding: true
+
+
+server:
+  ssl:
+    key-store: classpath:keystore/intouch-ssl.p12
+    key-store-password: intouch
+    key-store-type: pkcs12
+    key-alias: intouch
+    key-password: intouch
