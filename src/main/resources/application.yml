@@ -31,3 +31,9 @@ server:
     key-store-type: pkcs12
     key-alias: intouch
     key-password: intouch
+
+minio:
+  endpoint: "http://${MINIO_HOST}:9000"
+  accessKey: "${MINIO_ACCESS_KEY}"
+  secretKey: "${MINIO_SECRET_KEY}"
+  bucket: "${MINIO_BUCKET}"

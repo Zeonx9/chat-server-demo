@@ -7,7 +7,7 @@ on:
     branches: ['dev']
 
 env:
-  # tag should be the same as in .env file
+  # tag should be the same as in .env.dev file
   DOCKER_IMAGE_TAG: zzzzeonnnnn/chat_backend:dev-2
   HOST_FOLDER: /app/dev/
 

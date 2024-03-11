@@ -7,7 +7,7 @@ on:
     branches: ['master']
 
 env:
-  # tag should be the same as in .env file
+  # tag should be the same as in .env.master file
   DOCKER_IMAGE_TAG: zzzzeonnnnn/chat_backend:1
 
 jobs:
@@ -61,13 +61,13 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          source: ".env, docker-compose.yml"
+          source: ".env.master, docker-compose.yml"
           target: /app/prod/
 
       - name: Start backend service
         uses: garygrossgarten/github-action-ssh@release
         with:
-          command: cd /app/prod/ && docker compose down && docker compose pull && docker compose up -d
+          command: cd /app/prod/ && mv .env.master .env && docker compose down && docker compose pull && docker compose up -d
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
