@@ -27,10 +27,10 @@ spring:
 server:
   ssl:
     key-store: classpath:keystore/intouch-ssl.p12
-    key-store-password: intouch
     key-store-type: pkcs12
     key-alias: intouch
-    key-password: intouch
+    key-store-password: "${KEY_STORE_PASSWORD}"
+    key-password: "${KEY_PASSWORD}"
 
 minio:
   endpoint: "http://${MINIO_HOST}:9000"

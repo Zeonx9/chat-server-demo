@@ -46,6 +46,9 @@ services:
       PG_USER: chat_user
       PG_PASSWORD: chat_password
 
+      KEY_STORE_PASSWORD: intouch
+      KEY_PASSWORD: intouch
+
       MINIO_HOST: minio
       MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY}"
       MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
