@@ -9,8 +9,7 @@ target
 HELP.md
 mvnw
 mvnw.cmd
-.env
-.env.dev
-.env.master
+.env*
+.gitattributes
 README.md
 docker-compose.yml

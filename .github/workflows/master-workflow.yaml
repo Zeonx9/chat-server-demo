@@ -54,6 +54,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: amplium/git-crypt-action@master
+        with:
+          key_encoded: ${{ secrets.GIT_CRYPT_KEY }}
 
       - name: Send .env & docker-compose.yml file to the virtual machine
         uses: appleboy/scp-action@v0.1.4
