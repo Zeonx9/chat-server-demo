@@ -10,6 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.util.UUID;
 
+/**
+ * Сервис, предоставляющий методы взаимодействия с S3
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -19,6 +22,11 @@ public class MinioService {
     @Value("${minio.bucket}")
     private String bucket;
 
+    /**
+     * Сохраняет переданный файл в хранилище
+     * @param file файл полученный по сети
+     * @return имя сохраненного объекта (UUID)
+     */
     public String uploadFile(MultipartFile file) {
         String objectName = UUID.randomUUID().toString();
 
@@ -39,6 +47,11 @@ public class MinioService {
         }
     }
 
+    /**
+     * Получает MIME тип сохраненного объекта
+     * @param objectName имя объекта (UUID)
+     * @return MediaType сохраненный при загрузке
+     */
     public String getContentType(String objectName) {
         try {
             StatObjectArgs args = StatObjectArgs.builder()
@@ -54,6 +67,11 @@ public class MinioService {
         }
     }
 
+    /**
+     * Получает поток байт сохраненного объекта
+     * @param objectName имя объекта (UUID)
+     * @return поток байтов для чтения
+     */
     public InputStream getObjectAsStream(String objectName) {
         try {
             GetObjectArgs args = GetObjectArgs.builder()

@@ -14,13 +14,22 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Отвечает за загрузку и скачивание файлов. Не требует авторизации
+ */
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+@RequestMapping("chat_api/v1")
 public class FileController {
 
     private final MinioService minioService;
 
+    /**
+     * Загружает файл в S3 хранилище
+     * @param file файл для загрузи
+     * @return имя сохраненного объекта (UUID)
+     */
     @PostMapping(value = "/upload")
     ResponseEntity<String> uploadFile(@RequestPart MultipartFile file) {
         String objectName = minioService.uploadFile(file);
@@ -34,9 +43,13 @@ public class FileController {
         return ResponseEntity.ok(objectName);
     }
 
-
+    /**
+     * Скачивает файл из S3 хранилища
+     * @param objectName имя (UUID) объекта, полученный при его загрузке
+     * @return запрошенный ресурс с указанным типом.
+     */
     @GetMapping("/download/{objectName}")
-    ResponseEntity<Resource> downloadFile(@PathVariable String objectName) throws IOException {
+    ResponseEntity<Resource> downloadFile(@PathVariable String objectName){
         log.info("file {} requested", objectName);
 
         String contentType = minioService.getContentType(objectName);
@@ -46,12 +59,16 @@ public class FileController {
             return ResponseEntity.notFound().build();
         }
 
-        byte [] imageBytes = objectStream.readAllBytes();
-        ByteArrayResource resource = new ByteArrayResource(imageBytes);
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(contentType))
-                .body(resource);
+        try {
+            byte [] imageBytes = objectStream.readAllBytes();
+            ByteArrayResource resource = new ByteArrayResource(imageBytes);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .body(resource);
+        }
+        catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
 }
