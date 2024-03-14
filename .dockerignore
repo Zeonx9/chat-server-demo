@@ -1,8 +1,15 @@
 .github
 .idea
 .mvn
+.jpb
+minio
 target
+
 .gitignore
 HELP.md
 mvnw
 mvnw.cmd
+.env*
+.gitattributes
+README.md
+docker-compose.yml

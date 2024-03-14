@@ -7,8 +7,8 @@ on:
     branches: ['dev']
 
 env:
-  # tag should be the same as in .env file
-  DOCKER_IMAGE_TAG: zzzzeonnnnn/chat_backend:dev-1
+  # tag should be the same as in .env.dev file
+  DOCKER_IMAGE_TAG: zzzzeonnnnn/chat_backend:dev-2.1
   HOST_FOLDER: /app/dev/
 
 jobs:
@@ -55,8 +55,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: amplium/git-crypt-action@master
+        with:
+          key_encoded: ${{ secrets.GIT_CRYPT_KEY }}
 
-      - name: Send .env & docker-compose.yml file to the virtual machine
+      - name: Send .env.dev & docker-compose.yml file to the virtual machine
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.HOST }}

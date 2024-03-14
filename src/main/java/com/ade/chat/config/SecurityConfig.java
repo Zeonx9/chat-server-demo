@@ -30,6 +30,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf().disable()
+                .requiresChannel(channel -> channel.anyRequest().requiresSecure())
                 .authorizeHttpRequests()
                 .requestMatchers("/chat_api/v1/auth/register").hasAuthority("ADMIN")
                 .requestMatchers("/chat_api/v1/auth/company/**").hasAuthority("SUPER_ADMIN")

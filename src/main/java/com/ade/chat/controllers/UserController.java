@@ -73,6 +73,11 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toDto(updatedUser));
     }
 
+    /**
+     * Получает счетчики непрочитанных сообщений в чатах для пользователя
+     * @param id идентификатор пользователя
+     * @return список счетчиков
+     */
     @GetMapping("/users/{id}/chats/unread")
     public ResponseEntity<List<UnreadCounterDto>> getUnreadInChatsForUser(@PathVariable Long id) {
         return ResponseEntity.ok(counterMapper.toDtoList(userService.getChatCountersByUserId(id)));

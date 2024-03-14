@@ -5,7 +5,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 public class PostgresTestContainer extends PostgreSQLContainer<PostgresTestContainer> {
     public static final String IMAGE_VERSION = "postgres:alpine";
     public static final String DATABASE_NAME = "test";
-    public static PostgresTestContainer container;
+    private static PostgresTestContainer container;
 
     public PostgresTestContainer() {
         super(IMAGE_VERSION);

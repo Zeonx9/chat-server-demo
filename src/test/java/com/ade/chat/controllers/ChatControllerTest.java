@@ -80,7 +80,7 @@ public class ChatControllerTest {
     @WithMockUser(value = "spring")
     public void canGetMessages() throws Exception {
         List<Message> messages = List.of(new Message());
-        given(chatService.getMessages(1L, 2L)).willReturn(messages);
+        given(chatService.getMessages(1L)).willReturn(messages);
         mockMvc.perform(get("/chat_api/v1/chats/1/messages?userId=2").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
         verify(messageMapper).toDtoList(messages);

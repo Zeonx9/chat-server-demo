@@ -33,6 +33,7 @@ public class WebSocketController {
     @SendTo("/topic/connection")
     public ConnectEvent onUserDisconnected(@Payload UserDto user) {
         log.info("user id={} disconnected", user.getId());
+        userService.setOffline(user.getId());
         return ConnectEvent.builder().userId(user.getId()).connect(false).build();
     }
 
