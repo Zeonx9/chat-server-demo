@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -81,5 +82,14 @@ public class UserController {
     @GetMapping("/users/{id}/chats/unread")
     public ResponseEntity<List<UnreadCounterDto>> getUnreadInChatsForUser(@PathVariable Long id) {
         return ResponseEntity.ok(counterMapper.toDtoList(userService.getChatCountersByUserId(id)));
+    }
+
+    @PostMapping("/users/{id}/profile_photo")
+    public ResponseEntity<UserDto> uploadNewProfilePhoto(
+            @PathVariable("id") Long userId,
+            @RequestPart MultipartFile file
+    ) {
+        User updatedUser = userService.uploadProfilePhoto(userId, file);
+        return ResponseEntity.ok(userMapper.toDto(updatedUser));
     }
 }

@@ -56,4 +56,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<AppError> catchAbsentGroupInfo(AbsentGroupInfoException e) {
         return handleTheException(e, HttpStatus.FORBIDDEN);
     }
+
+    @ExceptionHandler
+    public ResponseEntity<AppError> catchUploadFailed(UploadFailedException e) {
+        return handleTheException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

@@ -1,5 +1,6 @@
 package com.ade.chat.services;
 
+import com.ade.chat.exception.UploadFailedException;
 import io.minio.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
@@ -28,22 +30,37 @@ public class MinioService {
      * @return имя сохраненного объекта (UUID)
      */
     public String uploadFile(MultipartFile file) {
+        try {
+            return uploadFile(file.getContentType(), file.getSize(), file.getInputStream());
+        }
+        catch (IOException e) {
+            throw new UploadFailedException("unable to get bytes from file");
+        }
+    }
+
+    /**
+     * Сохраняет файл в хранилище
+     * @param contentType MediaType файла
+     * @param size размер в байтах
+     * @param fileBytes InputStream с байтами файла
+     * @return имя сохраненного объекта (UUID)
+     */
+    public String uploadFile(String contentType, long size, InputStream fileBytes) {
         String objectName = UUID.randomUUID().toString();
 
         try {
             PutObjectArgs args = PutObjectArgs.builder()
                     .bucket(bucket)
                     .object(objectName)
-                    .contentType(file.getContentType())
-                    .stream(file.getInputStream(), file.getSize(), -1)
+                    .contentType(contentType)
+                    .stream(fileBytes, size, -1)
                     .build();
 
             minioClient.putObject(args);
             return objectName;
         }
         catch (Exception e) {
-            log.error("error during uploading to minio", e);
-            return null;
+            throw new UploadFailedException("Error during s3 uploading");
         }
     }
 
