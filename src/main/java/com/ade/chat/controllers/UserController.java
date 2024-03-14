@@ -10,9 +10,11 @@ import com.ade.chat.mappers.UserMapper;
 import com.ade.chat.services.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -81,5 +83,20 @@ public class UserController {
     @GetMapping("/users/{id}/chats/unread")
     public ResponseEntity<List<UnreadCounterDto>> getUnreadInChatsForUser(@PathVariable Long id) {
         return ResponseEntity.ok(counterMapper.toDtoList(userService.getChatCountersByUserId(id)));
+    }
+
+    /**
+     * Обновляет пользователю аватарку
+     * @param userId идентификатор пользователя
+     * @param file прикрепленный файл с новым изображением
+     * @return Обновленного пользователя
+     */
+    @PostMapping(value = "/users/{id}/profile_photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserDto> uploadNewProfilePhoto(
+            @PathVariable("id") Long userId,
+            @RequestPart("file") MultipartFile file
+    ) {
+        User updatedUser = userService.uploadProfilePhoto(userId, file);
+        return ResponseEntity.ok(userMapper.toDto(updatedUser));
     }
 }

@@ -7,8 +7,8 @@ services:
       - chat_db_vol:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: chat_db
-      POSTGRES_USER: chat_user
-      POSTGRES_PASSWORD: chat_password
+      POSTGRES_USER: "${PG_USER}"
+      POSTGRES_PASSWORD: "${PG_PASSWORD}"
 
     ports:
       - "${POSTGRES_PORT}:5432"
@@ -29,8 +29,8 @@ services:
     volumes:
       - ./minio/data:/data
     environment:
-      MINIO_ROOT_USER: ROOTUSER
-      MINIO_ROOT_PASSWORD: CHANGEME123
+      MINIO_ROOT_USER: "${MINIO_ROOT_USER}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD}"
     command: server --console-address ":9001" /data
 
 
@@ -43,11 +43,11 @@ services:
     environment:
       PG_HOST: db
       PG_DB: chat_db
-      PG_USER: chat_user
-      PG_PASSWORD: chat_password
+      PG_USER: "${PG_USER}"
+      PG_PASSWORD: "${PG_PASSWORD}"
 
-      KEY_STORE_PASSWORD: intouch
-      KEY_PASSWORD: intouch
+      KEY_STORE_PASSWORD: "${KEY_STORE_PASSWORD}"
+      KEY_PASSWORD: "${KEY_PASSWORD}"
 
       MINIO_HOST: minio
       MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY}"

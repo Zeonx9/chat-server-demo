@@ -20,4 +20,8 @@ public class UserDto {
     private String phoneNumber;
     private Boolean isOnline;
     private String patronymic;
+    private String profilePhotoId;
+    private String thumbnailPhotoId;
+
+
 }
