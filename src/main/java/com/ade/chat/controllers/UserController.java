@@ -10,6 +10,7 @@ import com.ade.chat.mappers.UserMapper;
 import com.ade.chat.services.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -90,10 +91,10 @@ public class UserController {
      * @param file прикрепленный файл с новым изображением
      * @return Обновленного пользователя
      */
-    @PostMapping("/users/{id}/profile_photo")
+    @PostMapping(value = "/users/{id}/profile_photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserDto> uploadNewProfilePhoto(
             @PathVariable("id") Long userId,
-            @RequestPart MultipartFile file
+            @RequestPart("file") MultipartFile file
     ) {
         User updatedUser = userService.uploadProfilePhoto(userId, file);
         return ResponseEntity.ok(userMapper.toDto(updatedUser));
