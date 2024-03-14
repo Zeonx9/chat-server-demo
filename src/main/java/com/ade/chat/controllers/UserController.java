@@ -84,6 +84,12 @@ public class UserController {
         return ResponseEntity.ok(counterMapper.toDtoList(userService.getChatCountersByUserId(id)));
     }
 
+    /**
+     * Обновляет пользователю аватарку
+     * @param userId идентификатор пользователя
+     * @param file прикрепленный файл с новым изображением
+     * @return Обновленного пользователя
+     */
     @PostMapping("/users/{id}/profile_photo")
     public ResponseEntity<UserDto> uploadNewProfilePhoto(
             @PathVariable("id") Long userId,
