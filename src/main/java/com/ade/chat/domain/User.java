@@ -74,6 +74,12 @@ public class User implements UserDetails {
     @Builder.Default
     private Set<UnreadCounter> chatUnreadCounters = new HashSet<>();
 
+    @Column(name = "profile_photo_id")
+    private String profilePhotoId;
+
+    @Column(name = "thumbnail_id")
+    private String thumbnailPhotoId;
+
     @Override
     public String toString() {
         return "User{" + "id=" + id + ", name='" + username + "'}";
