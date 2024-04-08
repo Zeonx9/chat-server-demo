@@ -25,12 +25,15 @@ spring:
 
 
 server:
+  port: 8443
   ssl:
     key-store: classpath:keystore/intouch-ssl.p12
     key-store-type: pkcs12
     key-alias: intouch
     key-store-password: "${KEY_STORE_PASSWORD}"
     key-password: "${KEY_PASSWORD}"
+  http:
+    port: 8080
 
 minio:
   endpoint: "http://${MINIO_HOST}:9000"
