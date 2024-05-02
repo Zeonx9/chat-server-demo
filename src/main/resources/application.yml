@@ -23,6 +23,12 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
+  servlet:
+    multipart:
+      max-file-size: 128MB
+      max-request-size: 128MB
+      enabled: true
+
 
 server:
   port: 8443
