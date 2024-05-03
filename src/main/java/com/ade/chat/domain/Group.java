@@ -38,6 +38,9 @@ public class Group {
     @JoinColumn(name = "creator_id")
     private User creator;
 
+    @Column(name = "group_photo_id", nullable = true)
+    private String groupPhotoId;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

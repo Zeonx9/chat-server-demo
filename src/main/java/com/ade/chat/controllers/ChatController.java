@@ -1,5 +1,6 @@
 package com.ade.chat.controllers;
 
+import com.ade.chat.dtos.ChangeGroupChatInfoRequest;
 import com.ade.chat.dtos.ChatDto;
 import com.ade.chat.dtos.GroupRequest;
 import com.ade.chat.dtos.MessageDto;
@@ -9,9 +10,11 @@ import com.ade.chat.mappers.MessageMapper;
 import com.ade.chat.services.ChatService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -83,44 +86,75 @@ public class ChatController {
      * Добавляет нового пользователя в существующую беседу
      * @param chatId идентификатор чата
      * @param memberId идентификатор добавляемого пользователя
-     * @param invitorId идентификатор приглашающего пользователя
+     * @param authValue токен авторизации
      * @return измененный чат
      */
-    @PutMapping("/chats/{chatId}/new_member/{memberId}/invitor/{invitorId}")
+    @PutMapping("/chats/{chatId}/new_member/{memberId}")
     @Transactional
     public ResponseEntity<ChatDto> addNewChatMember(
             @PathVariable Long chatId,
             @PathVariable Long memberId,
-            @PathVariable Long invitorId
+            @RequestHeader(name = "Authorization") String authValue
     ) {
-        return ResponseEntity.ok(chatMapper.toDto(chatService.addNewMember(chatId, memberId, invitorId)));
+        return ResponseEntity.ok(chatMapper.toDto(chatService.addNewMember(chatId, memberId, authValue)));
     }
 
     /**
      * Удаляет выбранный чат, это может сделать только создатель чата
      * @param chatId идентификатор удаляемого чата
-     * @param ownerId идентификатор удаляющего пользователя
+     * @param authValue токен авторизации
      * @return удаленный чат
      */
-    @DeleteMapping("/chats/{chatId}/user/{ownerId}")
-    public ResponseEntity<ChatDto> deleteChatById(@PathVariable Long chatId, @PathVariable Long ownerId) {
-        return ResponseEntity.ok(chatMapper.toDto(chatService.deleteChatById(chatId, ownerId)));
+    @DeleteMapping("/chats/{chatId}")
+    public ResponseEntity<ChatDto> deleteChatById(@PathVariable Long chatId, @RequestHeader(name = "Authorization") String authValue) {
+        return ResponseEntity.ok(chatMapper.toDto(chatService.deleteChatById(chatId, authValue)));
     }
 
     /**
-     * Удаляет выбранный чат, это может сделать только создатель чата
+     * Удаляет члена из чата, при этом он теряет историю сообщений,
+     * может сделать это только создатель чата (или человек может выйти сам), создает вспомогательное сообщение об удалении,
+     * посылает всем членам чата уведомление
      * @param chatId идентификатор чата
-     * @param memberId идентификатор удаляемого пользователя
-     * @param deleterId идентификатор удаляющего пользователя
-     * @return удаленный чат
+     * @param memberId идентификатор удаляемого
+     * @param authValue заголовок авторизации
+     * @return измененный чат
      */
-    @PutMapping("/chats/{chatId}/delete_member/{memberId}/deleter/{deleterId}")
+    @PutMapping("/chats/{chatId}/delete_member/{memberId}")
     @Transactional
     public ResponseEntity<ChatDto> deleteChatMember(
             @PathVariable Long chatId,
             @PathVariable Long memberId,
-            @PathVariable Long deleterId
+            @RequestHeader(name = "Authorization") String authValue
     ) {
-       return ResponseEntity.ok(chatMapper.toDto(chatService.deleteMember(chatId, memberId, deleterId)));
+       return ResponseEntity.ok(chatMapper.toDto(chatService.deleteMember(chatId, memberId, authValue)));
+    }
+
+    /**
+     * Изменяет аватарку группового чата
+     * @param chatId идентификатор чата
+     * @param file файл с новой аватаркой, должен быть изображением.
+     * @return измененный объект чата
+     */
+    @PostMapping(value = "/chats/{id}/group_photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ChatDto> uploadGroupPhoto(
+            @PathVariable("id") Long chatId,
+            @RequestPart("file") MultipartFile file
+    ) {
+        return ResponseEntity.ok(chatMapper.toDto(chatService.uploadGroupPhoto(chatId, file)));
+    }
+
+    /**
+     * Изменяет название группового чата
+     * @param chatId идентификатор чата
+     * @param changeRequest объект, который содержит новый значения
+     * @return измененный чат
+     */
+    @PutMapping("chats/{id}/group_name")
+    @Transactional
+    public ResponseEntity<ChatDto> changeGroupChatName(
+            @PathVariable("id") Long chatId,
+            @RequestBody ChangeGroupChatInfoRequest changeRequest
+    ) {
+        return ResponseEntity.ok(chatMapper.toDto(chatService.changeGroupInfo(chatId, changeRequest)));
     }
 }
