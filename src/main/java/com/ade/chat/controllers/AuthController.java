@@ -1,6 +1,7 @@
-package com.ade.chat.auth;
+package com.ade.chat.controllers;
 
 import com.ade.chat.dtos.*;
+import com.ade.chat.services.AuthService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.ade.chat.config;
+package com.ade.chat.services;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

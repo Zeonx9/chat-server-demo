@@ -1,6 +1,7 @@
 package com.ade.chat.auth;
 
-import com.ade.chat.config.JwtService;
+import com.ade.chat.services.AuthService;
+import com.ade.chat.services.JwtService;
 import com.ade.chat.domain.Company;
 import com.ade.chat.domain.User;
 import com.ade.chat.dtos.AuthRequest;

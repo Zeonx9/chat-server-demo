@@ -1,6 +1,5 @@
 package com.ade.chat.domain;
 
-import com.ade.chat.auth.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;

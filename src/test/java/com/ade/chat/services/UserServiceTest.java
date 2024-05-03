@@ -1,6 +1,5 @@
 package com.ade.chat.services;
 
-import com.ade.chat.config.JwtService;
 import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.User;
 import com.ade.chat.exception.UserNotFoundException;
