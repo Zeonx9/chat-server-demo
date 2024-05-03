@@ -25,3 +25,7 @@ server:
   http:
     port: 8080
 
+jwt:
+  secret-key:
+    "some key"
+

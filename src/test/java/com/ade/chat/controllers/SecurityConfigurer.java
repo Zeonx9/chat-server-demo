@@ -1,6 +1,5 @@
 package com.ade.chat.controllers;
 
-import com.ade.chat.config.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,8 +11,8 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-public
-class SecurityConfigurer {
+public class SecurityConfigurer {
+
     @Bean
     public InMemoryUserDetailsManager userDetailsManager(PasswordEncoder encoder) {
         UserDetails user = User.withUsername("spring")
@@ -42,8 +41,8 @@ class SecurityConfigurer {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public JwtService jwtService() {
-        return new JwtService();
-    }
+//    @Bean
+//    public JwtService jwtService() {
+//        return new JwtService(SECRET_KEY);
+//    }
 }

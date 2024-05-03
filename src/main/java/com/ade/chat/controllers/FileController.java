@@ -30,7 +30,7 @@ public class FileController {
      * @param file файл для загрузи
      * @return имя сохраненного объекта (UUID)
      */
-    @PostMapping(value = "/upload")
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<String> uploadFile(@RequestPart MultipartFile file) {
         String objectName = minioService.uploadFile(file);
         if (objectName == null) {

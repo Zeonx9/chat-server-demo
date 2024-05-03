@@ -1,5 +1,6 @@
 package com.ade.chat.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -7,10 +8,11 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     private static ResponseEntity<AppError> handleTheException(Exception e, HttpStatus status) {
-        System.err.println(e.getMessage());
+        log.error("Exception: {} handled normally. Message: {}", e.getClass().getName(), e.getMessage());
         return new ResponseEntity<>(
                 new AppError(e.getMessage(), status.value()),
                 status
@@ -43,6 +45,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
+    public ResponseEntity<AppError> catchUnsupportedOperationException(UnsupportedOperationException e) {
+        return handleTheException(e, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<AppError> catchNotAMemberException(NotAMemberException e) {
         return handleTheException(e, HttpStatus.FORBIDDEN);
     }
@@ -60,5 +67,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<AppError> catchUploadFailed(UploadFailedException e) {
         return handleTheException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<AppError> catchWrongAuthHeader(WrongAuthHeaderException e) {
+        return handleTheException(e, HttpStatus.FORBIDDEN);
     }
 }

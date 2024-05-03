@@ -1,5 +1,6 @@
 package com.ade.chat.services;
 
+import com.ade.chat.config.JwtService;
 import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.User;
 import com.ade.chat.exception.UserNotFoundException;
@@ -24,13 +25,14 @@ import static org.mockito.Mockito.verify;
 class UserServiceTest {
 
     @Mock private UserRepository userRepository;
-
     @Mock private MinioService minioService;
+    @Mock private JwtService jwtService;
+
     private UserService underTest;
 
     @BeforeEach
     void setUp() {
-        underTest = new UserService(userRepository, minioService);
+        underTest = new UserService(userRepository, minioService, jwtService);
     }
 
     @Test

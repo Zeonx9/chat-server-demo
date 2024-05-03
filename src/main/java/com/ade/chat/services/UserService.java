@@ -1,20 +1,26 @@
 package com.ade.chat.services;
 
+import com.ade.chat.config.JwtService;
 import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.UnreadCounter;
 import com.ade.chat.domain.User;
 import com.ade.chat.dtos.UserDto;
 import com.ade.chat.exception.UploadFailedException;
 import com.ade.chat.exception.UserNotFoundException;
+import com.ade.chat.exception.WrongAuthHeaderException;
 import com.ade.chat.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -27,9 +33,11 @@ import java.util.function.Supplier;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     private final UserRepository userRepo;
     private final MinioService minioService;
+    private final JwtService jwtService;
 
     /**
      * @param id идентификатор запрашиваемого пользователя
@@ -148,5 +156,21 @@ public class UserService {
                 .outputQuality(1)
                 .toOutputStream(out);
         return out.toByteArray();
+    }
+
+    /**
+     * Получает юзера по переданному заголовку авторизации
+     * @param authHeaderValue заголовок из запроса
+     * @return авторизованного пользователя
+     */
+    public User getUserFromToken(String authHeaderValue) {
+        if (authHeaderValue == null || !authHeaderValue.startsWith("Bearer ")) {
+            throw new WrongAuthHeaderException("wrong authorization header used: should use 'Bearer <token>'");
+        }
+        String token = authHeaderValue.substring(7);
+        String username = jwtService.extractUsername(token);
+
+        return userRepo.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("No such user with username:" + username));
     }
 }
