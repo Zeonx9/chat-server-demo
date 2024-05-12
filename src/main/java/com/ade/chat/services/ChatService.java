@@ -16,7 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 /**
@@ -180,11 +181,14 @@ public class ChatService {
         if (!chat.getMembers().contains(invitor)) {
             throw new NotAMemberException("Invitor should be a member of a chat");
         }
+        if (chat.getMembers().contains(newMember)) {
+            throw new IllegalMemberCount("new member is already in the chat");
+        }
 
         chat.getMembers().add(newMember);
 
         Message addMemberMessage = createAuxilaryMessage(
-                String.format("%s added %s to the Chat", invitor.getUsername(), newMember.getUsername()),
+                String.format("%s added %s to the chat", invitor.getUsername(), newMember.getUsername()),
                 chat
         );
         chat.getMessages().add(addMemberMessage);
@@ -222,7 +226,7 @@ public class ChatService {
                 .isAuxiliary(true)
                 .text(text)
                 .chat(chat)
-                .dateTime(LocalDateTime.now())
+                .dateTime(OffsetDateTime.now(ZoneOffset.UTC).toLocalDateTime())
                 .build()
         );
     }
@@ -251,13 +255,13 @@ public class ChatService {
         Message deletedMemberAuxiliaryMessage;
         if (Objects.equals(memberId, deleter.getId())) {
              deletedMemberAuxiliaryMessage = createAuxilaryMessage(
-                    String.format("%s left the Chat", member.getUsername()),
+                    String.format("%s left the chat", member.getUsername()),
                     chat
             );
         }
         else {
             deletedMemberAuxiliaryMessage = createAuxilaryMessage(
-                    String.format("%s added %s to the Chat", deleter.getUsername(), member.getUsername()),
+                    String.format("%s removed %s from chat", deleter.getUsername(), member.getUsername()),
                     chat
             );
         }
