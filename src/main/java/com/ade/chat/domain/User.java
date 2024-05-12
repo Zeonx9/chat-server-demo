@@ -1,6 +1,5 @@
 package com.ade.chat.domain;
 
-import com.ade.chat.auth.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -73,6 +72,12 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     @Builder.Default
     private Set<UnreadCounter> chatUnreadCounters = new HashSet<>();
+
+    @Column(name = "profile_photo_id")
+    private String profilePhotoId;
+
+    @Column(name = "thumbnail_id")
+    private String thumbnailPhotoId;
 
     @Override
     public String toString() {

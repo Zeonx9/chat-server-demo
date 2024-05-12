@@ -24,11 +24,14 @@ import static org.mockito.Mockito.verify;
 class UserServiceTest {
 
     @Mock private UserRepository userRepository;
+    @Mock private MinioService minioService;
+    @Mock private JwtService jwtService;
+
     private UserService underTest;
 
     @BeforeEach
     void setUp() {
-        underTest = new UserService(userRepository);
+        underTest = new UserService(userRepository, minioService, jwtService);
     }
 
     @Test

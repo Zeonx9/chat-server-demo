@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Slf4j
 public class MessageController {
-
     private final MessageService messageService;
     private final MessageMapper messageMapper;
 
@@ -29,6 +28,7 @@ public class MessageController {
      * @param chatId идентификатор чата, в который будет отправлено сообщение
      * @param userId идентификатор пользователя, отправляющего сообщение
      * @param msgDto сообщение, которое будет отправлено
+     * @param attachmentId идентификатор сохраненного вложения
      * @throws com.ade.chat.exception.UserNotFoundException если неверное айди пользователя
      * @throws com.ade.chat.exception.ChatNotFoundException если неверное айди чата
      * @throws com.ade.chat.exception.NotAMemberException если пользователь не состоит в чате
@@ -37,10 +37,11 @@ public class MessageController {
     public ResponseEntity<MessageDto> sendMessage(
             @PathVariable Long userId,
             @PathVariable Long chatId,
-            @RequestBody MessageDto msgDto
+            @RequestBody MessageDto msgDto,
+            @RequestParam(name = "attachment", required = false) String attachmentId
     ) {
         log.info("message from userId={} to chatId={}", userId, chatId);
-        Message sent = messageService.sendMessage(userId, chatId, messageMapper.toEntity(msgDto));
+        Message sent = messageService.sendMessage(userId, chatId, messageMapper.toEntity(msgDto), attachmentId);
         return ResponseEntity.ok(messageMapper.toDto(sent));
     }
 }

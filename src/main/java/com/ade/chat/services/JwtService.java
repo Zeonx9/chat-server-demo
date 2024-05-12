@@ -1,4 +1,4 @@
-package com.ade.chat.config;
+package com.ade.chat.services;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +23,13 @@ import java.util.function.Function;
 @Service
 public class JwtService {
     /**
-     * ключ используемый для кодировки паролей
+     * Ключ используемый для кодировки паролей
      */
-    private final static String SECRET_KEY = "AQRP9b52oiVvvJqeNZPqev5KA9PxuCMmajdfpaidfn342HLL";
+    @Value("${jwt.secret-key}")
+    private String SECRET_KEY;
 
     /**
-     * проверяет токена на валидность
+     * Проверяет токена на валидность
      * @param token строка представляющая jwt токен
      * @param userDetails пердставляет данные о пользователе
      * @return true если токен валиден
@@ -38,7 +40,7 @@ public class JwtService {
     }
 
     /**
-     * создает новый токен для пользователя
+     * Создает новый токен для пользователя
      * @param extraClaims дополнительные данные для токена, необязательны
      * @param userDetails данные пользователя
      * @return созданный токен

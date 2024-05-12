@@ -4,7 +4,6 @@ import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
 import com.ade.chat.exception.NotAMemberException;
-import com.ade.chat.mappers.MessageMapper;
 import com.ade.chat.repositories.MessageRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -52,7 +50,7 @@ class MessageServiceTest {
         given(chatService.getChatByIdOrException(chat.getId())).willReturn(chat);
 
         // when
-        underTest.sendMessage(user.getId(), chat.getId(), msg);
+        underTest.sendMessage(user.getId(), chat.getId(), msg, null);
 
         // then
         ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
@@ -74,7 +72,7 @@ class MessageServiceTest {
         given(chatService.getChatByIdOrException(chat.getId())).willReturn(chat);
 
         //when & then
-        assertThatThrownBy(() -> underTest.sendMessage(user.getId(), chat.getId(), msg))
+        assertThatThrownBy(() -> underTest.sendMessage(user.getId(), chat.getId(), msg, null))
                 .hasMessageContaining( "This user: " + user.getId() + " is not a member of a chat: " + chat.getId())
                 .isInstanceOf(NotAMemberException.class);
     }

@@ -29,8 +29,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                .cors().and()
                 .csrf().disable()
-                .requiresChannel(channel -> channel.anyRequest().requiresSecure())
                 .authorizeHttpRequests()
                 .requestMatchers("/chat_api/v1/auth/register").hasAuthority("ADMIN")
                 .requestMatchers("/chat_api/v1/auth/company/**").hasAuthority("SUPER_ADMIN")

@@ -1,6 +1,6 @@
-package com.ade.chat.auth;
+package com.ade.chat.services;
 
-import com.ade.chat.config.JwtService;
+import com.ade.chat.domain.Role;
 import com.ade.chat.domain.Company;
 import com.ade.chat.domain.User;
 import com.ade.chat.dtos.*;
@@ -9,7 +9,6 @@ import com.ade.chat.exception.NameAlreadyTakenException;
 import com.ade.chat.mappers.CompanyMapper;
 import com.ade.chat.mappers.UserMapper;
 import com.ade.chat.repositories.UserRepository;
-import com.ade.chat.services.CompanyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

@@ -52,6 +52,9 @@ public class Message {
     @Column(name = "is_auxiliary")
     private Boolean isAuxiliary = false;
 
+    @Column(name = "attachment_id", nullable = true)
+    private String attachmentId;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

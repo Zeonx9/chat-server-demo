@@ -23,17 +23,30 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
+  servlet:
+    multipart:
+      max-file-size: 128MB
+      max-request-size: 128MB
+      enabled: true
+
 
 server:
+  port: 8443
   ssl:
     key-store: classpath:keystore/intouch-ssl.p12
     key-store-type: pkcs12
     key-alias: intouch
     key-store-password: "${KEY_STORE_PASSWORD}"
     key-password: "${KEY_PASSWORD}"
+  http:
+    port: 8080
 
 minio:
   endpoint: "http://${MINIO_HOST}:9000"
   accessKey: "${MINIO_ACCESS_KEY}"
   secretKey: "${MINIO_SECRET_KEY}"
   bucket: "${MINIO_BUCKET}"
+
+jwt:
+  secret-key:
+    "${JWT_SECRET_KEY}"

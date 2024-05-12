@@ -18,4 +18,5 @@ public class MessageDto {
     private UserDto author;
     private Long chatId;
     private Boolean isAuxiliary = false;
+    private String attachmentId;
 }

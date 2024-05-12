@@ -31,6 +31,7 @@ public class WebSocketController {
 
     @MessageMapping("/disconnect")
     @SendTo("/topic/connection")
+    @Transactional
     public ConnectEvent onUserDisconnected(@Payload UserDto user) {
         log.info("user id={} disconnected", user.getId());
         userService.setOffline(user.getId());

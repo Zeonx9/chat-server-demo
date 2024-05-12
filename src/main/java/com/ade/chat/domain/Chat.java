@@ -45,7 +45,7 @@ public class Chat {
     @Builder.Default
     private Set<User> members = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "chat")
+    @OneToMany(mappedBy = "chat", orphanRemoval = true, cascade = CascadeType.REMOVE)
     @Builder.Default
     private List<Message> messages = new ArrayList<>();
 
@@ -56,7 +56,7 @@ public class Chat {
     @JoinColumn(name = "last_message_id")
     private Message lastMessage;
 
-    @OneToMany(mappedBy = "chat")
+    @OneToMany(mappedBy = "chat", orphanRemoval = true, cascade = CascadeType.REMOVE)
     @Builder.Default
     private Set<UnreadCounter> memberUnreadCounters = new HashSet<>();
 

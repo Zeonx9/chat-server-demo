@@ -2,7 +2,6 @@ package com.ade.chat.services;
 
 import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.Group;
-import com.ade.chat.domain.Message;
 import com.ade.chat.domain.User;
 import com.ade.chat.exception.AbsentGroupInfoException;
 import com.ade.chat.exception.ChatNotFoundException;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -37,11 +35,13 @@ class ChatServiceTest {
     @Mock private UserService userService;
     @Mock private ChatMessagingTemplate messagingTemplate;
     @Mock private UnreadCounterRepository counterRepository;
+    @Mock private MinioService minioService;
+
     private ChatService underTest;
 
     @BeforeEach
     void setUp() {
-        underTest = new ChatService(messageRepository, chatRepo, userService, messagingTemplate, counterRepository);
+        underTest = new ChatService(messageRepository, chatRepo, userService, messagingTemplate, counterRepository, minioService);
     }
 
     private void givenRepositoryReturnsChat(Chat chat) {

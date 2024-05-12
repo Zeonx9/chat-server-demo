@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 /**
- * Сущность описвыющая групповой чат, личные чаты не имеют связи с такой сущностью
+ * Сущность описывающая групповой чат, личные чаты не имеют связи с такой сущностью
  */
 @Getter
 @Setter
@@ -37,6 +37,9 @@ public class Group {
     @ManyToOne
     @JoinColumn(name = "creator_id")
     private User creator;
+
+    @Column(name = "group_photo_id", nullable = true)
+    private String groupPhotoId;
 
     @Override
     public boolean equals(Object o) {

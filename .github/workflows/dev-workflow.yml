@@ -8,17 +8,17 @@ on:
 
 env:
   # tag should be the same as in .env.dev file
-  DOCKER_IMAGE_TAG: zzzzeonnnnn/chat_backend:dev-2.1
+  DOCKER_IMAGE_TAG: zzzzeonnnnn/chat_backend:dev-2.4
   HOST_FOLDER: /app/dev/
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up jdk 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -31,19 +31,19 @@ jobs:
     needs: test
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
@@ -54,7 +54,7 @@ jobs:
     needs: docker-image
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: amplium/git-crypt-action@master
         with:
           key_encoded: ${{ secrets.GIT_CRYPT_KEY }}

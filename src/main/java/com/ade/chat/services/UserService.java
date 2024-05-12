@@ -4,12 +4,22 @@ import com.ade.chat.domain.Chat;
 import com.ade.chat.domain.UnreadCounter;
 import com.ade.chat.domain.User;
 import com.ade.chat.dtos.UserDto;
+import com.ade.chat.exception.UploadFailedException;
 import com.ade.chat.exception.UserNotFoundException;
+import com.ade.chat.exception.WrongAuthHeaderException;
 import com.ade.chat.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -22,8 +32,11 @@ import java.util.function.Supplier;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     private final UserRepository userRepo;
+    private final MinioService minioService;
+    private final JwtService jwtService;
 
     /**
      * @param id идентификатор запрашиваемого пользователя
@@ -104,5 +117,59 @@ public class UserService {
      */
     public void setOffline(Long id) {
         getUserByIdOrException(id).setIsOnline(false);
+    }
+
+    public User uploadProfilePhoto(Long userId, MultipartFile file) {
+        User user = getUserByIdOrException(userId);
+        String photoId = minioService.uploadFile(file);
+        user.setProfilePhotoId(photoId);
+
+        String thumbnailId = saveThumbnailOf(file);
+        user.setThumbnailPhotoId(thumbnailId);
+
+        return userRepo.save(user);
+    }
+
+    private String saveThumbnailOf(MultipartFile file) {
+        byte [] thumbnailBytes;
+        try {
+            thumbnailBytes = createThumbnail(file.getInputStream(), "JPEG");
+        }
+        catch (IOException e) {
+            throw new UploadFailedException("Error during thumbnail creation");
+        }
+
+        return minioService.uploadFile(
+                "image/jpeg",
+                thumbnailBytes.length,
+                new ByteArrayInputStream(thumbnailBytes)
+        );
+    }
+
+    private byte[] createThumbnail(InputStream originalBytes, String format) throws IOException {
+        final int THUMBNAIL_SIZE = 96;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Thumbnails.of(originalBytes)
+                .size(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
+                .outputFormat(format)
+                .outputQuality(1)
+                .toOutputStream(out);
+        return out.toByteArray();
+    }
+
+    /**
+     * Получает юзера по переданному заголовку авторизации
+     * @param authHeaderValue заголовок из запроса
+     * @return авторизованного пользователя
+     */
+    public User getUserFromToken(String authHeaderValue) {
+        if (authHeaderValue == null || !authHeaderValue.startsWith("Bearer ")) {
+            throw new WrongAuthHeaderException("wrong authorization header used: should use 'Bearer <token>'");
+        }
+        String token = authHeaderValue.substring(7);
+        String username = jwtService.extractUsername(token);
+
+        return userRepo.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("No such user with username:" + username));
     }
 }

@@ -20,3 +20,12 @@ minio:
   secretKey: "${MINIO_SECRET_KEY}"
   bucket: "testbucket"
 
+server:
+  port: 8443
+  http:
+    port: 8080
+
+jwt:
+  secret-key:
+    "some key"
+
