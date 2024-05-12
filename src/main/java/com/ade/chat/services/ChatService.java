@@ -192,6 +192,7 @@ public class ChatService {
                 chat
         );
         chat.getMessages().add(addMemberMessage);
+        updateLastMessage(chat, addMemberMessage);
 
         messagingTemplate.sendToUserChatQueue(newMember.getId(), chat);
         messagingTemplate.sendMessageNotificationsToMembers(addMemberMessage, chat);
@@ -267,6 +268,7 @@ public class ChatService {
         }
 
         chat.getMessages().add(deletedMemberAuxiliaryMessage);
+        updateLastMessage(chat, deletedMemberAuxiliaryMessage);
         messagingTemplate.sendMessageNotificationsToMembers(deletedMemberAuxiliaryMessage, chat);
         messagingTemplate.sendToUserChatDeleteQueue(member.getId(), chat);
 
