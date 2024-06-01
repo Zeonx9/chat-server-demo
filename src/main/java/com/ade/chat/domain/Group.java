@@ -8,14 +8,13 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 /**
- * Сущность описвыющая групповой чат, личные чаты не имеют связи с такой сущностью
+ * Сущность описывающая групповой чат, личные чаты не имеют связи с такой сущностью
  */
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @Entity(name = "group")
 @Table(name = "groups")
 public class Group {
@@ -25,7 +24,6 @@ public class Group {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @ToString.Exclude
     @OneToOne(cascade = CascadeType.ALL, optional = false, orphanRemoval = true)
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
@@ -36,10 +34,12 @@ public class Group {
     @Column(name = "creation_date", nullable = false)
     private LocalDate creationDate;
 
-    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "creator_id")
     private User creator;
+
+    @Column(name = "group_photo_id", nullable = true)
+    private String groupPhotoId;
 
     @Override
     public boolean equals(Object o) {
@@ -56,5 +56,10 @@ public class Group {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "group{id=" + id + ", chat_id=" + chat.getId() + ", name=" + name + "}";
     }
 }

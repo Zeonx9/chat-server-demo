@@ -1,7 +1,5 @@
 package com.ade.chat.domain;
 
-import com.ade.chat.auth.Role;
-import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -46,17 +44,12 @@ public class User implements UserDetails {
     private Company company;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
-    @JsonIgnore
     @Builder.Default
     private List<Message> messages = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "members", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "members", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @Builder.Default
     private Set<Chat> chats = new LinkedHashSet<>();
-
-    @ManyToMany(mappedBy = "undeliveredTo")
-    @Builder.Default
-    private Set<Message> undeliveredMessages = new LinkedHashSet<>();
 
     @Column(name = "real_name")
     private String realName;
@@ -66,6 +59,25 @@ public class User implements UserDetails {
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column(name = "is_online")
+    private Boolean isOnline;
+
+    @Column(name = "patronymic")
+    private String patronymic;
+
+    @OneToMany(mappedBy = "user")
+    @Builder.Default
+    private Set<UnreadCounter> chatUnreadCounters = new HashSet<>();
+
+    @Column(name = "profile_photo_id")
+    private String profilePhotoId;
+
+    @Column(name = "thumbnail_id")
+    private String thumbnailPhotoId;
 
     @Override
     public String toString() {

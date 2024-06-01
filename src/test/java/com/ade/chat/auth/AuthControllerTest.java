@@ -1,10 +1,12 @@
 package com.ade.chat.auth;
 
+import com.ade.chat.controllers.AuthController;
 import com.ade.chat.controllers.SecurityConfigurer;
 import com.ade.chat.dtos.AuthRequest;
 import com.ade.chat.dtos.ChangePasswordRequest;
 import com.ade.chat.dtos.CompanyRegisterRequest;
 import com.ade.chat.dtos.RegisterData;
+import com.ade.chat.services.AuthService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

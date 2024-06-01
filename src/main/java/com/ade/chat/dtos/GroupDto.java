@@ -15,4 +15,5 @@ public class GroupDto {
     private String name;
     private LocalDate creationDate;
     private UserDto creator;
+    private String groupPhotoId;
 }

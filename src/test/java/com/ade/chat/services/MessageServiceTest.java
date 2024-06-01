@@ -23,6 +23,7 @@ class MessageServiceTest {
     @Mock private MessageRepository messageRepo;
     @Mock private UserService userService;
     @Mock private ChatService chatService;
+    @Mock private ChatMessagingTemplate messagingTemplate;
     private MessageService underTest;
 
     @BeforeEach
@@ -30,7 +31,8 @@ class MessageServiceTest {
         underTest = new MessageService(
                 messageRepo,
                 chatService,
-                userService
+                userService,
+                messagingTemplate
         );
     }
 
@@ -48,7 +50,7 @@ class MessageServiceTest {
         given(chatService.getChatByIdOrException(chat.getId())).willReturn(chat);
 
         // when
-        underTest.sendMessage(user.getId(), chat.getId(), msg);
+        underTest.sendMessage(user.getId(), chat.getId(), msg, null);
 
         // then
         ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
@@ -70,7 +72,7 @@ class MessageServiceTest {
         given(chatService.getChatByIdOrException(chat.getId())).willReturn(chat);
 
         //when & then
-        assertThatThrownBy(() -> underTest.sendMessage(user.getId(), chat.getId(), msg))
+        assertThatThrownBy(() -> underTest.sendMessage(user.getId(), chat.getId(), msg, null))
                 .hasMessageContaining( "This user: " + user.getId() + " is not a member of a chat: " + chat.getId())
                 .isInstanceOf(NotAMemberException.class);
     }

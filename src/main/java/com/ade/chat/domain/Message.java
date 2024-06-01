@@ -5,9 +5,7 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
-import java.util.LinkedHashSet;
 import java.util.Objects;
-import java.util.Set;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
@@ -50,19 +48,12 @@ public class Message {
     )
     private Chat chat;
 
-    @ToString.Exclude
-    @ManyToMany
     @Builder.Default
-    @JoinTable(
-            name = "messages_undelivered_to",
-            joinColumns = @JoinColumn(name = "message_id"),
-            inverseJoinColumns = @JoinColumn(name = "recipient_id")
-    )
-    private Set<User> undeliveredTo = new LinkedHashSet<>();
+    @Column(name = "is_auxiliary")
+    private Boolean isAuxiliary = false;
 
-    public void removeRecipient(User user) {
-        undeliveredTo.remove(user);
-    }
+    @Column(name = "attachment_id", nullable = true)
+    private String attachmentId;
 
     @Override
     public boolean equals(Object o) {

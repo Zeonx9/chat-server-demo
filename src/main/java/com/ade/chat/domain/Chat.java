@@ -16,7 +16,6 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
 @Builder
 @Entity(name = "chat")
 @Table(name = "chats")
@@ -46,18 +45,21 @@ public class Chat {
     @Builder.Default
     private Set<User> members = new LinkedHashSet<>();
 
-    @ToString.Exclude
-    @OneToMany(mappedBy = "chat")
+    @OneToMany(mappedBy = "chat", orphanRemoval = true, cascade = CascadeType.REMOVE)
     @Builder.Default
     private List<Message> messages = new ArrayList<>();
 
     @OneToOne(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
     private Group group;
 
-    @ToString.Exclude
     @OneToOne(orphanRemoval = true)
     @JoinColumn(name = "last_message_id")
     private Message lastMessage;
+
+    @OneToMany(mappedBy = "chat", orphanRemoval = true, cascade = CascadeType.REMOVE)
+    @Builder.Default
+    private Set<UnreadCounter> memberUnreadCounters = new HashSet<>();
+
 
     public LocalDateTime getLastMessageTime() {
         return lastMessage != null ? lastMessage.getDateTime() : LocalDateTime.MIN;
@@ -78,5 +80,10 @@ public class Chat {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "caht{id=" + id + ", private=" + isPrivate + ", last_message=" + lastMessage + ", group=" + group + "}";
     }
 }

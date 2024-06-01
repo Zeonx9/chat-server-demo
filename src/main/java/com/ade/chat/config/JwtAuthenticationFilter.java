@@ -1,5 +1,6 @@
 package com.ade.chat.config;
 
+import com.ade.chat.services.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

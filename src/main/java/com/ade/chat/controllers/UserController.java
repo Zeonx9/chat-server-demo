@@ -1,18 +1,20 @@
 package com.ade.chat.controllers;
 
-import com.ade.chat.domain.Message;
+import com.ade.chat.domain.User;
 import com.ade.chat.dtos.ChatDto;
-import com.ade.chat.dtos.MessageDto;
+import com.ade.chat.dtos.UnreadCounterDto;
 import com.ade.chat.dtos.UserDto;
 import com.ade.chat.mappers.ChatMapper;
-import com.ade.chat.mappers.MessageMapper;
+import com.ade.chat.mappers.UnreadCounterMapper;
 import com.ade.chat.mappers.UserMapper;
 import com.ade.chat.services.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -27,7 +29,7 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
     private final ChatMapper chatMapper;
-    private final MessageMapper messageMapper;
+    private final UnreadCounterMapper counterMapper;
 
     /**
      * Получает список всех пользователей системы
@@ -60,16 +62,41 @@ public class UserController {
     }
 
     /**
-     * Получает все сообщения, ранее не полученные этим пользователем
-     * @param id идентификатор пользователя
-     * @return список сообщений
-     * @throws com.ade.chat.exception.UserNotFoundException если неверен идентификатор
+     * Изменяет поля пользователя на переданные значение, игнорирует пропуски (null)
+     * обновляются поля: realName, surname, dateOfBirth
+     * @param id Идентификатор пользователя для обновления полей
+     * @param newUser содержит новые значения полей
+     * @throws com.ade.chat.exception.UserNotFoundException если id не верный
      */
     @Transactional
-    @GetMapping("/users/{id}/undelivered_messages")
-    public ResponseEntity<List<MessageDto>> getUndeliveredMessages(@PathVariable Long id) {
-        List<Message> result = userService.getUndeliveredFor(id);
-        userService.markAsDelivered(result, id);
-        return ResponseEntity.ok(messageMapper.toDtoList(result));
+    @PutMapping("/users/{id}")
+    public ResponseEntity<UserDto> updateUserData(@PathVariable Long id, @RequestBody UserDto newUser) {
+        User updatedUser = userService.updateUserData(id, newUser);
+        return ResponseEntity.ok(userMapper.toDto(updatedUser));
+    }
+
+    /**
+     * Получает счетчики непрочитанных сообщений в чатах для пользователя
+     * @param id идентификатор пользователя
+     * @return список счетчиков
+     */
+    @GetMapping("/users/{id}/chats/unread")
+    public ResponseEntity<List<UnreadCounterDto>> getUnreadInChatsForUser(@PathVariable Long id) {
+        return ResponseEntity.ok(counterMapper.toDtoList(userService.getChatCountersByUserId(id)));
+    }
+
+    /**
+     * Обновляет пользователю аватарку
+     * @param userId идентификатор пользователя
+     * @param file прикрепленный файл с новым изображением
+     * @return Обновленного пользователя
+     */
+    @PostMapping(value = "/users/{id}/profile_photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserDto> uploadNewProfilePhoto(
+            @PathVariable("id") Long userId,
+            @RequestPart("file") MultipartFile file
+    ) {
+        User updatedUser = userService.uploadProfilePhoto(userId, file);
+        return ResponseEntity.ok(userMapper.toDto(updatedUser));
     }
 }

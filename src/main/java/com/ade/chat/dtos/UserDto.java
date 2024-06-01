@@ -17,4 +17,11 @@ public class UserDto {
     private String realName;
     private String surname;
     private LocalDate dateOfBirth;
+    private String phoneNumber;
+    private Boolean isOnline;
+    private String patronymic;
+    private String profilePhotoId;
+    private String thumbnailPhotoId;
+
+
 }

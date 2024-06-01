@@ -7,17 +7,17 @@ on:
     branches: ['master']
 
 env:
-  # tag should be the same as in .env file
-  DOCKER_IMAGE_TAG: zzzzeonnnnn/chat_backend:1
+  # tag should be the same as in .env.master file
+  DOCKER_IMAGE_TAG: zzzzeonnnnn/chat_backend:2.1
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up jdk 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -30,19 +30,19 @@ jobs:
     needs: test
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
@@ -53,7 +53,10 @@ jobs:
     needs: docker-image
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: amplium/git-crypt-action@master
+        with:
+          key_encoded: ${{ secrets.GIT_CRYPT_KEY }}
 
       - name: Send .env & docker-compose.yml file to the virtual machine
         uses: appleboy/scp-action@v0.1.4
@@ -61,13 +64,13 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          source: ".env, docker-compose.yml"
+          source: ".env.master, docker-compose.yml"
           target: /app/prod/
 
       - name: Start backend service
         uses: garygrossgarten/github-action-ssh@release
         with:
-          command: cd /app/prod/ && docker compose down && docker compose pull && docker compose up -d
+          command: cd /app/prod/ && mv .env.master .env && docker compose down && docker compose pull && docker compose up -d
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}

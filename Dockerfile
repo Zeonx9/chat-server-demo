@@ -17,5 +17,9 @@ LABEL authors="musht"
 
 COPY --from=build /app/target/*.jar /usr/local/lib/chat_backend.jar
 
+# https
+EXPOSE 8443
+# http
 EXPOSE 8080
+
 ENTRYPOINT ["java","-jar","/usr/local/lib/chat_backend.jar"]

@@ -29,7 +29,7 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("No such user with name:" + username));
+                    .orElseThrow(() -> new UsernameNotFoundException("No such user with username:" + username));
     }
 
     /**
@@ -66,10 +66,5 @@ public class ApplicationConfig {
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
-    }
-
-    @Bean
-    public JwtService jwtService() {
-        return new JwtService();
     }
 }

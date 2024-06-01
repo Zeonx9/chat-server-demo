@@ -1,4 +1,4 @@
-package com.ade.chat.auth;
+package com.ade.chat.domain;
 
 /**
  * Перечисление с уровнями доступа
